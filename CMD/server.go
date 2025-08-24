@@ -15,8 +15,11 @@ func Server() {
 	// router
 	mux.HandleFunc("/home", userhandler.Home)
 	// user(seller) route
-	mux.Handle("GET /getseller", http.HandlerFunc(userhandler.GetSeller))        //Getseller route
-	mux.Handle("POST /createseller", http.HandlerFunc(userhandler.CreateSeller)) // create seller route
+	mux.Handle("GET /getseller", http.HandlerFunc(userhandler.GetSeller))                     //Getseller route
+	mux.Handle("POST /createseller", http.HandlerFunc(userhandler.CreateSeller))              // create seller route
+	mux.Handle("GET /getseller/{sellerId}", http.HandlerFunc(userhandler.GetSellerById))      // get seller by id route
+	mux.Handle("PUT /updateseller/{sellerId}", http.HandlerFunc(userhandler.UpdateSeller))    //update seller route
+	mux.Handle("DELETE /deleteseller/{sellerId}", http.HandlerFunc(userhandler.DeleteSeller)) //update seller route
 
 	//role route
 	mux.Handle("GET /getrole", http.HandlerFunc(rolehandler.GetRole))

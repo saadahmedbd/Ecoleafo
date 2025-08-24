@@ -9,6 +9,7 @@ import (
 	util "github.com/saadahmedbd/Treestore/Util"
 )
 
+// create seller function
 func CreateSeller(w http.ResponseWriter, r *http.Request) {
 	if r.Method != "POST" {
 		http.Error(w, "please provide valid method", http.StatusMethodNotAllowed)
