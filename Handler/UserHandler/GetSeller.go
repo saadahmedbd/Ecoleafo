@@ -12,6 +12,7 @@ import (
 func Home(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprint(w, "This is Home page")
 }
+
 // get seller function
 func GetSeller(w http.ResponseWriter, r *http.Request) {
 	if r.Method != "GET" {
@@ -19,8 +20,12 @@ func GetSeller(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	var Sellers []models.User
-	db := Config.DB
-	db.Find(&Sellers)
+
+	err := Config.DB.Preload("Role").Preload("Products").Find(&Sellers).Error
+	if err != nil {
+		http.Error(w, "Failed fetch user", http.StatusInternalServerError)
+		return
+	}
 	util.SendData(w, Sellers, 200)
 
 }
