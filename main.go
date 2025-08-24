@@ -1,29 +1,40 @@
 package main
 
 import (
-	"fmt"
-
+	"github.com/saadahmedbd/Treestore/CMD"
 	"github.com/saadahmedbd/Treestore/Config"
 	models "github.com/saadahmedbd/Treestore/Models"
+	util "github.com/saadahmedbd/Treestore/Util"
 )
 
 func main() {
-	Config.Connect()
 	// Run Auto Migration
-	err := Config.DB.AutoMigrate(
-		&models.User{},
-		&models.Product{},
-		&models.Category{},
-		&models.Order{},
-		&models.OrderItem{},
-		&models.Buyer{},
-		&models.CartItem{},
-		&models.Review{},
-		&models.Role{},
-	)
+	Config.Connect()
+
+	CMD.Server()
+
+	// insert user(seller data)
+	Pass := "saadahmed"
+	password, err := util.HashPassword(Pass)
 	if err != nil {
-		fmt.Println("❌ Migration failed:", err)
-	} else {
-		fmt.Println("✅ Database migrated successfully!")
+		panic(err)
 	}
+	user1 := models.User{
+		ID:         4,
+		RoleID:     2,
+		FirstName:  "saad",
+		LastName:   "ahmed",
+		Email:      "saadahmed@gmail.com",
+		Password:   password,
+		Phone:      "012345677",
+		StoreName:  "saad astore",
+		StoreDesc:  "digital product",
+		IsActive:   true,
+		IsVerified: true,
+	}
+
+	if err := models.InsertData(Config.DB, user1); err != nil {
+		panic(err)
+	}
+
 }
