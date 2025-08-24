@@ -1,6 +1,8 @@
 package models
 
 import (
+	"fmt"
+
 	"time"
 
 	"gorm.io/gorm"
@@ -8,7 +10,7 @@ import (
 
 // User represents sellers who can manage products
 type User struct {
-	ID        uint   `json:"id" gorm:"primaryKey"`
+	ID        uint   `json:"id" gorm:"primaryKey;autoIncrement"`
 	RoleID    uint   `json:"role_id" gorm:"not null"`
 	FirstName string `json:"first_name" gorm:"size:50;not null"`
 	LastName  string `json:"last_name" gorm:"size:50;not null"`
@@ -29,4 +31,14 @@ type User struct {
 	// Relationships
 	Role     Role      `json:"role" gorm:"foreignKey:RoleID"`
 	Products []Product `json:"products" gorm:"foreignKey:SellerID"` // Seller's products
+}
+
+func InsertData(db *gorm.DB, user1 User) error {
+	result := db.Create(&user1)
+
+	if result.Error != nil {
+		return result.Error
+	}
+	fmt.Println("data inserted", user1)
+	return nil
 }
