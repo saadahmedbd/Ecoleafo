@@ -116,16 +116,6 @@ func SeedData(db *gorm.DB) error {
 			DefaultAddress: "123 Main St, City, State 12345",
 			EmailVerified:  true,
 		},
-		{
-			RoleID:         buyerRole.ID,
-			FirstName:      "Mike",
-			LastName:       "Johnson",
-			Email:          "mike@customer.com",
-			Password:       buyerPassword,
-			Phone:          "+1234567894",
-			DefaultAddress: "456 Oak Ave, City, State 12345",
-			EmailVerified:  true,
-		},
 	}
 
 	for _, buyer := range buyers {

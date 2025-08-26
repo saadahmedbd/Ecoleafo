@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	buyerhandler "github.com/saadahmedbd/Treestore/Handler/BuyerHandler"
+	producthandler "github.com/saadahmedbd/Treestore/Handler/ProductHandler"
 	rolehandler "github.com/saadahmedbd/Treestore/Handler/RoleHandler"
 	userhandler "github.com/saadahmedbd/Treestore/Handler/UserHandler"
 
@@ -29,6 +30,13 @@ func Server() {
 	mux.Handle("GET /getbuyer/{buyerId}", http.HandlerFunc(buyerhandler.GetBuyerById))
 	mux.Handle("PUT /updatebuyer/{buyerId}", http.HandlerFunc(buyerhandler.UpdateBuyer))
 	mux.Handle("DELETE /deletebuyer/{buyerId}", http.HandlerFunc(buyerhandler.DeleteBuyer))
+
+	//product route
+	mux.Handle("GET /getproduct", http.HandlerFunc(producthandler.GetProduct))
+	mux.Handle("POST /createproduct", http.HandlerFunc(producthandler.CreateProduct))
+	mux.Handle("GET /getproduct/{productId}", http.HandlerFunc(producthandler.GetProductById))
+	mux.Handle("PUT /updateproduct/{productId}", http.HandlerFunc(producthandler.UpdateProduct))
+	mux.Handle("DELETE /deleteproduct/{productId}", http.HandlerFunc(producthandler.DeleteProduct))
 
 	//role route
 	mux.Handle("GET /getrole", http.HandlerFunc(rolehandler.GetRole))
