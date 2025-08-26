@@ -8,6 +8,7 @@ import (
 	cartitemhandler "github.com/saadahmedbd/Treestore/Handler/CartItemHandler"
 	categoryHandler "github.com/saadahmedbd/Treestore/Handler/CategoryHandler"
 	orderhandler "github.com/saadahmedbd/Treestore/Handler/OrderHandler"
+	orderitemhandler "github.com/saadahmedbd/Treestore/Handler/OrderItemHandler"
 	producthandler "github.com/saadahmedbd/Treestore/Handler/ProductHandler"
 	rolehandler "github.com/saadahmedbd/Treestore/Handler/RoleHandler"
 	userhandler "github.com/saadahmedbd/Treestore/Handler/UserHandler"
@@ -59,8 +60,15 @@ func Server() {
 	mux.Handle("GET /getorder", http.HandlerFunc(orderhandler.GetOrder))
 	mux.Handle("GET /getorder/{orderId}", http.HandlerFunc(orderhandler.GetOrderById))
 	mux.Handle("POST /createorder", http.HandlerFunc(orderhandler.CreateOrder))
-	mux.Handle("PUT /updateorder{orderId}", http.HandlerFunc(orderhandler.UpdateOrder))
-	mux.Handle("DELETE /deleteorder{orderId}", http.HandlerFunc(orderhandler.DeleteOrder))
+	mux.Handle("PUT /updateorder/{orderId}", http.HandlerFunc(orderhandler.UpdateOrder))
+	mux.Handle("DELETE /deleteorder/{orderId}", http.HandlerFunc(orderhandler.DeleteOrder))
+
+	//handle order item route
+	mux.Handle("GET /getorderitem", http.HandlerFunc(orderitemhandler.GetOrderItem))
+	mux.Handle("GET /getorderitem/{orderitemId}", http.HandlerFunc(orderitemhandler.GetOrderById))
+	mux.Handle("POST /createorderitem", http.HandlerFunc(orderitemhandler.CreateOrderItem))
+	mux.Handle("POST /updateorderitem/{orderitemId}", http.HandlerFunc(orderitemhandler.UpdateOrderItem))
+	mux.Handle("DELETE /deleteorderitem/{orderitemId}", http.HandlerFunc(orderitemhandler.DeleteOrderItem))
 
 	//role route
 	mux.Handle("GET /getrole", http.HandlerFunc(rolehandler.GetRole))
