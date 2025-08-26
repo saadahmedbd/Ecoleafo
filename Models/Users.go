@@ -10,16 +10,16 @@ import (
 
 // User represents sellers who can manage products
 type User struct {
-	ID        uint   `json:"id" gorm:"primaryKey;autoIncrement"`
-	RoleID    uint   `json:"role_id" gorm:"not null"`
-	FirstName string `json:"first_name" gorm:"size:50;not null"`
-	LastName  string `json:"last_name" gorm:"size:50;not null"`
-	Email     string `json:"email" gorm:"uniqueIndex;size:100;not null"`
-	Password  string `json:"-" gorm:"size:255;not null"` // Hidden in JSON
-	Phone     string `json:"phone" gorm:"size:20"`
-	StoreName string `json:"store_name" gorm:"size:100"`         // Seller's store name
-	StoreDesc string `json:"store_description" gorm:"type:text"` // Store description
-	// Commission  float64        `json:"commission" gorm:"type:decimal(5,2);default:10"` // Commission percentage
+	ID          uint           `json:"id" gorm:"primaryKey;autoIncrement"`
+	RoleID      uint           `json:"role_id" gorm:"not null"`
+	FirstName   string         `json:"first_name" gorm:"size:50;not null"`
+	LastName    string         `json:"last_name" gorm:"size:50;not null"`
+	Email       string         `json:"email" gorm:"uniqueIndex;size:100;not null"`
+	Password    string         `json:"-" gorm:"size:255;not null"` // Hidden in JSON
+	Phone       string         `json:"phone" gorm:"size:20"`
+	StoreName   string         `json:"store_name" gorm:"size:100"`                     // Seller's store name
+	StoreDesc   string         `json:"store_description" gorm:"type:text"`             // Store description
+	Commission  float64        `json:"commission" gorm:"type:decimal(5,2);default:10"` // Commission percentage
 	IsActive    bool           `json:"is_active" gorm:"default:true"`
 	IsVerified  bool           `json:"is_verified" gorm:"default:false"` // Seller verification
 	TotalSales  float64        `json:"total_sales" gorm:"type:decimal(10,2);default:0"`
