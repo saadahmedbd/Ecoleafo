@@ -7,6 +7,7 @@ import (
 	buyerhandler "github.com/saadahmedbd/Treestore/Handler/BuyerHandler"
 	cartitemhandler "github.com/saadahmedbd/Treestore/Handler/CartItemHandler"
 	categoryHandler "github.com/saadahmedbd/Treestore/Handler/CategoryHandler"
+	orderhandler "github.com/saadahmedbd/Treestore/Handler/OrderHandler"
 	producthandler "github.com/saadahmedbd/Treestore/Handler/ProductHandler"
 	rolehandler "github.com/saadahmedbd/Treestore/Handler/RoleHandler"
 	userhandler "github.com/saadahmedbd/Treestore/Handler/UserHandler"
@@ -53,6 +54,13 @@ func Server() {
 	mux.Handle("POST /createcartitem", http.HandlerFunc(cartitemhandler.CreatecartItem))
 	mux.Handle("PUT /updatecartitem/{cartitemId}", http.HandlerFunc(cartitemhandler.UpdateCartItem))
 	mux.Handle("DELETE /deletecartitem/{cartitemId}", http.HandlerFunc(cartitemhandler.DeleteCartItem))
+
+	// handle order route
+	mux.Handle("GET /getorder", http.HandlerFunc(orderhandler.GetOrder))
+	mux.Handle("GET /getorder/{orderId}", http.HandlerFunc(orderhandler.GetOrderById))
+	mux.Handle("POST /createorder", http.HandlerFunc(orderhandler.CreateOrder))
+	mux.Handle("PUT /updateorder{orderId}", http.HandlerFunc(orderhandler.UpdateOrder))
+	mux.Handle("DELETE /deleteorder{orderId}", http.HandlerFunc(orderhandler.DeleteOrder))
 
 	//role route
 	mux.Handle("GET /getrole", http.HandlerFunc(rolehandler.GetRole))
