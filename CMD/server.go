@@ -4,8 +4,10 @@ import (
 	"fmt"
 	"net/http"
 
+	buyerhandler "github.com/saadahmedbd/Treestore/Handler/BuyerHandler"
 	rolehandler "github.com/saadahmedbd/Treestore/Handler/RoleHandler"
 	userhandler "github.com/saadahmedbd/Treestore/Handler/UserHandler"
+
 	routehandler "github.com/saadahmedbd/Treestore/RouteHandler"
 )
 
@@ -19,7 +21,14 @@ func Server() {
 	mux.Handle("POST /createseller", http.HandlerFunc(userhandler.CreateSeller))              // create seller route
 	mux.Handle("GET /getseller/{sellerId}", http.HandlerFunc(userhandler.GetSellerById))      // get seller by id route
 	mux.Handle("PUT /updateseller/{sellerId}", http.HandlerFunc(userhandler.UpdateSeller))    //update seller route
-	mux.Handle("DELETE /deleteseller/{sellerId}", http.HandlerFunc(userhandler.DeleteSeller)) //update seller route
+	mux.Handle("DELETE /deleteseller/{sellerId}", http.HandlerFunc(userhandler.DeleteSeller)) //update seller
+	// buyer route
+
+	mux.Handle("GET /getbuyer", http.HandlerFunc(buyerhandler.GetBuyer))
+	mux.Handle("POST /createbuyer", http.HandlerFunc(buyerhandler.CreateBuyer))
+	mux.Handle("GET /getbuyer/{buyerId}", http.HandlerFunc(buyerhandler.GetBuyerById))
+	mux.Handle("PUT /updatebuyer/{buyerId}", http.HandlerFunc(buyerhandler.UpdateBuyer))
+	mux.Handle("DELETE /deletebuyer/{buyerId}", http.HandlerFunc(buyerhandler.DeleteBuyer))
 
 	//role route
 	mux.Handle("GET /getrole", http.HandlerFunc(rolehandler.GetRole))

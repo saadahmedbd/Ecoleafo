@@ -8,7 +8,7 @@ import (
 
 // Buyer represents customers who can place orders
 type Buyer struct {
-	ID               uint           `json:"id" gorm:"primaryKey"`
+	ID               uint           `json:"id" gorm:"primaryKey;autoIncrement"`
 	RoleID           uint           `json:"role_id" gorm:"not null"`
 	FirstName        string         `json:"first_name" gorm:"size:50;not null"`
 	LastName         string         `json:"last_name" gorm:"size:50;not null"`
