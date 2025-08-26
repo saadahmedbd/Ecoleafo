@@ -10,6 +10,7 @@ import (
 	orderhandler "github.com/saadahmedbd/Treestore/Handler/OrderHandler"
 	orderitemhandler "github.com/saadahmedbd/Treestore/Handler/OrderItemHandler"
 	producthandler "github.com/saadahmedbd/Treestore/Handler/ProductHandler"
+	reviewhandler "github.com/saadahmedbd/Treestore/Handler/ReviewHandler"
 	rolehandler "github.com/saadahmedbd/Treestore/Handler/RoleHandler"
 	userhandler "github.com/saadahmedbd/Treestore/Handler/UserHandler"
 
@@ -69,6 +70,13 @@ func Server() {
 	mux.Handle("POST /createorderitem", http.HandlerFunc(orderitemhandler.CreateOrderItem))
 	mux.Handle("POST /updateorderitem/{orderitemId}", http.HandlerFunc(orderitemhandler.UpdateOrderItem))
 	mux.Handle("DELETE /deleteorderitem/{orderitemId}", http.HandlerFunc(orderitemhandler.DeleteOrderItem))
+
+	// handle review route
+	mux.Handle("GET /getreview", http.HandlerFunc(reviewhandler.GetReview))
+	mux.Handle("GET /getreview/{reviewId}", http.HandlerFunc(reviewhandler.GetReviewById))
+	mux.Handle("POST /createreview", http.HandlerFunc(reviewhandler.CreateReview))
+	mux.Handle("PUT /updatereview/{reviewId}", http.HandlerFunc(reviewhandler.UpdateReview))
+	mux.Handle("GET /deletereview/{reviewId}", http.HandlerFunc(reviewhandler.DeleteReview))
 
 	//role route
 	mux.Handle("GET /getrole", http.HandlerFunc(rolehandler.GetRole))
