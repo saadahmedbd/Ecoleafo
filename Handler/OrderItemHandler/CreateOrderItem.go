@@ -15,10 +15,15 @@ func CreateOrderItem(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	var orderItems models.OrderItem
+
 	decode := json.NewDecoder(r.Body)
 	err := decode.Decode(&orderItems)
 	if err != nil {
 		http.Error(w, "please provide valid json", http.StatusBadRequest)
+		return
+	}
+	if orderItems.Quantity <= 0 {
+		http.Error(w, "Quantity must be greater than 0", http.StatusBadRequest)
 		return
 	}
 	result := Config.DB.Create(&orderItems)
