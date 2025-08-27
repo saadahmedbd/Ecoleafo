@@ -68,7 +68,7 @@ func Server() {
 	mux.Handle("GET /getorderitem", http.HandlerFunc(orderitemhandler.GetOrderItem))
 	mux.Handle("GET /getorderitem/{orderitemId}", http.HandlerFunc(orderitemhandler.GetOrderById))
 	mux.Handle("POST /createorderitem", http.HandlerFunc(orderitemhandler.CreateOrderItem))
-	mux.Handle("POST /updateorderitem/{orderitemId}", http.HandlerFunc(orderitemhandler.UpdateOrderItem))
+	mux.Handle("PUT /updateorderitem/{orderitemId}", http.HandlerFunc(orderitemhandler.UpdateOrderItem))
 	mux.Handle("DELETE /deleteorderitem/{orderitemId}", http.HandlerFunc(orderitemhandler.DeleteOrderItem))
 
 	// handle review route
@@ -76,7 +76,7 @@ func Server() {
 	mux.Handle("GET /getreview/{reviewId}", http.HandlerFunc(reviewhandler.GetReviewById))
 	mux.Handle("POST /createreview", http.HandlerFunc(reviewhandler.CreateReview))
 	mux.Handle("PUT /updatereview/{reviewId}", http.HandlerFunc(reviewhandler.UpdateReview))
-	mux.Handle("GET /deletereview/{reviewId}", http.HandlerFunc(reviewhandler.DeleteReview))
+	mux.Handle("DELETE /deletereview/{reviewId}", http.HandlerFunc(reviewhandler.DeleteReview))
 
 	//role route
 	mux.Handle("GET /getrole", http.HandlerFunc(rolehandler.GetRole))
