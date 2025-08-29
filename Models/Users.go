@@ -1,8 +1,6 @@
 package models
 
 import (
-	"fmt"
-
 	"time"
 
 	"gorm.io/gorm"
@@ -31,14 +29,4 @@ type User struct {
 	// Relationships
 	Role     Role      `json:"role" gorm:"foreignKey:RoleID"`
 	Products []Product `json:"products" gorm:"foreignKey:SellerID"` // Seller's products
-}
-
-func InsertData(db *gorm.DB, user1 User) error {
-	result := db.Create(&user1)
-
-	if result.Error != nil {
-		return result.Error
-	}
-	fmt.Println("data inserted", user1)
-	return nil
 }
