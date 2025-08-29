@@ -26,7 +26,7 @@ func Server() {
 	routes.CategoryRoute(mux)
 
 	// handle cartitem route
-	routes.CartItem(mux)
+	routes.CartItemRoute(mux)
 
 	// handle order route
 	routes.OrderRoute(mux)
