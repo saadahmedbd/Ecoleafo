@@ -4,9 +4,8 @@ import (
 	"fmt"
 	"net/http"
 
+	middleware "github.com/saadahmedbd/Treestore/Middleware"
 	routes "github.com/saadahmedbd/Treestore/Routes"
-
-	routehandler "github.com/saadahmedbd/Treestore/RouteHandler"
 )
 
 func Server() {
@@ -37,12 +36,12 @@ func Server() {
 
 	//role route
 	routes.RoleRoute(mux)
-
+	routes.Search_ProductRoute(mux)
 	// Handle all cors
-	globalRoute := routehandler.GlobalHandler(mux)
+	handler := middleware.Cors(mux)
 
 	fmt.Println("3000 port server is running")
-	err := http.ListenAndServe(":3000", globalRoute)
+	err := http.ListenAndServe(":3000", handler)
 	if err != nil {
 		fmt.Println("Server already used...", err)
 	}
