@@ -6,7 +6,11 @@ import (
 )
 
 func SendData(w http.ResponseWriter, Data interface{}, statusCode int) {
+
 	w.WriteHeader(statusCode)
 	encoder := json.NewEncoder(w)
-	encoder.Encode(Data)
+	err := encoder.Encode(Data)
+	if err != nil {
+		http.Error(w, "failed to encode response", http.StatusInternalServerError)
+	}
 }
