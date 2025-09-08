@@ -36,7 +36,9 @@ func Server() {
 
 	//role route
 	routes.RoleRoute(mux)
+	//handle search route
 	routes.Search_ProductRoute(mux)
+
 	// Handle all cors
 	handler := middleware.Cors(mux)
 
