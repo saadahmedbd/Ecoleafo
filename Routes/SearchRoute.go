@@ -16,4 +16,8 @@ func Search_ProductRoute(mux *http.ServeMux) {
 		middleware.Logger,
 		middleware.Cors,
 	))
+	mux.Handle("GET /product/topproduct", middleware.Chain(http.HandlerFunc(searchhandler.TopProduct),
+		middleware.Logger,
+		middleware.Cors,
+	))
 }
