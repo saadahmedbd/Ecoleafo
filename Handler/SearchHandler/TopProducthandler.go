@@ -10,7 +10,7 @@ import (
 
 func TopProduct(w http.ResponseWriter, r *http.Request) {
 	var products []models.Product
-	err:= Config.DB.Preload("Seller").Preload("Category").Preload("CartItems").Preload("OrderItems").Preload("Reviews").Raw(`
+	err := Config.DB.Preload("Seller").Preload("Category").Preload("CartItems").Preload("OrderItems").Preload("Reviews").Raw(`
 		SELECT p.*, COALESCE(AVG(r.rating), 0) AS avg_rating
 		FROM products p
 		LEFT JOIN reviews r ON r.product_id = p.id
