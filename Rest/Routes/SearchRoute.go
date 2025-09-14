@@ -3,8 +3,8 @@ package routes
 import (
 	"net/http"
 
-	searchhandler "github.com/saadahmedbd/Treestore/Handler/SearchHandler"
-	middleware "github.com/saadahmedbd/Treestore/Middleware"
+	"github.com/saadahmedbd/Treestore/Rest/Handler/SearchHandler"
+	middleware "github.com/saadahmedbd/Treestore/Rest/Middleware"
 )
 
 func Search_ProductRoute(mux *http.ServeMux) {

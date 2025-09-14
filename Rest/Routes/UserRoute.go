@@ -3,8 +3,8 @@ package routes
 import (
 	"net/http"
 
-	userhandler "github.com/saadahmedbd/Treestore/Handler/UserHandler"
-	middleware "github.com/saadahmedbd/Treestore/Middleware"
+	userhandler "github.com/saadahmedbd/Treestore/Rest/Handler/UserHandler"
+	middleware "github.com/saadahmedbd/Treestore/Rest/Middleware"
 )
 
 func UserRoute(mux *http.ServeMux) {

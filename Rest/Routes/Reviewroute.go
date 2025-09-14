@@ -3,8 +3,8 @@ package routes
 import (
 	"net/http"
 
-	reviewhandler "github.com/saadahmedbd/Treestore/Handler/ReviewHandler"
-	middleware "github.com/saadahmedbd/Treestore/Middleware"
+	reviewhandler "github.com/saadahmedbd/Treestore/Rest/Handler/ReviewHandler"
+	middleware "github.com/saadahmedbd/Treestore/Rest/Middleware"
 )
 
 func ReviewRoute(mux *http.ServeMux) {

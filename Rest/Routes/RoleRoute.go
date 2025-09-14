@@ -3,8 +3,8 @@ package routes
 import (
 	"net/http"
 
-	rolehandler "github.com/saadahmedbd/Treestore/Handler/RoleHandler"
-	middleware "github.com/saadahmedbd/Treestore/Middleware"
+	rolehandler "github.com/saadahmedbd/Treestore/Rest/Handler/RoleHandler"
+	middleware "github.com/saadahmedbd/Treestore/Rest/Middleware"
 )
 
 func RoleRoute(mux *http.ServeMux) {

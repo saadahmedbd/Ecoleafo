@@ -3,8 +3,8 @@ package routes
 import (
 	"net/http"
 
-	categoryHandler "github.com/saadahmedbd/Treestore/Handler/CategoryHandler"
-	middleware "github.com/saadahmedbd/Treestore/Middleware"
+	categoryHandler "github.com/saadahmedbd/Treestore/Rest/Handler/CategoryHandler"
+	middleware "github.com/saadahmedbd/Treestore/Rest/Middleware"
 )
 
 func CategoryRoute(mux *http.ServeMux) {

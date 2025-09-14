@@ -3,8 +3,8 @@ package routes
 import (
 	"net/http"
 
-	orderhandler "github.com/saadahmedbd/Treestore/Handler/OrderHandler"
-	middleware "github.com/saadahmedbd/Treestore/Middleware"
+	orderhandler "github.com/saadahmedbd/Treestore/Rest/Handler/OrderHandler"
+	middleware "github.com/saadahmedbd/Treestore/Rest/Middleware"
 )
 
 func OrderRoute(mux *http.ServeMux) {

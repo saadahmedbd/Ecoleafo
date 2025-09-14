@@ -3,8 +3,8 @@ package routes
 import (
 	"net/http"
 
-	cartItemHandler "github.com/saadahmedbd/Treestore/Handler/CartItemHandler"
-	middleware "github.com/saadahmedbd/Treestore/Middleware"
+	cartItemHandler "github.com/saadahmedbd/Treestore/Rest/Handler/CartItemHandler"
+	middleware "github.com/saadahmedbd/Treestore/Rest/Middleware"
 )
 
 func CartItemRoute(mux *http.ServeMux) {

@@ -3,8 +3,8 @@ package routes
 import (
 	"net/http"
 
-	buyerhandler "github.com/saadahmedbd/Treestore/Handler/BuyerHandler"
-	middleware "github.com/saadahmedbd/Treestore/Middleware"
+	buyerhandler "github.com/saadahmedbd/Treestore/Rest/Handler/BuyerHandler"
+	middleware "github.com/saadahmedbd/Treestore/Rest/Middleware"
 )
 
 func BuyerRoute(mux *http.ServeMux) {
