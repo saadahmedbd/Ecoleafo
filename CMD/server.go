@@ -3,12 +3,16 @@ package CMD
 import (
 	"fmt"
 	"net/http"
+	"os"
+	"strconv"
 
+	"github.com/saadahmedbd/Treestore/Config"
 	middleware "github.com/saadahmedbd/Treestore/Middleware"
 	routes "github.com/saadahmedbd/Treestore/Routes"
 )
 
 func Server() {
+	cnf := Config.GetConfig()
 	mux := http.NewServeMux()
 	// router
 
@@ -42,9 +46,13 @@ func Server() {
 	// Handle all cors
 	handler := middleware.Cors(mux)
 
-	fmt.Println("3000 port server is running")
-	err := http.ListenAndServe(":3000", handler)
+	address := ":" + strconv.Itoa(int(cnf.HttpPort))
+
+	fmt.Println("server is running", address)
+
+	err := http.ListenAndServe(address, handler)
 	if err != nil {
 		fmt.Println("Server already used...", err)
+		os.Exit(1)
 	}
 }
