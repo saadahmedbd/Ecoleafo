@@ -42,6 +42,9 @@ func Start(cnf Config.Config) {
 	//handle search route
 	routes.Search_ProductRoute(mux)
 
+	//handle auth route
+	routes.AuthRouth(mux)
+
 	// Handle all cors
 	handler := middleware.Cors(mux)
 

@@ -46,7 +46,6 @@ func UpdateSeller(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Update existing seller with new values
-	existingSeller.RoleID = updateData.RoleID
 	existingSeller.FirstName = updateData.FirstName
 	existingSeller.LastName = updateData.LastName
 	existingSeller.Email = updateData.Email

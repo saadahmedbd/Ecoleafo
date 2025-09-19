@@ -10,6 +10,7 @@ import (
 type Buyer struct {
 	ID               uint           `json:"id" gorm:"primaryKey;autoIncrement"`
 	RoleID           uint           `json:"role_id" gorm:"not null"`
+	UserId           uint           `json:"user_id" gorm:"uniqueindex"`
 	FirstName        string         `json:"first_name" gorm:"size:50;not null"`
 	LastName         string         `json:"last_name" gorm:"size:50;not null"`
 	Email            string         `json:"email" gorm:"uniqueIndex;size:100;not null"`
