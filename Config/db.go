@@ -50,15 +50,20 @@ func Connect() {
 		&models.Role{},
 	)
 	if err != nil {
-		fmt.Println("❌ Migration failed:", err)
+		fmt.Println(" Migration failed:", err)
 	} else {
-		fmt.Println("✅ Database migrated successfully!")
+		fmt.Println(" Database migrated successfully!")
+	}
+
+	// Migrate RegUser separately
+	if err := database.MigrateRegUser(DB); err != nil {
+		fmt.Println(" RegUser migration failed:", err)
 	}
 
 	// Seed data
 
-	if err := database.SeedData(DB); err != nil {
-		log.Fatal(" Seeding failed:", err)
-	}
+	// if err := database.SeedData(DB); err != nil {
+	// 	log.Fatal(" Seeding failed:", err)
+	// }
 
 }
