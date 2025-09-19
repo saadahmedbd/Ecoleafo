@@ -19,8 +19,8 @@ type Product struct {
 	CategoryID    uint           `json:"category_id" gorm:"not null"`
 	Price         float64        `json:"price" gorm:"type:decimal(10,2);not null"`
 	DiscountPrice float64        `json:"discount price" gorm:"type:decimal(10,2)"`
-	Height        string         `json:"height" gorm:"not null"`
-	Age           string         `json:"age" gorm:"not null"`
+	Height        string         `json:"height" gorm:"not null;default:''"`
+	Age           string         `json:"age" gorm:"not null;default:''"`
 	Quantity      int            `json:"quantity" gorm:"default:0"`
 	Image         string         `json:"image" gorm:"size:500"` // Single image only
 	IsActive      bool           `json:"is_active" gorm:"default:true"`
