@@ -44,7 +44,6 @@ func SeedData(db *gorm.DB) error {
 
 	// Create admin user
 	adminUser := models.User{
-		RoleID:     adminRole.ID,
 		FirstName:  "Admin",
 		LastName:   "User",
 		Email:      "admin@example.com",
@@ -68,7 +67,6 @@ func SeedData(db *gorm.DB) error {
 	// Create sample sellers
 	sellers := []models.User{
 		{
-			RoleID:    sellerRole.ID,
 			FirstName: "John",
 			LastName:  "Electronics",
 			Email:     "john@electronics.com",
@@ -80,7 +78,6 @@ func SeedData(db *gorm.DB) error {
 			IsVerified: true,
 		},
 		{
-			RoleID:    sellerRole.ID,
 			FirstName: "Sarah",
 			LastName:  "Fashion",
 			Email:     "sarah@fashion.com",
@@ -107,7 +104,6 @@ func SeedData(db *gorm.DB) error {
 	// Create sample buyers
 	buyers := []models.Buyer{
 		{
-			RoleID:         buyerRole.ID,
 			FirstName:      "Jane",
 			LastName:       "Customer",
 			Email:          "jane@customer.com",
