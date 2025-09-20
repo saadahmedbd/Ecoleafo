@@ -35,11 +35,22 @@ func Login(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, `{"error":"Invalid credentials"}`, http.StatusUnauthorized)
 		return
 	}
+	cnf := Config.GetConfig()
+	token, err := CreateJwt(cnf.JwtSecretKey, Payload{
+		UserId: user.ID,
+		Role:   user.Role,
+	})
+	if err != nil {
+		http.Error(w, "Error generating token", http.StatusInternalServerError)
+		return
+	}
 
 	w.Header().Set("Content-Type", "application/json")
 	response := map[string]interface{}{
 		"message": "Login successful",
 		"email":   user.Email,
+		"user id": user.ID,
+		"token":   token,
 		"role":    user.Role,
 	}
 

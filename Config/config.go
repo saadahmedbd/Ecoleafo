@@ -11,9 +11,10 @@ import (
 var configaration Config
 
 type Config struct {
-	Version     string
-	ServiceName string
-	HttpPort    int64
+	Version      string
+	ServiceName  string
+	HttpPort     int64
+	JwtSecretKey string
 }
 
 func loadConfig() {
@@ -43,11 +44,17 @@ func loadConfig() {
 		fmt.Println("requaird http port")
 		return
 	}
+	jwtSecretKey := os.Getenv("JWT_SECRET_KEY")
+	if jwtSecretKey == "" {
+		fmt.Println("required jwt secret key")
+		os.Exit(1)
+	}
 
 	configaration = Config{
-		Version:     version,
-		ServiceName: serviceName,
-		HttpPort:    Port,
+		Version:      version,
+		ServiceName:  serviceName,
+		HttpPort:     Port,
+		JwtSecretKey: jwtSecretKey,
 	}
 }
 func GetConfig() Config {
