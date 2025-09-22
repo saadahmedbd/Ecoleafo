@@ -11,9 +11,6 @@ type Buyer struct {
 	ID               uint           `json:"id" gorm:"primaryKey;autoIncrement"`
 	RoleID           uint           `json:"role_id" gorm:"not null"`
 	UserId           uint           `json:"user_id" gorm:"uniqueindex"`
-	FirstName        string         `json:"first_name" gorm:"size:50;not null"`
-	LastName         string         `json:"last_name" gorm:"size:50;not null"`
-	Email            string         `json:"email" gorm:"uniqueIndex;size:100;not null"`
 	Password         string         `json:"-" gorm:"size:255;not null"` // Hidden in JSON
 	Phone            string         `json:"phone" gorm:"size:20"`
 	DefaultAddress   string         `json:"default_address" gorm:"type:text"`
