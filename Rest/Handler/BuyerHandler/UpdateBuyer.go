@@ -43,9 +43,7 @@ func UpdateBuyer(w http.ResponseWriter, r *http.Request) {
 	} else {
 		UpdateBuyers.Password = existingBuyer.Password // keep old password
 	}
-	existingBuyer.FirstName = UpdateBuyers.FirstName
-	existingBuyer.LastName = UpdateBuyers.LastName
-	existingBuyer.Email = UpdateBuyers.Email
+
 	existingBuyer.Password = UpdateBuyers.Password
 	existingBuyer.Phone = UpdateBuyers.Phone
 	existingBuyer.DefaultAddress = UpdateBuyers.DefaultAddress

@@ -44,6 +44,8 @@ func Start(cnf Config.Config) {
 
 	//handle auth route
 	routes.AuthRouth(mux)
+	//handle profile
+	routes.Profile(mux)
 
 	// Handle all cors
 	handler := middleware.Cors(mux)

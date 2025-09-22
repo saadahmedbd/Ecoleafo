@@ -46,9 +46,7 @@ func UpdateSeller(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Update existing seller with new values
-	existingSeller.FirstName = updateData.FirstName
-	existingSeller.LastName = updateData.LastName
-	existingSeller.Email = updateData.Email
+	existingSeller.BusinessEmail = updateData.BusinessEmail
 	existingSeller.Password = updateData.Password
 	existingSeller.Phone = updateData.Phone
 	existingSeller.StoreName = updateData.StoreName

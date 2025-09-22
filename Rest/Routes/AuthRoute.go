@@ -14,6 +14,5 @@ func AuthRouth(mux *http.ServeMux) {
 	mux.Handle("POST /registation", middleware.Chain(http.HandlerFunc(authhandler.Registation),
 		middleware.Cors,
 		middleware.Logger,
-		middleware.AuthenticateJWT,
 	))
 }

@@ -13,6 +13,7 @@ func ProductRoute(mux *http.ServeMux) {
 	))
 	mux.Handle("POST /createproduct", middleware.Chain(http.HandlerFunc(producthandler.CreateProduct),
 		middleware.Logger,
+		middleware.AuthenticateJWT,
 	))
 	mux.Handle("GET /getproduct/{productId}", middleware.Chain(http.HandlerFunc(producthandler.GetProductById),
 		middleware.Logger,
