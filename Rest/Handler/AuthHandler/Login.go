@@ -2,7 +2,9 @@ package authhandler
 
 import (
 	"encoding/json"
+
 	"net/http"
+	"time"
 
 	"github.com/saadahmedbd/Treestore/Config"
 	models "github.com/saadahmedbd/Treestore/Models"
@@ -48,26 +50,33 @@ func Login(w http.ResponseWriter, r *http.Request) {
 	if err := Config.DB.Where("user_id = ?", user.ID).First(&seller).Error; err == nil {
 		roles = append(roles, "seller")
 	}
-
-	cnf := Config.GetConfig()
-	token, err := util.CreateJwt(cnf.JwtSecretKey, util.Payload{
-		UserId:    user.ID,
-		Role:      user.Role,
-		FirstName: user.FirstName,
-		LastName:  user.LastName,
-	})
+	token, err := util.CreateJwt(user.ID, user.FirstName, user.LastName, roles, 24*time.Hour)
 	if err != nil {
 		http.Error(w, "Error generating token", http.StatusInternalServerError)
 		return
 	}
 
+	// cnf := Config.GetConfig()
+	// token, err := util.CreateJwt(cnf.JwtSecretKey, util.Payload{
+	// 	UserId:    user.ID,
+	// 	Role:      user.Role,
+	// 	FirstName: user.FirstName,
+	// 	LastName:  user.LastName,
+	// })
+	// if err != nil {
+	// 	http.Error(w, "Error generating token", http.StatusInternalServerError)
+	// 	return
+	// }
+
 	w.Header().Set("Content-Type", "application/json")
 	response := map[string]interface{}{
-		"message": "Login successful",
-		"email":   user.Email,
-		"user id": user.ID,
-		"token":   token,
-		"role":    user.Role,
+		"message":    "Login successful",
+		"email":      user.Email,
+		"user id":    user.ID,
+		"token":      token,
+		"role":       user.Role,
+		"first_name": user.FirstName,
+		"last_name":  user.LastName,
 	}
 
 	json.NewEncoder(w).Encode(response)
