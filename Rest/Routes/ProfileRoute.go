@@ -9,6 +9,11 @@ import (
 
 func Profile(mux *http.ServeMux) {
 	mux.Handle("POST /createbuyerprofile", middleware.Chain(http.HandlerFunc(profilehandler.CompleteBuyerProfile),
+		middleware.AuthenticateJWT,
+		middleware.Logger,
+	))
+	mux.Handle("POST /createsellerprofile", middleware.Chain(http.HandlerFunc(profilehandler.CompleteSeller),
+		middleware.AuthenticateJWT,
 		middleware.Logger,
 	))
 }
