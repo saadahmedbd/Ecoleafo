@@ -12,37 +12,37 @@ import (
 
 func CreateProduct(w http.ResponseWriter, r *http.Request) {
 	// Get claims from context
-	claims, ok := r.Context().Value("claims").(map[string]interface{})
-	if !ok {
-		http.Error(w, `{"error":"Unauthorized: No claims found"}`, http.StatusUnauthorized)
-		return
-	}
+	// claims, ok := r.Context().Value("claims").(map[string]interface{})
+	// if !ok {
+	// 	http.Error(w, `{"error":"Unauthorized: No claims found"}`, http.StatusUnauthorized)
+	// 	return
+	// }
 
-	// Check if user has "seller" role
-	roles, ok := claims["roles"].([]interface{})
-	if !ok {
-		http.Error(w, `{"error":"Unauthorized: Invalid roles format"}`, http.StatusUnauthorized)
-		return
-	}
-	hasSellerRole := false
-	for _, role := range roles {
-		if role == "seller" {
-			hasSellerRole = true
-			break
-		}
-	}
-	if !hasSellerRole {
-		http.Error(w, `{"error":"Unauthorized: Only sellers can post products"}`, http.StatusForbidden)
-		return
-	}
+	// // Check if user has "seller" role
+	// roles, ok := claims["roles"].([]interface{})
+	// if !ok {
+	// 	http.Error(w, `{"error":"Unauthorized: Invalid roles format"}`, http.StatusUnauthorized)
+	// 	return
+	// }
+	// hasSellerRole := false
+	// for _, role := range roles {
+	// 	if role == "seller" {
+	// 		hasSellerRole = true
+	// 		break
+	// 	}
+	// }
+	// if !hasSellerRole {
+	// 	http.Error(w, `{"error":"Unauthorized: Only sellers can post products"}`, http.StatusForbidden)
+	// 	return
+	// }
 
-	// Get user_id from claims
-	userIDFloat, ok := claims["user_id"].(float64)
-	if !ok {
-		http.Error(w, `{"error":"Unauthorized: Invalid user_id format"}`, http.StatusUnauthorized)
-		return
-	}
-	userID := uint(userIDFloat)
+	// // Get user_id from claims
+	// userIDFloat, ok := claims["user_id"].(float64)
+	// if !ok {
+	// 	http.Error(w, `{"error":"Unauthorized: Invalid user_id format"}`, http.StatusUnauthorized)
+	// 	return
+	// }
+	// userID := uint(userIDFloat)
 
 	if r.Method != "POST" {
 		http.Error(w, "Please provide valid request", http.StatusBadRequest)
