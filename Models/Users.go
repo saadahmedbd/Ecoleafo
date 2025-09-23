@@ -15,9 +15,10 @@ type User struct {
 	BusinessEmail string         `json:"business_email" gorm:"uniqueIndex;size:100;default:'N/A'"`
 	Password      string         `json:"-" gorm:"size:255;not null"` // Hidden in JSON
 	Phone         string         `json:"phone" gorm:"size:20"`
-	StoreName     string         `json:"store_name" gorm:"size:100;not null"`             // Seller's store name
-	StoreDesc     string         `json:"store_description" gorm:"type:text"`              // Store description
-	Commission    float64        `json:"commission" gorm:"type:decimal(5,2);default:10" ` // Commission percentage
+	StoreName     string         `json:"store_name" gorm:"size:100;not null"` // Seller's store name
+	StoreDesc     string         `json:"store_description" gorm:"type:text"`  // Store description
+	Commission    float64        `json:"commission" gorm:"type:decimal(5,2);default:10" `
+	Address       string         `json:"address" gorm:"type:text;default:'N/A';not null"` // Seller's address // Commission percentage
 	IsActive      bool           `json:"is_active" gorm:"default:true"`
 	IsVerified    bool           `json:"is_verified" gorm:"default:false"` // Seller verification
 	TotalSales    float64        `json:"total_sales" gorm:"type:decimal(10,2);default:0"`
