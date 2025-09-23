@@ -13,7 +13,7 @@ type RegUser struct {
 	Email      string    `json:"email" gorm:"uniqueIndex;size:100;not null"`
 	Password   string    `json:"password" gorm:"size:255;not null"`
 	Role       string    `json:"role" gorm:"size:20;not null"` // buyer, seller, admin
-	Created_At time.Time `json:"created_at`
+	Created_At time.Time `json:"created_at"`
 }
 
 func (u *RegUser) CheckPassword(password string) error {
