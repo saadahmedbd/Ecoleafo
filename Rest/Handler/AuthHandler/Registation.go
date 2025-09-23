@@ -5,6 +5,7 @@ import (
 	"errors"
 	"net/http"
 	"regexp"
+	"time"
 
 	"github.com/saadahmedbd/Treestore/Config"
 	models "github.com/saadahmedbd/Treestore/Models"
@@ -66,10 +67,11 @@ func Registation(w http.ResponseWriter, r *http.Request) {
 
 	//email, password and role save in reqUser field
 	user := models.RegUser{
-		FirstName: req.FirstName,
-		LastName:  req.LastName,
-		Email:     req.Email,
-		Password:  hashed,
+		FirstName:  req.FirstName,
+		LastName:   req.LastName,
+		Email:      req.Email,
+		Password:   hashed,
+		Created_At: time.Now(),
 	}
 	if err := tx.Create(&user).Error; err != nil {
 		tx.Rollback()
