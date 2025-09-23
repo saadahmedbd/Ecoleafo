@@ -15,4 +15,8 @@ func AuthRouth(mux *http.ServeMux) {
 		middleware.Cors,
 		middleware.Logger,
 	))
+	mux.Handle("GET /getuser", middleware.Chain(http.HandlerFunc(authhandler.Account),
+
+		middleware.Logger,
+	))
 }

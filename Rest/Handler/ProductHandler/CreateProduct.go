@@ -6,17 +6,44 @@ import (
 
 	"github.com/saadahmedbd/Treestore/Config"
 	models "github.com/saadahmedbd/Treestore/Models"
-	middleware "github.com/saadahmedbd/Treestore/Rest/Middleware"
+
 	util "github.com/saadahmedbd/Treestore/Util"
 )
 
 func CreateProduct(w http.ResponseWriter, r *http.Request) {
-	// Get seller ID from context
-	sellerID, ok := r.Context().Value(middleware.UserIDKey).(uint)
+	// Get claims from context
+	claims, ok := r.Context().Value("claims").(map[string]interface{})
 	if !ok {
-		http.Error(w, "unauthorized", http.StatusUnauthorized)
+		http.Error(w, `{"error":"Unauthorized: No claims found"}`, http.StatusUnauthorized)
 		return
 	}
+
+	// Check if user has "seller" role
+	roles, ok := claims["roles"].([]interface{})
+	if !ok {
+		http.Error(w, `{"error":"Unauthorized: Invalid roles format"}`, http.StatusUnauthorized)
+		return
+	}
+	hasSellerRole := false
+	for _, role := range roles {
+		if role == "seller" {
+			hasSellerRole = true
+			break
+		}
+	}
+	if !hasSellerRole {
+		http.Error(w, `{"error":"Unauthorized: Only sellers can post products"}`, http.StatusForbidden)
+		return
+	}
+
+	// Get user_id from claims
+	userIDFloat, ok := claims["user_id"].(float64)
+	if !ok {
+		http.Error(w, `{"error":"Unauthorized: Invalid user_id format"}`, http.StatusUnauthorized)
+		return
+	}
+	userID := uint(userIDFloat)
+
 	if r.Method != "POST" {
 		http.Error(w, "Please provide valid request", http.StatusBadRequest)
 		return
@@ -28,7 +55,7 @@ func CreateProduct(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "please provide valid json", http.StatusBadRequest)
 		return
 	}
-	products.SellerID = sellerID
+	// products.SellerID = sellerID
 	result := Config.DB.Create(&products)
 	if result.Error != nil {
 		http.Error(w, result.Error.Error(), http.StatusInternalServerError)

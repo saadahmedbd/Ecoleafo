@@ -13,6 +13,7 @@ func CategoryRoute(mux *http.ServeMux) {
 	))
 	mux.Handle("POST /createcategory", middleware.Chain(http.HandlerFunc(categoryHandler.CreateCategory),
 		middleware.Logger,
+		middleware.AuthenticateJWT,
 	))
 	mux.Handle("GET /getcategory/{categoryId}", middleware.Chain(http.HandlerFunc(categoryHandler.GetCategoryById),
 		middleware.Logger,
