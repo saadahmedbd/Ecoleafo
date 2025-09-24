@@ -8,7 +8,7 @@ import (
 	util "github.com/saadahmedbd/Treestore/Util"
 )
 
-func GetCategory(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) GetCategory(w http.ResponseWriter, r *http.Request) {
 	if r.Method != "GET" {
 		http.Error(w, "please provide valid request", http.StatusBadRequest)
 		return

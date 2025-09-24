@@ -9,6 +9,7 @@ import (
 	"github.com/saadahmedbd/Treestore/Config"
 	buyerhandler "github.com/saadahmedbd/Treestore/Rest/Handler/BuyerHandler"
 	cartitemhandler "github.com/saadahmedbd/Treestore/Rest/Handler/CartItemHandler"
+	categoryHandler "github.com/saadahmedbd/Treestore/Rest/Handler/CategoryHandler"
 	middleware "github.com/saadahmedbd/Treestore/Rest/Middleware"
 	routes "github.com/saadahmedbd/Treestore/Rest/Routes"
 )
@@ -17,15 +18,18 @@ import (
 type Server struct {
 	buyerHandler    *buyerhandler.Handler
 	cartitemhandler *cartitemhandler.Handler
+	categoryHandler *categoryHandler.Handler
 }
 
 func NewServer(
 	buyerHandler *buyerhandler.Handler,
 	cartitemHandler *cartitemhandler.Handler,
+	categoryHandler *categoryHandler.Handler,
 ) *Server {
 	return &Server{
 		buyerHandler:    buyerHandler,
 		cartitemhandler: cartitemHandler,
+		categoryHandler: categoryHandler,
 	}
 
 }
@@ -40,12 +44,10 @@ func (server *Server) Start(cnf Config.Config) {
 	// buyer route
 	server.buyerHandler.BuyerRoute(mux)
 	server.cartitemhandler.CartItemRoute(mux)
+	server.categoryHandler.CategoryRoute(mux)
 
 	//product route
 	routes.ProductRoute(mux)
-
-	//category route
-	routes.CategoryRoute(mux)
 
 	// handle cartitem route
 
