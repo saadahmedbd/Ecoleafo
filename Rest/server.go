@@ -7,6 +7,7 @@ import (
 	"strconv"
 
 	"github.com/saadahmedbd/Treestore/Config"
+	authhandler "github.com/saadahmedbd/Treestore/Rest/Handler/AuthHandler"
 	buyerhandler "github.com/saadahmedbd/Treestore/Rest/Handler/BuyerHandler"
 	cartitemhandler "github.com/saadahmedbd/Treestore/Rest/Handler/CartItemHandler"
 	categoryHandler "github.com/saadahmedbd/Treestore/Rest/Handler/CategoryHandler"
@@ -20,7 +21,6 @@ import (
 	userhandler "github.com/saadahmedbd/Treestore/Rest/Handler/UserHandler"
 
 	middleware "github.com/saadahmedbd/Treestore/Rest/Middleware"
-	routes "github.com/saadahmedbd/Treestore/Rest/Routes"
 )
 
 // crete dependency
@@ -36,6 +36,7 @@ type Server struct {
 	rolehandler      *rolehandler.Handler
 	searchhandler    *searchhandler.Handler
 	userhandler      *userhandler.Handler
+	authhandler      *authhandler.Handler
 }
 
 func NewServer(
@@ -50,6 +51,8 @@ func NewServer(
 	rolehandler *rolehandler.Handler,
 	searchHandler *searchhandler.Handler,
 	userHandler *userhandler.Handler,
+	authhandler *authhandler.Handler,
+
 ) *Server {
 	return &Server{
 		buyerHandler:     buyerHandler,
@@ -63,6 +66,7 @@ func NewServer(
 		rolehandler:      rolehandler,
 		searchhandler:    searchHandler,
 		userhandler:      userHandler,
+		authhandler:      authhandler,
 	}
 
 }
@@ -82,9 +86,7 @@ func (server *Server) Start(cnf Config.Config) {
 	server.rolehandler.RoleRoute(mux)
 	server.searchhandler.Search_ProductRoute(mux)
 	server.userhandler.UserRoute(mux)
-
-	//handle auth route
-	routes.AuthRouth(mux)
+	server.authhandler.AuthRouth(mux)
 
 	// Handle all cors
 	handler := middleware.Cors(mux)

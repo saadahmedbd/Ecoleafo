@@ -3,6 +3,7 @@ package CMD
 import (
 	"github.com/saadahmedbd/Treestore/Config"
 	rest "github.com/saadahmedbd/Treestore/Rest"
+	authhandler "github.com/saadahmedbd/Treestore/Rest/Handler/AuthHandler"
 	buyerhandler "github.com/saadahmedbd/Treestore/Rest/Handler/BuyerHandler"
 	cartitemhandler "github.com/saadahmedbd/Treestore/Rest/Handler/CartItemHandler"
 	categoryHandler "github.com/saadahmedbd/Treestore/Rest/Handler/CategoryHandler"
@@ -29,6 +30,7 @@ func Server() {
 	rolehandler := rolehandler.NewHandler()
 	searchhandler := searchhandler.NewHandler()
 	userhandler := userhandler.NewHandler()
+	authhandler := authhandler.NewHandler()
 
 	server := rest.NewServer(buyerhandler,
 		cartitemhandler,
@@ -41,6 +43,7 @@ func Server() {
 		rolehandler,
 		searchhandler,
 		userhandler,
+		authhandler,
 	)
 	server.Start(cnf)
 

@@ -24,7 +24,7 @@ type RegistationReq struct {
 
 var emailRegex = regexp.MustCompile(`^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$`)
 
-func Registation(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) Registation(w http.ResponseWriter, r *http.Request) {
 	var req RegistationReq
 	decoder := json.NewDecoder(r.Body)
 	err := decoder.Decode(&req)

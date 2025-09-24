@@ -8,7 +8,7 @@ import (
 	util "github.com/saadahmedbd/Treestore/Util"
 )
 
-func Account(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) Account(w http.ResponseWriter, r *http.Request) {
 	var regAccount []models.RegUser
 	if err := Config.DB.Find(&regAccount).Error; err != nil {
 		http.Error(w, "Error finding user", http.StatusInternalServerError)
