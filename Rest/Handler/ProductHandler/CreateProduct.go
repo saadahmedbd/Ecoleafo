@@ -10,7 +10,7 @@ import (
 	util "github.com/saadahmedbd/Treestore/Util"
 )
 
-func CreateProduct(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) CreateProduct(w http.ResponseWriter, r *http.Request) {
 	// Get claims from context
 	// claims, ok := r.Context().Value("claims").(map[string]interface{})
 	// if !ok {
