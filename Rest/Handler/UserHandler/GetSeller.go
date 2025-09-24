@@ -1,7 +1,7 @@
 package userhandler
 
 import (
-	"fmt"
+
 	"net/http"
 
 	"github.com/saadahmedbd/Treestore/Config"
@@ -9,12 +9,10 @@ import (
 	util "github.com/saadahmedbd/Treestore/Util"
 )
 
-func Home(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprint(w, "This is Home page")
-}
+
 
 // get seller function
-func GetSeller(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) GetSeller(w http.ResponseWriter, r *http.Request) {
 	if r.Method != "GET" {
 		http.Error(w, "Please provide valid Method", http.StatusBadRequest)
 		return

@@ -11,7 +11,7 @@ import (
 	util "github.com/saadahmedbd/Treestore/Util"
 )
 
-func UpdateSeller(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) UpdateSeller(w http.ResponseWriter, r *http.Request) {
 	if r.Method != "PUT" {
 		http.Error(w, "Please provide valid method", http.StatusBadRequest)
 		return
