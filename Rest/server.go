@@ -11,16 +11,19 @@ import (
 	cartitemhandler "github.com/saadahmedbd/Treestore/Rest/Handler/CartItemHandler"
 	categoryHandler "github.com/saadahmedbd/Treestore/Rest/Handler/CategoryHandler"
 	orderhandler "github.com/saadahmedbd/Treestore/Rest/Handler/OrderHandler"
+	orderitemhandler "github.com/saadahmedbd/Treestore/Rest/Handler/OrderItemHandler"
+
 	middleware "github.com/saadahmedbd/Treestore/Rest/Middleware"
 	routes "github.com/saadahmedbd/Treestore/Rest/Routes"
 )
 
 // crete dependency
 type Server struct {
-	buyerHandler    *buyerhandler.Handler
-	cartitemhandler *cartitemhandler.Handler
-	categoryHandler *categoryHandler.Handler
-	orderhandler    *orderhandler.Handler
+	buyerHandler     *buyerhandler.Handler
+	cartitemhandler  *cartitemhandler.Handler
+	categoryHandler  *categoryHandler.Handler
+	orderhandler     *orderhandler.Handler
+	orderitemhandler *orderitemhandler.Handler
 }
 
 func NewServer(
@@ -28,12 +31,14 @@ func NewServer(
 	cartitemHandler *cartitemhandler.Handler,
 	categoryHandler *categoryHandler.Handler,
 	orderHandler *orderhandler.Handler,
+	orderitemHandler *orderitemhandler.Handler,
 ) *Server {
 	return &Server{
-		buyerHandler:    buyerHandler,
-		cartitemhandler: cartitemHandler,
-		categoryHandler: categoryHandler,
-		orderhandler:    orderHandler,
+		buyerHandler:     buyerHandler,
+		cartitemhandler:  cartitemHandler,
+		categoryHandler:  categoryHandler,
+		orderhandler:     orderHandler,
+		orderitemhandler: orderitemHandler,
 	}
 
 }
@@ -50,12 +55,11 @@ func (server *Server) Start(cnf Config.Config) {
 	server.cartitemhandler.CartItemRoute(mux)
 	server.categoryHandler.CategoryRoute(mux)
 	server.orderhandler.OrderRoute(mux)
+	server.orderitemhandler.OrderItemRoute(mux)
 
 	//product route
 	routes.ProductRoute(mux)
 
-	//handle order item route
-	routes.OrderItemRoute(mux)
 	// handle review route
 	routes.ReviewRoute(mux)
 
