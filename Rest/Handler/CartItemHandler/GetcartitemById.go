@@ -9,7 +9,7 @@ import (
 	util "github.com/saadahmedbd/Treestore/Util"
 )
 
-func GetcartItemById(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) GetcartItemById(w http.ResponseWriter, r *http.Request) {
 	cartItemId := r.PathValue("cartitemId")
 	sId, err := strconv.Atoi(cartItemId)
 	if err != nil {

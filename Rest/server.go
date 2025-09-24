@@ -8,20 +8,24 @@ import (
 
 	"github.com/saadahmedbd/Treestore/Config"
 	buyerhandler "github.com/saadahmedbd/Treestore/Rest/Handler/BuyerHandler"
+	cartitemhandler "github.com/saadahmedbd/Treestore/Rest/Handler/CartItemHandler"
 	middleware "github.com/saadahmedbd/Treestore/Rest/Middleware"
 	routes "github.com/saadahmedbd/Treestore/Rest/Routes"
 )
 
 // crete dependency
 type Server struct {
-	buyerHandler *buyerhandler.Handler
+	buyerHandler    *buyerhandler.Handler
+	cartitemhandler *cartitemhandler.Handler
 }
 
 func NewServer(
 	buyerHandler *buyerhandler.Handler,
+	cartitemHandler *cartitemhandler.Handler,
 ) *Server {
 	return &Server{
-		buyerHandler: buyerHandler,
+		buyerHandler:    buyerHandler,
+		cartitemhandler: cartitemHandler,
 	}
 
 }
@@ -35,6 +39,7 @@ func (server *Server) Start(cnf Config.Config) {
 
 	// buyer route
 	server.buyerHandler.BuyerRoute(mux)
+	server.cartitemhandler.CartItemRoute(mux)
 
 	//product route
 	routes.ProductRoute(mux)
@@ -43,7 +48,6 @@ func (server *Server) Start(cnf Config.Config) {
 	routes.CategoryRoute(mux)
 
 	// handle cartitem route
-	routes.CartItemRoute(mux)
 
 	// handle order route
 	routes.OrderRoute(mux)

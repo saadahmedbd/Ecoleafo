@@ -9,7 +9,7 @@ import (
 	models "github.com/saadahmedbd/Treestore/Models"
 )
 
-func DeleteCartItem(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) DeleteCartItem(w http.ResponseWriter, r *http.Request) {
 	if r.Method != "DELETE" {
 		http.Error(w, "Please provide valid request", http.StatusBadRequest)
 		return

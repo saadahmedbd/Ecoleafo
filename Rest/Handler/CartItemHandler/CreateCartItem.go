@@ -9,7 +9,7 @@ import (
 	util "github.com/saadahmedbd/Treestore/Util"
 )
 
-func CreatecartItem(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) CreatecartItem(w http.ResponseWriter, r *http.Request) {
 	if r.Method != "POST" {
 		http.Error(w, "Please provide valid request", http.StatusBadRequest)
 		return
