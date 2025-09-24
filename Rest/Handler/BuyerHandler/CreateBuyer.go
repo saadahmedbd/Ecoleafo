@@ -9,7 +9,7 @@ import (
 	util "github.com/saadahmedbd/Treestore/Util"
 )
 
-func CreateBuyer(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) CreateBuyer(w http.ResponseWriter, r *http.Request) {
 	if r.Method != "POST" {
 		http.Error(w, "please provide valid method", http.StatusMethodNotAllowed)
 		return

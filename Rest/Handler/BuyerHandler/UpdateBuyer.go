@@ -10,7 +10,7 @@ import (
 	util "github.com/saadahmedbd/Treestore/Util"
 )
 
-func UpdateBuyer(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) UpdateBuyer(w http.ResponseWriter, r *http.Request) {
 	if r.Method != "PUT" {
 		http.Error(w, "plaease provide valid method", http.StatusBadRequest)
 		return

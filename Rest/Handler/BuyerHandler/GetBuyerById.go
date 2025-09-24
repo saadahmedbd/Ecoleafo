@@ -9,7 +9,7 @@ import (
 	util "github.com/saadahmedbd/Treestore/Util"
 )
 
-func GetBuyerById(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) GetBuyerById(w http.ResponseWriter, r *http.Request) {
 	BuyerId := r.PathValue("buyerId")
 	id, err := strconv.Atoi(BuyerId)
 	if err != nil {

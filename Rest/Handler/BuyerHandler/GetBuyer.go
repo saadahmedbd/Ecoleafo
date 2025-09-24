@@ -8,7 +8,7 @@ import (
 	util "github.com/saadahmedbd/Treestore/Util"
 )
 
-func GetBuyer(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) GetBuyer(w http.ResponseWriter, r *http.Request) {
 	if r.Method != "GET" {
 		http.Error(w, "Please provide valid Method", http.StatusBadRequest)
 		return
