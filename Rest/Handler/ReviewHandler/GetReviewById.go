@@ -9,7 +9,7 @@ import (
 	util "github.com/saadahmedbd/Treestore/Util"
 )
 
-func GetReviewById(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) GetReviewById(w http.ResponseWriter, r *http.Request) {
 	reviewId := r.PathValue("reviewId")
 	sId, err := strconv.Atoi(reviewId)
 	if err != nil {

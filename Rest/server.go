@@ -14,6 +14,7 @@ import (
 	orderitemhandler "github.com/saadahmedbd/Treestore/Rest/Handler/OrderItemHandler"
 	producthandler "github.com/saadahmedbd/Treestore/Rest/Handler/ProductHandler"
 	profilehandler "github.com/saadahmedbd/Treestore/Rest/Handler/ProfileHandler"
+	reviewhandler "github.com/saadahmedbd/Treestore/Rest/Handler/ReviewHandler"
 
 	middleware "github.com/saadahmedbd/Treestore/Rest/Middleware"
 	routes "github.com/saadahmedbd/Treestore/Rest/Routes"
@@ -28,6 +29,7 @@ type Server struct {
 	orderitemhandler *orderitemhandler.Handler
 	producthandler   *producthandler.Handler
 	profilehandler   *profilehandler.Handler
+	reviewhandler *reviewhandler.Handler
 }
 
 func NewServer(
@@ -38,6 +40,7 @@ func NewServer(
 	orderitemHandler *orderitemhandler.Handler,
 	productHandler *producthandler.Handler,
 	profileHandler *profilehandler.Handler,
+	reviewHandler *reviewhandler.Handler,
 ) *Server {
 	return &Server{
 		buyerHandler:     buyerHandler,
@@ -47,6 +50,7 @@ func NewServer(
 		orderitemhandler: orderitemHandler,
 		producthandler:   productHandler,
 		profilehandler:   profileHandler,
+		reviewhandler: reviewHandler,
 	}
 
 }
@@ -66,9 +70,9 @@ func (server *Server) Start(cnf Config.Config) {
 	server.orderitemhandler.OrderItemRoute(mux)
 	server.producthandler.ProductRoute(mux)
 	server.profilehandler.Profile(mux)
+	server.reviewhandler.ReviewRoute(mux)
 
-	// handle review route
-	routes.ReviewRoute(mux)
+	
 
 	//role route
 	routes.RoleRoute(mux)

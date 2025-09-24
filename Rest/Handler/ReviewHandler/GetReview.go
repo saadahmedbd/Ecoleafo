@@ -8,7 +8,7 @@ import (
 	util "github.com/saadahmedbd/Treestore/Util"
 )
 
-func GetReview(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) GetReview(w http.ResponseWriter, r *http.Request) {
 	if r.Method != "GET" {
 		http.Error(w, "Please provide valid Method", http.StatusBadRequest)
 		return

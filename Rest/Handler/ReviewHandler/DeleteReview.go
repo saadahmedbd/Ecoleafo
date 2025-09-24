@@ -9,7 +9,7 @@ import (
 	models "github.com/saadahmedbd/Treestore/Models"
 )
 
-func DeleteReview(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) DeleteReview(w http.ResponseWriter, r *http.Request) {
 	if r.Method != "DELETE" {
 		http.Error(w, "Please provide valid request", http.StatusBadRequest)
 		return
