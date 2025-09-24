@@ -12,6 +12,7 @@ import (
 	profilehandler "github.com/saadahmedbd/Treestore/Rest/Handler/ProfileHandler"
 	reviewhandler "github.com/saadahmedbd/Treestore/Rest/Handler/ReviewHandler"
 	rolehandler "github.com/saadahmedbd/Treestore/Rest/Handler/RoleHandler"
+	searchhandler "github.com/saadahmedbd/Treestore/Rest/Handler/SearchHandler"
 )
 
 func Server() {
@@ -25,6 +26,7 @@ func Server() {
 	profilehandler := profilehandler.NewHandler()
 	reviewhandler := reviewhandler.NewHandler()
 	rolehandler := rolehandler.NewHandler()
+	searchhandler := searchhandler.NewHandler()
 
 	server := rest.NewServer(buyerhandler,
 		cartitemhandler,
@@ -35,6 +37,7 @@ func Server() {
 		profilehandler,
 		reviewhandler,
 		rolehandler,
+		searchhandler,
 	)
 	server.Start(cnf)
 

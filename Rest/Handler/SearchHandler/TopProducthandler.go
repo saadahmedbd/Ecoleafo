@@ -8,7 +8,7 @@ import (
 	util "github.com/saadahmedbd/Treestore/Util"
 )
 
-func TopProduct(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) TopProduct(w http.ResponseWriter, r *http.Request) {
 	var products []models.Product
 	err := Config.DB.Preload("Seller").Preload("Category").Preload("CartItems").Preload("OrderItems").Preload("Reviews").Raw(`
 		SELECT p.*, COALESCE(AVG(r.rating), 0) AS avg_rating

@@ -26,7 +26,7 @@ type SearchResponse struct {
 	Meta     PaginationMetadata `json:"meta"`
 }
 
-func Search_Product(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) Search_Product(w http.ResponseWriter, r *http.Request) {
 	query := strings.TrimSpace(r.URL.Query().Get("q"))
 	category := r.URL.Query().Get("category_id")
 	priceMin := r.URL.Query().Get("min")

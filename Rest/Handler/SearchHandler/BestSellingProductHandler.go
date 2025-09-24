@@ -8,7 +8,7 @@ import (
 	util "github.com/saadahmedbd/Treestore/Util"
 )
 
-func BestSellingProduct(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) BestSellingProduct(w http.ResponseWriter, r *http.Request) {
 	var products []models.Product
 
 	result := Config.DB.Raw(`

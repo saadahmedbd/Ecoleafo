@@ -16,6 +16,7 @@ import (
 	profilehandler "github.com/saadahmedbd/Treestore/Rest/Handler/ProfileHandler"
 	reviewhandler "github.com/saadahmedbd/Treestore/Rest/Handler/ReviewHandler"
 	rolehandler "github.com/saadahmedbd/Treestore/Rest/Handler/RoleHandler"
+	searchhandler "github.com/saadahmedbd/Treestore/Rest/Handler/SearchHandler"
 
 	middleware "github.com/saadahmedbd/Treestore/Rest/Middleware"
 	routes "github.com/saadahmedbd/Treestore/Rest/Routes"
@@ -32,6 +33,7 @@ type Server struct {
 	profilehandler   *profilehandler.Handler
 	reviewhandler    *reviewhandler.Handler
 	rolehandler      *rolehandler.Handler
+	searchhandler    *searchhandler.Handler
 }
 
 func NewServer(
@@ -44,6 +46,7 @@ func NewServer(
 	profileHandler *profilehandler.Handler,
 	reviewHandler *reviewhandler.Handler,
 	rolehandler *rolehandler.Handler,
+	searchHandler *searchhandler.Handler,
 ) *Server {
 	return &Server{
 		buyerHandler:     buyerHandler,
@@ -55,6 +58,7 @@ func NewServer(
 		profilehandler:   profileHandler,
 		reviewhandler:    reviewHandler,
 		rolehandler:      rolehandler,
+		searchhandler:    searchHandler,
 	}
 
 }
@@ -75,9 +79,7 @@ func (server *Server) Start(cnf Config.Config) {
 	server.profilehandler.Profile(mux)
 	server.reviewhandler.ReviewRoute(mux)
 	server.rolehandler.RoleRoute(mux)
-
-	//handle search route
-	routes.Search_ProductRoute(mux)
+	server.searchhandler.Search_ProductRoute(mux)
 
 	//handle auth route
 	routes.AuthRouth(mux)
