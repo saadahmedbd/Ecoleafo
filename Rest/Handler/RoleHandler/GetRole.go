@@ -8,7 +8,7 @@ import (
 	util "github.com/saadahmedbd/Treestore/Util"
 )
 
-func GetRole(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) GetRole(w http.ResponseWriter, r *http.Request) {
 	if r.Method != "GET" {
 		http.Error(w, "Please provide valid request", http.StatusBadRequest)
 		return
