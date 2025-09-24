@@ -15,7 +15,7 @@ type SellerProfile struct {
 	BusinessEmail string `json:"business_email"`
 }
 
-func BecomeSeller(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) BecomeSeller(w http.ResponseWriter, r *http.Request) {
 	// Implement the logic to complete seller profile
 	var sellerProfile SellerProfile
 	encode := json.NewDecoder(r.Body)

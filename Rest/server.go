@@ -13,6 +13,7 @@ import (
 	orderhandler "github.com/saadahmedbd/Treestore/Rest/Handler/OrderHandler"
 	orderitemhandler "github.com/saadahmedbd/Treestore/Rest/Handler/OrderItemHandler"
 	producthandler "github.com/saadahmedbd/Treestore/Rest/Handler/ProductHandler"
+	profilehandler "github.com/saadahmedbd/Treestore/Rest/Handler/ProfileHandler"
 
 	middleware "github.com/saadahmedbd/Treestore/Rest/Middleware"
 	routes "github.com/saadahmedbd/Treestore/Rest/Routes"
@@ -26,6 +27,7 @@ type Server struct {
 	orderhandler     *orderhandler.Handler
 	orderitemhandler *orderitemhandler.Handler
 	producthandler   *producthandler.Handler
+	profilehandler   *profilehandler.Handler
 }
 
 func NewServer(
@@ -35,6 +37,7 @@ func NewServer(
 	orderHandler *orderhandler.Handler,
 	orderitemHandler *orderitemhandler.Handler,
 	productHandler *producthandler.Handler,
+	profileHandler *profilehandler.Handler,
 ) *Server {
 	return &Server{
 		buyerHandler:     buyerHandler,
@@ -43,6 +46,7 @@ func NewServer(
 		orderhandler:     orderHandler,
 		orderitemhandler: orderitemHandler,
 		producthandler:   productHandler,
+		profilehandler:   profileHandler,
 	}
 
 }
@@ -61,6 +65,7 @@ func (server *Server) Start(cnf Config.Config) {
 	server.orderhandler.OrderRoute(mux)
 	server.orderitemhandler.OrderItemRoute(mux)
 	server.producthandler.ProductRoute(mux)
+	server.profilehandler.Profile(mux)
 
 	// handle review route
 	routes.ReviewRoute(mux)
@@ -72,8 +77,6 @@ func (server *Server) Start(cnf Config.Config) {
 
 	//handle auth route
 	routes.AuthRouth(mux)
-	//handle profile
-	routes.Profile(mux)
 
 	// Handle all cors
 	handler := middleware.Cors(mux)

@@ -17,7 +17,7 @@ type BuyerProfile struct {
 	DefaultAddress string `json:"default_address"`
 }
 
-func CompleteBuyerProfile(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) CompleteBuyerProfile(w http.ResponseWriter, r *http.Request) {
 	claimsRaw := r.Context().Value("claims")
 	if claimsRaw == nil {
 		http.Error(w, "unauthorized", http.StatusUnauthorized)

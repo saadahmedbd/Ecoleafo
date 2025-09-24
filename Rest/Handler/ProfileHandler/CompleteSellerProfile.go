@@ -21,7 +21,7 @@ type ComPeleteSeller struct {
 	Commission    float64 `json:"commission"`
 }
 
-func CompleteSeller(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) CompleteSeller(w http.ResponseWriter, r *http.Request) {
 	//user id bring to jwt field
 	claimsRaw := r.Context().Value("claims")
 	if claimsRaw == nil {

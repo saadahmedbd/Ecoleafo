@@ -9,6 +9,7 @@ import (
 	orderhandler "github.com/saadahmedbd/Treestore/Rest/Handler/OrderHandler"
 	orderitemhandler "github.com/saadahmedbd/Treestore/Rest/Handler/OrderItemHandler"
 	producthandler "github.com/saadahmedbd/Treestore/Rest/Handler/ProductHandler"
+	profilehandler "github.com/saadahmedbd/Treestore/Rest/Handler/ProfileHandler"
 )
 
 func Server() {
@@ -19,6 +20,7 @@ func Server() {
 	orderhandler := orderhandler.NewHandler()
 	orderitemhandler := orderitemhandler.NewHandler()
 	producthandler := producthandler.NewHandler()
+	profilehandler := profilehandler.NewHandler()
 
 	server := rest.NewServer(buyerhandler,
 		cartitemhandler,
@@ -26,6 +28,7 @@ func Server() {
 		orderhandler,
 		orderitemhandler,
 		producthandler,
+		profilehandler,
 	)
 	server.Start(cnf)
 
