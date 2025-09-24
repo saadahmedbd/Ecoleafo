@@ -7,11 +7,26 @@ import (
 	"strconv"
 
 	"github.com/saadahmedbd/Treestore/Config"
+	buyerhandler "github.com/saadahmedbd/Treestore/Rest/Handler/BuyerHandler"
 	middleware "github.com/saadahmedbd/Treestore/Rest/Middleware"
 	routes "github.com/saadahmedbd/Treestore/Rest/Routes"
 )
 
-func Start(cnf Config.Config) {
+// crete dependency
+type Server struct {
+	buyerHandler *buyerhandler.Handler
+}
+
+func NewServer(
+	buyerHandler *buyerhandler.Handler,
+) *Server {
+	return &Server{
+		buyerHandler: buyerHandler,
+	}
+
+}
+
+func (server *Server) Start(cnf Config.Config) {
 	mux := http.NewServeMux()
 	// router
 
@@ -19,7 +34,7 @@ func Start(cnf Config.Config) {
 	routes.UserRoute(mux)
 
 	// buyer route
-	routes.BuyerRoute(mux)
+	server.buyerHandler.BuyerRoute(mux)
 
 	//product route
 	routes.ProductRoute(mux)
