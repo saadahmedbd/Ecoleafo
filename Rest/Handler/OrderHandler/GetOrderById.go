@@ -9,7 +9,7 @@ import (
 	util "github.com/saadahmedbd/Treestore/Util"
 )
 
-func GetOrderById(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) GetOrderById(w http.ResponseWriter, r *http.Request) {
 	orderId := r.PathValue("orderId")
 	sId, err := strconv.Atoi(orderId)
 	if err != nil {
