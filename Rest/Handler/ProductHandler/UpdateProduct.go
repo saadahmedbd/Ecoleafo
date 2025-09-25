@@ -42,7 +42,6 @@ func (h *Handler) UpdateProduct(w http.ResponseWriter, r *http.Request) {
 	existingProduct.CategoryID = updateProduct.CategoryID
 	existingProduct.Price = updateProduct.Price
 	existingProduct.Quantity = updateProduct.Quantity
-	existingProduct.Image = updateProduct.Image
 	existingProduct.IsActive = updateProduct.IsActive
 
 	if err := Config.DB.Save(&existingProduct).Error; err != nil {

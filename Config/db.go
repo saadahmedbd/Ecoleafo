@@ -37,6 +37,10 @@ func Connect() {
 	}
 
 	fmt.Println("Connectd to postgres database successfully")
+
+	// Clean up reviews table to fix foreign key constraint
+	DB.Exec("DELETE FROM reviews WHERE order_id = 0 OR order_id NOT IN (SELECT id FROM orders)")
+
 	// Run Auto Migration
 	err = DB.AutoMigrate(
 		&models.User{},
@@ -48,6 +52,17 @@ func Connect() {
 		&models.CartItem{},
 		&models.Review{},
 		&models.Role{},
+		&models.Wishlist{},
+		&models.Address{},
+		&models.AuditLog{},
+		&models.ReviewImage{},
+		&models.ProductAttribute{},
+		&models.ProductImage{},
+		&models.SellerPaymentMethod{},
+		&models.Setting{},
+		&models.SellerCategory{},
+		&models.OrderHistory{},
+		&models.Notification{},
 	)
 	if err != nil {
 		fmt.Println(" Migration failed:", err)
