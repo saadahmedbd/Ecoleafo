@@ -1,7 +1,11 @@
 package producthandler
 
-type Handler struct{}
+import productservice "github.com/saadahmedbd/Treestore/Rest/Service/ProductService"
 
-func NewHandler() *Handler {
-	return &Handler{}
+type Handler struct {
+	service *productservice.ProductService
+}
+
+func NewHandler(service *productservice.ProductService) *Handler {
+	return &Handler{service: service}
 }
