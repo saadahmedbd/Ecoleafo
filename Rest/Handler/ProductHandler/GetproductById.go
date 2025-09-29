@@ -4,9 +4,8 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/saadahmedbd/Treestore/Config"
-	models "github.com/saadahmedbd/Treestore/Models"
 	util "github.com/saadahmedbd/Treestore/Util"
+	"gorm.io/gorm"
 )
 
 func (h *Handler) GetProductById(w http.ResponseWriter, r *http.Request) {
@@ -16,13 +15,17 @@ func (h *Handler) GetProductById(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "id not convert", http.StatusNoContent)
 		return
 	}
-	var products models.Product
-	result := Config.DB.First(&products, sId)
-	if result.Error != nil {
-		http.Error(w, "Id not found", http.StatusNotFound)
+	product, err := h.service.GetProductWithRelations(uint(sId))
+	if err != nil {
+		if err == gorm.ErrRecordNotFound {
+			http.Error(w, "Id not found", http.StatusNotFound)
+			return
+		}
+		http.Error(w, err.Error(), http.StatusNotFound)
 		return
 	}
+	go h.service.IncrementViewCount(uint(sId))
 	// not return password
 
-	util.SendData(w, products, 200)
+	util.SendData(w, product, 200)
 }
