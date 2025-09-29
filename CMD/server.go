@@ -15,22 +15,24 @@ import (
 	rolehandler "github.com/saadahmedbd/Treestore/Rest/Handler/RoleHandler"
 	searchhandler "github.com/saadahmedbd/Treestore/Rest/Handler/SearchHandler"
 	userhandler "github.com/saadahmedbd/Treestore/Rest/Handler/UserHandler"
+	productservice "github.com/saadahmedbd/Treestore/Rest/Service/ProductService"
 )
 
 func Server() {
 	cnf := Config.GetConfig()
+	productservice := productservice.NewProductService(Config.DB)
 	buyerhandler := buyerhandler.NewHandler()
 	cartitemhandler := cartitemhandler.NewHandler()
 	categoryHandler := categoryHandler.NewHandler()
 	orderhandler := orderhandler.NewHandler()
 	orderitemhandler := orderitemhandler.NewHandler()
-	producthandler := producthandler.NewHandler()
+	producthandler := producthandler.NewHandler(productservice)
 	profilehandler := profilehandler.NewHandler()
 	reviewhandler := reviewhandler.NewHandler()
 	rolehandler := rolehandler.NewHandler()
 	searchhandler := searchhandler.NewHandler()
 	userhandler := userhandler.NewHandler()
-	authhandler := authhandler.NewHandler()
+	authhandler := authhandler.NewHandler(authhandler.NewProductService(Config.DB))
 
 	server := rest.NewServer(buyerhandler,
 		cartitemhandler,
