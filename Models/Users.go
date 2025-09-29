@@ -54,7 +54,7 @@ type User struct {
 
 	// Relationships
 	Role             Role                  `json:"role" gorm:"foreignKey:RoleID"`
-	Products         []Product             `json:"products" gorm:"foreignKey:SellerID"` // Seller's products
+	Products         []Product             `json:"products" gorm:"foreignKey:SellerID;references:ID"` // Seller's products
 	RegUser          RegUser               `json:"reg_user" gorm:"foreignKey:UserId;references:ID"`
 	PaymentMethods   []SellerPaymentMethod `json:"payment_methods" gorm:"foreignKey:SellerID"`   //
 	SellerCategories []SellerCategory      `json:"seller_categories" gorm:"foreignKey:SellerID"` //

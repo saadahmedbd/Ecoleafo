@@ -7,7 +7,6 @@ import (
 
 	"github.com/joho/godotenv"
 
-	database "github.com/saadahmedbd/Treestore/Database"
 	models "github.com/saadahmedbd/Treestore/Models"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -36,22 +35,29 @@ func Connect() {
 		log.Fatal("Failed to connect to database:", err)
 	}
 
-	fmt.Println("Connectd to postgres database successfully")
+	fmt.Println("Connected to postgres database successfully")
 
-	// Clean up reviews table to fix foreign key constraint
-	DB.Exec("DELETE FROM reviews WHERE order_id = 0 OR order_id NOT IN (SELECT id FROM orders)")
-
-	// Run Auto Migration
+	// Run Auto Migration in proper order (parent tables first)
+	// Step 1: Create base tables without foreign key constraints
 	err = DB.AutoMigrate(
+		&models.Role{},
+		&models.RegUser{},
 		&models.User{},
-		&models.Product{},
 		&models.Category{},
+	)
+	if err != nil {
+		fmt.Println("Base tables migration failed:", err)
+		return
+	}
+
+	// Step 2: Create dependent tables
+	err = DB.AutoMigrate(
+		&models.Product{},
+		&models.Buyer{},
 		&models.Order{},
 		&models.OrderItem{},
-		&models.Buyer{},
 		&models.CartItem{},
 		&models.Review{},
-		&models.Role{},
 		&models.Wishlist{},
 		&models.Address{},
 		&models.AuditLog{},
@@ -69,16 +75,5 @@ func Connect() {
 	} else {
 		fmt.Println(" Database migrated successfully!")
 	}
-
-	// Migrate RegUser separately
-	if err := database.MigrateRegUser(DB); err != nil {
-		fmt.Println(" RegUser migration failed:", err)
-	}
-
-	// Seed data
-
-	// if err := database.SeedData(DB); err != nil {
-	// 	log.Fatal(" Seeding failed:", err)
-	// }
 
 }

@@ -10,7 +10,7 @@ import (
 
 type Product struct {
 	ID          uint   `json:"id" gorm:"primaryKey"`
-	SellerID    uint   `json:"seller_id" gorm:"not null"` // Which seller owns this product
+	SellerID    uint   `json:"seller_id" gorm:"index"` // Which seller owns this product
 	Name        string `json:"name" gorm:"size:255;not null"`
 	Slug        string `json:"slug" gorm:"size:255;uniqueIndex;not null"` //a slug is the user-friendly, readable, and SEO-optimized part of a URL that identifies a specific product, category, page, or post.
 	Description string `json:"description" gorm:"type:text"`
@@ -54,7 +54,7 @@ type Product struct {
 	ReviewCount     int     `json:"review_count" gorm:"default:0"`                     // Number of reviews
 
 	// Relationships
-	Seller        User               `json:"seller" gorm:"foreignKey:SellerID"`
+	Seller        User               `json:"seller" gorm:"foreignKey:SellerID;references:ID"`
 	Category      Category           `json:"category" gorm:"foreignKey:CategoryID"`
 	Images        []ProductImage     `json:"images" gorm:"foreignKey:ProductID"`     // Multiple images
 	Attributes    []ProductAttribute `json:"attributes" gorm:"foreignKey:ProductID"` // Flexible attributes
