@@ -2,65 +2,50 @@ package producthandler
 
 import (
 	"encoding/json"
+	"strings"
+
 	"net/http"
+	"strconv"
 
-	"github.com/saadahmedbd/Treestore/Config"
-	models "github.com/saadahmedbd/Treestore/Models"
-
+	productservice "github.com/saadahmedbd/Treestore/Rest/Service/ProductService"
 	util "github.com/saadahmedbd/Treestore/Util"
 )
 
 func (h *Handler) CreateProduct(w http.ResponseWriter, r *http.Request) {
-	// Get claims from context
-	// claims, ok := r.Context().Value("claims").(map[string]interface{})
-	// if !ok {
-	// 	http.Error(w, `{"error":"Unauthorized: No claims found"}`, http.StatusUnauthorized)
-	// 	return
-	// }
+	userIDStr := r.Header.Get("user_id")
+	userType := r.Header.Get("user_role")
 
-	// // Check if user has "seller" role
-	// roles, ok := claims["roles"].([]interface{})
-	// if !ok {
-	// 	http.Error(w, `{"error":"Unauthorized: Invalid roles format"}`, http.StatusUnauthorized)
-	// 	return
-	// }
-	// hasSellerRole := false
-	// for _, role := range roles {
-	// 	if role == "seller" {
-	// 		hasSellerRole = true
-	// 		break
-	// 	}
-	// }
-	// if !hasSellerRole {
-	// 	http.Error(w, `{"error":"Unauthorized: Only sellers can post products"}`, http.StatusForbidden)
-	// 	return
-	// }
-
-	// // Get user_id from claims
-	// userIDFloat, ok := claims["user_id"].(float64)
-	// if !ok {
-	// 	http.Error(w, `{"error":"Unauthorized: Invalid user_id format"}`, http.StatusUnauthorized)
-	// 	return
-	// }
-	// userID := uint(userIDFloat)
-
-	if r.Method != "POST" {
-		http.Error(w, "Please provide valid request", http.StatusBadRequest)
+	if userIDStr == "" {
+		http.Error(w, "user_id not found in headers", http.StatusUnauthorized)
 		return
 	}
-	var products models.Product
-	decode := json.NewDecoder(r.Body)
-	err := decode.Decode(&products)
+	if userType == "" {
+		http.Error(w, "user_role not found in headers", http.StatusUnauthorized)
+		return
+	}
+	// Check if user is a seller - adjust based on your role format
+	// Since roles is []string in JWT, it comes as "[seller]" or "[admin seller]"
+	if !strings.Contains(userType, "seller") {
+		http.Error(w, `{"error":"only sellers can create products"}`, http.StatusForbidden)
+		return
+	}
+	// Parse user ID (this is User.ID from JWT)
+	userID, err := strconv.ParseUint(userIDStr, 10, 32)
 	if err != nil {
-		http.Error(w, "please provide valid json", http.StatusBadRequest)
+		http.Error(w, "invalid user_id format", http.StatusBadRequest)
 		return
 	}
-	// products.SellerID = sellerID
-	result := Config.DB.Create(&products)
-	if result.Error != nil {
-		http.Error(w, result.Error.Error(), http.StatusInternalServerError)
+	var req productservice.CreateProductRequest
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		http.Error(w, "invalid request body", http.StatusBadRequest)
 		return
 	}
-	util.SendData(w, products, 200)
+	// Create product using User.ID
+	product, err := h.service.CreateProduct(req, uint(userID))
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	util.SendData(w, product, http.StatusCreated)
 
 }

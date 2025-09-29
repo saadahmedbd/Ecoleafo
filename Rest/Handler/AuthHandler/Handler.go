@@ -1,7 +1,11 @@
 package authhandler
 
-type Handler struct{}
+type Handler struct {
+	service *authService
+}
 
-func NewHandler() *Handler {
-	return &Handler{}
+func NewHandler(service *authService) *Handler {
+	return &Handler{
+		service: service,
+	}
 }
