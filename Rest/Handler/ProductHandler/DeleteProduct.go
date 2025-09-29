@@ -4,33 +4,65 @@ import (
 	"fmt"
 	"net/http"
 	"strconv"
+	"strings"
 
-	"github.com/saadahmedbd/Treestore/Config"
-	models "github.com/saadahmedbd/Treestore/Models"
+	util "github.com/saadahmedbd/Treestore/Util"
 )
 
 func (h *Handler) DeleteProduct(w http.ResponseWriter, r *http.Request) {
-	if r.Method != "DELETE" {
-		http.Error(w, "Please provide valid request", http.StatusBadRequest)
-		return
-	}
-	productId := r.PathValue("productId")
-	id, err := strconv.Atoi(productId)
-	if err != nil {
-		http.Error(w, "Invalid user id", http.StatusBadRequest)
-		return
-	}
-	//try to delete
-	var product models.Product
-	if err := Config.DB.First(&product, id).Error; err != nil {
-		http.Error(w, "user not found", http.StatusBadRequest)
-		return
-	}
-	if err := Config.DB.Delete(&product).Error; err != nil {
-		http.Error(w, "Failed to delete user", http.StatusInternalServerError)
-		return
-	}
-	// util.SendData(w, seller, 200)
-	w.Write([]byte(fmt.Sprintf("User %d deleted successfully", id)))
 
+	// Extract product ID from URL
+	productId := r.PathValue("productId")
+	Pid, err := strconv.Atoi(productId)
+	if err != nil {
+		http.Error(w, "Invalid product ID", http.StatusBadRequest)
+		return
+	}
+
+	// Get user info from JWT (set by middleware)
+	userIDStr := r.Header.Get("user_id")
+	userType := r.Header.Get("user_role")
+
+	// Debug logging
+	fmt.Printf("DEBUG Delete - user_id: %s, user_role: %s, product_id: %d\n", userIDStr, userType, Pid)
+
+	// Validation
+	if userIDStr == "" {
+		http.Error(w, `{"error":"user_id not found in headers"}`, http.StatusUnauthorized)
+		return
+	}
+	if userType == "" {
+		http.Error(w, `{"error":"user_role not found in headers"}`, http.StatusUnauthorized)
+		return
+	}
+
+	// Check if user is a seller or admin
+	if !strings.Contains(userType, "seller") && !strings.Contains(userType, "admin") {
+		http.Error(w, `{"error":"only sellers can delete their products"}`, http.StatusForbidden)
+		return
+	}
+
+	// Parse user ID from JWT
+	userID, err := strconv.ParseUint(userIDStr, 10, 32)
+	if err != nil {
+		http.Error(w, `{"error":"invalid user_id format"}`, http.StatusBadRequest)
+		return
+	}
+
+	fmt.Printf("DEBUG: About to delete product %d for user %d\n", uint(Pid), uint(userID))
+
+	// Delete product
+	err = h.service.DeleteProduct(uint(Pid), uint(userID), strings.Contains(userType, "admin"))
+	if err != nil {
+		fmt.Printf("DEBUG: Delete error: %v\n", err)
+		http.Error(w, fmt.Sprintf(`{"error":"%s"}`, err.Error()), http.StatusInternalServerError)
+		return
+	}
+
+	// Return success response
+	response := map[string]interface{}{
+		"message":    "Product deleted successfully",
+		"product_id": Pid,
+	}
+	util.SendData(w, response, http.StatusOK)
 }
