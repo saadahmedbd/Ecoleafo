@@ -33,6 +33,15 @@ func AuthenticateJWT(next http.Handler) http.Handler {
 		}
 
 		ctx := context.WithValue(r.Context(), "claims", claims)
+		
+		// Add user_id and role to headers for easy access
+		if userID, ok := claims["user_id"]; ok {
+			r.Header.Set("user_id", fmt.Sprintf("%v", userID))
+		}
+		if roles, ok := claims["role"]; ok {
+			r.Header.Set("user_role", fmt.Sprintf("%v", roles))
+		}
+		
 		next.ServeHTTP(w, r.WithContext(ctx))
 	})
 }
