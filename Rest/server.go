@@ -18,6 +18,7 @@ import (
 	reviewhandler "github.com/saadahmedbd/Treestore/Rest/Handler/ReviewHandler"
 	rolehandler "github.com/saadahmedbd/Treestore/Rest/Handler/RoleHandler"
 	searchhandler "github.com/saadahmedbd/Treestore/Rest/Handler/SearchHandler"
+	sellerproflehandler "github.com/saadahmedbd/Treestore/Rest/Handler/SellerProfleHandler"
 	userhandler "github.com/saadahmedbd/Treestore/Rest/Handler/UserHandler"
 
 	middleware "github.com/saadahmedbd/Treestore/Rest/Middleware"
@@ -25,18 +26,19 @@ import (
 
 // crete dependency
 type Server struct {
-	buyerHandler     *buyerhandler.Handler
-	cartitemhandler  *cartitemhandler.Handler
-	categoryHandler  *categoryHandler.Handler
-	orderhandler     *orderhandler.Handler
-	orderitemhandler *orderitemhandler.Handler
-	producthandler   *producthandler.Handler
-	profilehandler   *profilehandler.Handler
-	reviewhandler    *reviewhandler.Handler
-	rolehandler      *rolehandler.Handler
-	searchhandler    *searchhandler.Handler
-	userhandler      *userhandler.Handler
-	authhandler      *authhandler.Handler
+	buyerHandler         *buyerhandler.Handler
+	cartitemhandler      *cartitemhandler.Handler
+	categoryHandler      *categoryHandler.Handler
+	orderhandler         *orderhandler.Handler
+	orderitemhandler     *orderitemhandler.Handler
+	producthandler       *producthandler.Handler
+	profilehandler       *profilehandler.Handler
+	reviewhandler        *reviewhandler.Handler
+	rolehandler          *rolehandler.Handler
+	searchhandler        *searchhandler.Handler
+	userhandler          *userhandler.Handler
+	authhandler          *authhandler.Handler
+	sellerprofilehandler *sellerproflehandler.SellerProfileHandler
 }
 
 func NewServer(
@@ -52,21 +54,23 @@ func NewServer(
 	searchHandler *searchhandler.Handler,
 	userHandler *userhandler.Handler,
 	authhandler *authhandler.Handler,
+	sellerProfileHandler *sellerproflehandler.SellerProfileHandler,
 
 ) *Server {
 	return &Server{
-		buyerHandler:     buyerHandler,
-		cartitemhandler:  cartitemHandler,
-		categoryHandler:  categoryHandler,
-		orderhandler:     orderHandler,
-		orderitemhandler: orderitemHandler,
-		producthandler:   productHandler,
-		profilehandler:   profileHandler,
-		reviewhandler:    reviewHandler,
-		rolehandler:      rolehandler,
-		searchhandler:    searchHandler,
-		userhandler:      userHandler,
-		authhandler:      authhandler,
+		buyerHandler:         buyerHandler,
+		cartitemhandler:      cartitemHandler,
+		categoryHandler:      categoryHandler,
+		orderhandler:         orderHandler,
+		orderitemhandler:     orderitemHandler,
+		producthandler:       productHandler,
+		profilehandler:       profileHandler,
+		reviewhandler:        reviewHandler,
+		rolehandler:          rolehandler,
+		searchhandler:        searchHandler,
+		userhandler:          userHandler,
+		authhandler:          authhandler,
+		sellerprofilehandler: sellerProfileHandler,
 	}
 
 }
@@ -87,6 +91,7 @@ func (server *Server) Start(cnf Config.Config) {
 	server.searchhandler.Search_ProductRoute(mux)
 	server.userhandler.UserRoute(mux)
 	server.authhandler.AuthRouth(mux)
+	server.sellerprofilehandler.SellerRoute(mux)
 
 	// Handle all cors
 	handler := middleware.Cors(mux)

@@ -14,13 +14,24 @@ import (
 	reviewhandler "github.com/saadahmedbd/Treestore/Rest/Handler/ReviewHandler"
 	rolehandler "github.com/saadahmedbd/Treestore/Rest/Handler/RoleHandler"
 	searchhandler "github.com/saadahmedbd/Treestore/Rest/Handler/SearchHandler"
+	sellerproflehandler "github.com/saadahmedbd/Treestore/Rest/Handler/SellerProfleHandler"
 	userhandler "github.com/saadahmedbd/Treestore/Rest/Handler/UserHandler"
+	repository "github.com/saadahmedbd/Treestore/Rest/Repository"
 	productservice "github.com/saadahmedbd/Treestore/Rest/Service/ProductService"
+	sellerprofileservice "github.com/saadahmedbd/Treestore/Rest/Service/sellerProfileService"
 )
 
 func Server() {
 	cnf := Config.GetConfig()
+
+	//repo
+	repository := repository.NewSellerRepostory(Config.DB)
+
+	//service
 	productservice := productservice.NewProductService(Config.DB)
+	sellerprofileservice := sellerprofileservice.NewSellerService(repository)
+
+	//handler
 	buyerhandler := buyerhandler.NewHandler()
 	cartitemhandler := cartitemhandler.NewHandler()
 	categoryHandler := categoryHandler.NewHandler()
@@ -33,6 +44,7 @@ func Server() {
 	searchhandler := searchhandler.NewHandler()
 	userhandler := userhandler.NewHandler()
 	authhandler := authhandler.NewHandler(authhandler.NewProductService(Config.DB))
+	sellerprofilehandler := sellerproflehandler.NewSellerProfileHandler(sellerprofileservice)
 
 	server := rest.NewServer(buyerhandler,
 		cartitemhandler,
@@ -46,6 +58,7 @@ func Server() {
 		searchhandler,
 		userhandler,
 		authhandler,
+		sellerprofilehandler,
 	)
 	server.Start(cnf)
 
