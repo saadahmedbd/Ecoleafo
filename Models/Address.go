@@ -11,6 +11,7 @@ type Address struct {
 	Company      string    `json:"company" gorm:"size:100"`
 	AddressLine1 string    `json:"address_line_1" gorm:"size:255;not null"`
 	AddressLine2 string    `json:"address_line_2" gorm:"size:255"`
+	Street       string    `json:"street" gorm:"size:100"`
 	City         string    `json:"city" gorm:"size:50;not null"`
 	State        string    `json:"state" gorm:"size:50;not null"`
 	District     string    `json:"district" gorm:"size:50;not null"`
