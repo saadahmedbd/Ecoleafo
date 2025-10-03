@@ -5,6 +5,7 @@ import (
 	rest "github.com/saadahmedbd/Treestore/Rest"
 	authhandler "github.com/saadahmedbd/Treestore/Rest/Handler/AuthHandler"
 	buyerhandler "github.com/saadahmedbd/Treestore/Rest/Handler/BuyerHandler"
+	buyerprofilehandler "github.com/saadahmedbd/Treestore/Rest/Handler/BuyerProfileHandler"
 	cartitemhandler "github.com/saadahmedbd/Treestore/Rest/Handler/CartItemHandler"
 	categoryHandler "github.com/saadahmedbd/Treestore/Rest/Handler/CategoryHandler"
 	orderhandler "github.com/saadahmedbd/Treestore/Rest/Handler/OrderHandler"
@@ -17,7 +18,9 @@ import (
 	sellerproflehandler "github.com/saadahmedbd/Treestore/Rest/Handler/SellerProfleHandler"
 	userhandler "github.com/saadahmedbd/Treestore/Rest/Handler/UserHandler"
 	repository "github.com/saadahmedbd/Treestore/Rest/Repository"
+	buyerProfilerepo "github.com/saadahmedbd/Treestore/Rest/Repository/BuyerProfileRepo"
 	productservice "github.com/saadahmedbd/Treestore/Rest/Service/ProductService"
+	buyerservice "github.com/saadahmedbd/Treestore/Rest/Service/buyerService"
 	sellerprofileservice "github.com/saadahmedbd/Treestore/Rest/Service/sellerProfileService"
 )
 
@@ -26,10 +29,12 @@ func Server() {
 
 	//repo
 	repository := repository.NewSellerRepostory(Config.DB)
+	buyerProfilerepo := buyerProfilerepo.NewBuyerRepository(Config.DB)
 
 	//service
 	productservice := productservice.NewProductService(Config.DB)
 	sellerprofileservice := sellerprofileservice.NewSellerService(repository)
+	buyerProfileservice := buyerservice.NewBuyerService(buyerProfilerepo)
 
 	//handler
 	buyerhandler := buyerhandler.NewHandler()
@@ -45,6 +50,7 @@ func Server() {
 	userhandler := userhandler.NewHandler()
 	authhandler := authhandler.NewHandler(authhandler.NewProductService(Config.DB))
 	sellerprofilehandler := sellerproflehandler.NewSellerProfileHandler(sellerprofileservice)
+	buyerprofilehandler := buyerprofilehandler.NewBuyerProfileHandler(buyerProfileservice)
 
 	server := rest.NewServer(buyerhandler,
 		cartitemhandler,
@@ -59,6 +65,7 @@ func Server() {
 		userhandler,
 		authhandler,
 		sellerprofilehandler,
+		buyerprofilehandler,
 	)
 	server.Start(cnf)
 
