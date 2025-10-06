@@ -57,6 +57,7 @@ func Connect() {
 		&models.Order{},
 		&models.OrderItem{},
 		&models.CartItem{},
+		&models.GuestCartItem{},
 		&models.Review{},
 		&models.Wishlist{},
 		&models.Address{},
