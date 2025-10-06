@@ -8,6 +8,7 @@ import (
 	buyerprofilehandler "github.com/saadahmedbd/Treestore/Rest/Handler/BuyerProfileHandler"
 	cartitemhandler "github.com/saadahmedbd/Treestore/Rest/Handler/CartItemHandler"
 	categoryHandler "github.com/saadahmedbd/Treestore/Rest/Handler/CategoryHandler"
+	guestcarthandler "github.com/saadahmedbd/Treestore/Rest/Handler/GuestcartHandler"
 	orderhandler "github.com/saadahmedbd/Treestore/Rest/Handler/OrderHandler"
 	orderitemhandler "github.com/saadahmedbd/Treestore/Rest/Handler/OrderItemHandler"
 	producthandler "github.com/saadahmedbd/Treestore/Rest/Handler/ProductHandler"
@@ -18,9 +19,12 @@ import (
 	sellerproflehandler "github.com/saadahmedbd/Treestore/Rest/Handler/SellerProfleHandler"
 	userhandler "github.com/saadahmedbd/Treestore/Rest/Handler/UserHandler"
 	repository "github.com/saadahmedbd/Treestore/Rest/Repository"
+	buyercompleterepo "github.com/saadahmedbd/Treestore/Rest/Repository/BuyerCompleteRepo"
 	buyerProfilerepo "github.com/saadahmedbd/Treestore/Rest/Repository/BuyerProfileRepo"
+	guestcartrepo "github.com/saadahmedbd/Treestore/Rest/Repository/GuestCartRepo"
 	productservice "github.com/saadahmedbd/Treestore/Rest/Service/ProductService"
 	buyerservice "github.com/saadahmedbd/Treestore/Rest/Service/buyerService"
+	guestcartservice "github.com/saadahmedbd/Treestore/Rest/Service/guestCartService"
 	sellerprofileservice "github.com/saadahmedbd/Treestore/Rest/Service/sellerProfileService"
 )
 
@@ -31,10 +35,14 @@ func Server() {
 	repository := repository.NewSellerRepostory(Config.DB)
 	buyerProfilerepo := buyerProfilerepo.NewBuyerRepository(Config.DB)
 
+	guestcartrepo := guestcartrepo.NewGuestCartRepository(Config.DB)
+	buyercompleterepo := buyercompleterepo.NewProfileCompleteRepository(Config.DB)
+
 	//service
 	productservice := productservice.NewProductService(Config.DB)
 	sellerprofileservice := sellerprofileservice.NewSellerService(repository)
 	buyerProfileservice := buyerservice.NewBuyerService(buyerProfilerepo)
+	guestcartservice := guestcartservice.NewGuestCartService(guestcartrepo, buyercompleterepo, buyerProfilerepo)
 
 	//handler
 	buyerhandler := buyerhandler.NewHandler()
@@ -51,6 +59,7 @@ func Server() {
 	authhandler := authhandler.NewHandler(authhandler.NewProductService(Config.DB))
 	sellerprofilehandler := sellerproflehandler.NewSellerProfileHandler(sellerprofileservice)
 	buyerprofilehandler := buyerprofilehandler.NewBuyerProfileHandler(buyerProfileservice)
+	guestcarthandler := guestcarthandler.NewGuestCartHandler(guestcartservice)
 
 	server := rest.NewServer(buyerhandler,
 		cartitemhandler,
@@ -66,6 +75,7 @@ func Server() {
 		authhandler,
 		sellerprofilehandler,
 		buyerprofilehandler,
+		guestcarthandler,
 	)
 	server.Start(cnf)
 

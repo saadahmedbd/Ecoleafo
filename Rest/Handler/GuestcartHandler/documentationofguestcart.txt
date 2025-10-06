@@ -1,0 +1,137 @@
+
+ ============= USAGE FLOW DOCUMENTATION =============
+
+GUEST CHECKOUT FLOW:
+
+1. GUEST BROWSING (No Login Required)
+   - User visits website
+   - Browses products
+   - Adds items to cart (stored with session ID in cookie)
+   
+   API Call:
+   POST /api/cart/add
+   {
+     "product_id": 5,
+     "quantity": 2
+   }
+   
+   Response:
+   {
+     "items": [...],
+     "total_items": 2,
+     "sub_total": 150.00,
+     "is_guest": true,
+     "can_checkout": false,
+     "requires_profile": true,
+     "session_id": "guest_1727538000_abc123"
+   }
+
+2. ATTEMPT CHECKOUT (Requires Login)
+   - Guest user clicks "Proceed to Checkout"
+   - System redirects to login/register
+   - User registers with email, password, name
+   - After registration, call cart migration
+   
+   API Call:
+   POST /api/cart/migrate
+   (Automatically migrates guest cart to user account)
+
+3. CHECK PROFILE COMPLETION
+   - After login, check if profile is complete
+   
+   API Call:
+   GET /api/checkout/profile-status
+   
+   Response:
+   {
+     "is_profile_complete": false,
+     "has_phone": false,
+     "has_address": false,
+     "missing_fields": ["phone", "address"],
+     "next_step": "complete_profile"
+   }
+
+4. COMPLETE PROFILE (If Missing Phone)
+   - Prompt user to add phone number
+   
+   API Call:
+   POST /api/checkout/complete-profile
+   {
+     "phone": "+880123456789"
+   }
+
+5. ADD ADDRESS (If No Address Exists)
+   - Prompt user to add shipping/billing address
+   
+   API Call:
+   POST /api/checkout/address
+   {
+     "type": "shipping",
+     "first_name": "John",
+     "last_name": "Doe",
+     "address_line_1": "123 Main Street",
+     "city": "Dhaka",
+     "state": "Dhaka Division",
+     "district": "Gazipur",
+     "postal_code": "1700",
+     "country": "Bangladesh",
+     "phone": "+880123456789",
+     "is_default": true
+   }
+
+6. INITIATE CHECKOUT (When Profile Complete)
+   - Check profile status again
+   - If complete, proceed to checkout
+   
+   API Call:
+   POST /api/checkout/initiate
+   {
+     "shipping_address_id": 1,
+     "billing_address_id": 1,
+     "payment_method": "cash_on_delivery"
+   }
+   
+   Response:
+   {
+     "message": "Checkout initiated successfully",
+     "can_proceed": true
+   }
+
+FRONTEND IMPLEMENTATION FLOW:
+
+1. Cart Page:
+   - Show cart items
+   - If guest: Show "Login to Checkout" button
+   - If logged in but incomplete profile: Show "Complete Profile to Checkout"
+   - If profile complete: Show "Proceed to Checkout" button
+
+2. After Login/Register:
+   - Automatically call /api/cart/migrate
+   - Redirect to checkout
+   - Call /api/checkout/profile-status
+
+3. Profile Completion Modal/Page:
+   - If missing phone: Show phone input form
+   - If missing address: Show address form
+   - Use next_step from profile-status response
+
+4. Checkout Page:
+   - Verify profile is complete
+   - Show address selection
+   - Show payment methods
+   - Place order
+
+ERROR HANDLING:
+
+- Guest tries to checkout: Redirect to login/register
+- User without phone tries to checkout: Show phone form
+- User without address tries to checkout: Show address form
+- All validations return appropriate error messages
+
+SECURITY CONSIDERATIONS:
+
+- Session ID stored in HttpOnly cookie
+- JWT required for all checkout operations
+- Address ownership validated
+- Cart items verified for stock availability
+- Price verification during checkout
