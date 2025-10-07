@@ -22,6 +22,7 @@ import (
 	searchhandler "github.com/saadahmedbd/Treestore/Rest/Handler/SearchHandler"
 	sellerproflehandler "github.com/saadahmedbd/Treestore/Rest/Handler/SellerProfleHandler"
 	userhandler "github.com/saadahmedbd/Treestore/Rest/Handler/UserHandler"
+	selleraccounthandler "github.com/saadahmedbd/Treestore/Rest/Handler/sellerAccountHandler"
 
 	middleware "github.com/saadahmedbd/Treestore/Rest/Middleware"
 )
@@ -43,6 +44,7 @@ type Server struct {
 	sellerprofilehandler *sellerproflehandler.SellerProfileHandler
 	buyerprofilehandler  *buyerprofilehandler.Buyerprofilehandler
 	guestcarthandler     *guestcarthandler.GuestcartHandler
+	selleraccounthandler *selleraccounthandler.SellerRegistrationHandler
 }
 
 func NewServer(
@@ -61,6 +63,7 @@ func NewServer(
 	sellerProfileHandler *sellerproflehandler.SellerProfileHandler,
 	buyerProfileHandler *buyerprofilehandler.Buyerprofilehandler,
 	guestcartHandler *guestcarthandler.GuestcartHandler,
+	sellerAccountHandler *selleraccounthandler.SellerRegistrationHandler,
 
 ) *Server {
 	return &Server{
@@ -79,6 +82,7 @@ func NewServer(
 		sellerprofilehandler: sellerProfileHandler,
 		buyerprofilehandler:  buyerProfileHandler,
 		guestcarthandler:     guestcartHandler,
+		selleraccounthandler: sellerAccountHandler,
 	}
 
 }
@@ -102,6 +106,7 @@ func (server *Server) Start(cnf Config.Config) {
 	server.sellerprofilehandler.SellerRoute(mux)
 	server.buyerprofilehandler.BuyerRoute(mux)
 	server.guestcarthandler.GuestCartRoute(mux)
+	server.selleraccounthandler.SellerAccountRoute(mux)
 
 	// Handle all cors
 	handler := middleware.Cors(mux)
