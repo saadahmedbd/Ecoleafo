@@ -1,0 +1,346 @@
+================================================================================
+                    CART SYSTEM API DOCUMENTATION
+================================================================================
+
+BASE URL: http://localhost:3000
+AUTHENTICATION: All endpoints require JWT Bearer token
+ROLE: Buyer only (except where noted)
+
+================================================================================
+                        CART OPERATIONS
+================================================================================
+
+1. ADD TO CART
+   POST /api/get/cart
+   
+   Request Body:
+   {
+     "product_id": 12,
+     "quantity": 2,
+     "is_gift": true,
+     "gift_message": "Happy Birthday!"
+   }
+   
+   Response: Cart summary with all items
+   
+   Notes:
+   - If product already in cart, quantity will be incremented
+   - Validates product availability and stock
+   - Only buyers can add to cart
+
+--------------------------------------------------------------------------------
+
+2. GET CART
+   GET /api/cart
+   
+   Response: Cart summary including:
+   - Active cart items
+   - Saved for later items
+   - Subtotal, discount, total
+   - Item count and saved item count
+   
+   Notes:
+   - Returns all cart items with product details
+   - Includes availability status for each item
+
+--------------------------------------------------------------------------------
+
+3. GET CART SUMMARY
+   GET /api/cart/summary
+   
+   Response: Same as GET /api/cart
+   
+   Notes:
+   - Alias for GET /api/cart
+
+--------------------------------------------------------------------------------
+
+4. UPDATE CART ITEM
+   PUT /api/cart/{productId}
+   
+   Request Body:
+   {
+     "quantity": 5,
+     "gift": false,
+     "gift_message": ""
+   }
+   
+   Response: Success message
+   
+   Notes:
+   - Updates quantity and gift options for existing cart item
+
+--------------------------------------------------------------------------------
+
+5. REMOVE FROM CART
+   DELETE /api/cart/{productId}
+   
+   Response: Success message
+   
+   Notes:
+   - Removes specific product from cart
+
+--------------------------------------------------------------------------------
+
+6. CLEAR CART
+   DELETE /api/cart
+   
+   Response: Success message
+   
+   Notes:
+   - Removes all items from cart
+
+================================================================================
+                    QUANTITY MANAGEMENT
+================================================================================
+
+7. INCREMENT QUANTITY
+   POST /api/cart/{productId}/increment
+   
+   Response: Success message
+   
+   Notes:
+   - Increases quantity by 1
+   - Validates stock availability
+
+--------------------------------------------------------------------------------
+
+8. DECREMENT QUANTITY
+   POST /api/cart/{productId}/decrement
+   
+   Response: Success message
+   
+   Notes:
+   - Decreases quantity by 1
+   - Removes item if quantity becomes 0
+
+--------------------------------------------------------------------------------
+
+9. BULK UPDATE CART
+   POST /api/cart/bulk-update
+   
+   Request Body:
+   {
+     "items": [
+       {"product_id": 12, "quantity": 3},
+       {"product_id": 15, "quantity": 1}
+     ]
+   }
+   
+   Response: Success message
+   
+   Notes:
+   - Updates multiple items at once
+
+================================================================================
+                    SAVE FOR LATER
+================================================================================
+
+10. SAVE FOR LATER
+    POST /api/cart/{productId}/save-later
+    
+    Response: Success message
+    
+    Notes:
+    - Moves item from active cart to saved for later
+    - Item must already be in cart
+    - Returns error if item not found in cart
+
+--------------------------------------------------------------------------------
+
+11. GET SAVED FOR LATER
+    GET /api/cart/saved-for-later
+    
+    Response: Array of saved items
+    
+    Notes:
+    - Returns all items marked as saved for later
+
+--------------------------------------------------------------------------------
+
+12. MOVE TO CART (from saved)
+    POST /api/cart/{productId}/move-to-cart
+    
+    Response: Success message
+    
+    Notes:
+    - Moves item from saved for later back to active cart
+    - Item must be in saved for later list
+
+================================================================================
+                    WISHLIST OPERATIONS
+================================================================================
+
+13. ADD TO WISHLIST
+    POST /api/wishlist
+    
+    Request Body:
+    {
+      "product_id": 12
+    }
+    
+    Response: Success message
+    
+    Notes:
+    - Adds product directly to wishlist
+    - Returns error if already in wishlist
+
+--------------------------------------------------------------------------------
+
+14. GET WISHLIST
+    GET /api/wishlist
+    
+    Response: Array of wishlist items with product details
+    
+    Notes:
+    - Returns all items in buyer's wishlist
+
+--------------------------------------------------------------------------------
+
+15. MOVE CART ITEM TO WISHLIST
+    POST /api/cart/{productId}/move-to-wishlist
+    
+    Response: Success message
+    
+    Notes:
+    - Removes item from cart and adds to wishlist
+    - If already in wishlist, just removes from cart
+
+--------------------------------------------------------------------------------
+
+16. MOVE WISHLIST ITEM TO CART
+    POST /api/wishlist/{productId}/move-to-cart
+    
+    Response: Success message
+    
+    Notes:
+    - Removes item from wishlist and adds to cart
+    - If already in cart, increments quantity
+    - Default quantity is 1
+
+--------------------------------------------------------------------------------
+
+17. REMOVE FROM WISHLIST
+    DELETE /api/wishlist/{productId}
+    
+    Response: Success message
+    
+    Notes:
+    - Removes specific product from wishlist
+
+================================================================================
+                    UTILITIES
+================================================================================
+
+18. VALIDATE CART
+    GET /api/cart/validate
+    
+    Response: Cart summary with validation status
+    
+    Notes:
+    - Checks stock availability for all cart items
+    - Marks unavailable items
+
+--------------------------------------------------------------------------------
+
+19. GET CART ITEM COUNT
+    GET /api/cart/count
+    
+    Response:
+    {
+      "count": 5
+    }
+    
+    Notes:
+    - Returns total number of items in active cart
+    - Excludes saved for later items
+
+--------------------------------------------------------------------------------
+
+20. GET CART TOTAL
+    GET /api/cart/total
+    
+    Response:
+    {
+      "total": 299.99
+    }
+    
+    Notes:
+    - Returns total price of active cart items
+    - Excludes saved for later items
+
+================================================================================
+                    ERROR RESPONSES
+================================================================================
+
+Common Error Codes:
+- 400: Bad Request (invalid input)
+- 401: Unauthorized (missing or invalid token)
+- 403: Forbidden (not a buyer)
+- 404: Not Found (buyer or product not found)
+- 500: Internal Server Error
+
+Error Response Format:
+Plain text error message
+
+================================================================================
+                    IMPORTANT NOTES
+================================================================================
+
+1. BUYER ID RESOLUTION:
+   - JWT token contains RegUser ID
+   - System automatically fetches corresponding Buyer ID
+   - All operations use Buyer ID internally
+
+2. SAVE FOR LATER vs WISHLIST:
+   - Save for Later: Temporary storage for cart items
+   - Wishlist: Long-term storage for products to buy later
+   - Both are separate from active cart
+
+3. CART SUMMARY STRUCTURE:
+   - items: Active cart items (is_saved_for_later = false)
+   - saved_for_later: Saved items (is_saved_for_later = true)
+   - item_count: Count of active items
+   - saved_item_count: Count of saved items
+
+4. PRODUCT VALIDATION:
+   - All cart operations validate product availability
+   - Stock is checked before adding/updating
+   - Inactive products cannot be added
+
+5. TRANSACTION SAFETY:
+   - Move operations are atomic
+   - Failed operations are rolled back
+   - No partial updates
+
+================================================================================
+                    WORKFLOW EXAMPLES
+================================================================================
+
+EXAMPLE 1: Add product to cart and checkout
+1. POST /api/cart (add product)
+2. GET /api/cart (review cart)
+3. POST /api/cart/{id}/increment (adjust quantity)
+4. GET /api/cart/validate (validate before checkout)
+5. Proceed to checkout
+
+EXAMPLE 2: Save item for later
+1. POST /api/cart (add product)
+2. POST /api/cart/{id}/save-later (save it)
+3. GET /api/cart/saved-for-later (view saved items)
+4. POST /api/cart/{id}/move-to-cart (move back when ready)
+
+EXAMPLE 3: Wishlist workflow
+1. POST /api/wishlist (add product to wishlist)
+2. GET /api/wishlist (browse wishlist)
+3. POST /api/wishlist/{id}/move-to-cart (add to cart)
+4. Proceed with checkout
+
+EXAMPLE 4: Move cart item to wishlist
+1. POST /api/cart (add product)
+2. POST /api/cart/{id}/move-to-wishlist (move to wishlist)
+3. GET /api/wishlist (verify it's in wishlist)
+
+================================================================================
+                    END OF DOCUMENTATION
+================================================================================
