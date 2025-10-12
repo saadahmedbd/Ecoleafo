@@ -25,7 +25,9 @@ import (
 	buyerProfilerepo "github.com/saadahmedbd/Treestore/Rest/Repository/BuyerProfileRepo"
 	cartitemrepo "github.com/saadahmedbd/Treestore/Rest/Repository/CartItemRepo"
 	guestcartrepo "github.com/saadahmedbd/Treestore/Rest/Repository/GuestCartRepo"
+	orderrepo "github.com/saadahmedbd/Treestore/Rest/Repository/OrderRepo"
 	selleraccountrepo "github.com/saadahmedbd/Treestore/Rest/Repository/SellerAccountRepo"
+	orderservice "github.com/saadahmedbd/Treestore/Rest/Service/OrderService"
 	productservice "github.com/saadahmedbd/Treestore/Rest/Service/ProductService"
 	selleraccountservice "github.com/saadahmedbd/Treestore/Rest/Service/SellerAccountService"
 	buyerservice "github.com/saadahmedbd/Treestore/Rest/Service/buyerService"
@@ -44,6 +46,7 @@ func Server() {
 	buyercompleterepo := buyercompleterepo.NewProfileCompleteRepository(Config.DB)
 	selleraccountrepo := selleraccountrepo.NewSellerRegistrationRepository(Config.DB)
 	cartitemrepo := cartitemrepo.NewCartRepository(Config.DB)
+	orderrepo := orderrepo.NewOrderRepository(Config.DB)
 
 	//service
 	productservice := productservice.NewProductService(Config.DB)
@@ -52,12 +55,12 @@ func Server() {
 	guestcartservice := guestcartservice.NewGuestCartService(guestcartrepo, buyercompleterepo, buyerProfilerepo)
 	selleracoubtService := selleraccountservice.NewSellerRegistrationService(selleraccountrepo)
 	cartservice := cartservice.NewCartService(cartitemrepo)
+	orderservice := orderservice.NewOrderService(orderrepo, cartitemrepo, buyerProfilerepo, *productservice)
 
 	//handler
 	buyerhandler := buyerhandler.NewHandler()
 	cartitemhandler := cartitemhandler.NewHandler()
 	categoryHandler := categoryHandler.NewHandler()
-	orderhandler := orderhandler.NewHandler()
 	orderitemhandler := orderitemhandler.NewHandler()
 	producthandler := producthandler.NewHandler(productservice)
 	profilehandler := profilehandler.NewHandler()
@@ -71,11 +74,11 @@ func Server() {
 	guestcarthandler := guestcarthandler.NewGuestCartHandler(guestcartservice)
 	selleraccounthandler := selleraccounthandler.NewSellerRegistrationHandler(selleracoubtService)
 	carthandler := carthandler.NewCartService(cartservice)
+	orderhandler := orderhandler.NewOrderHandler(orderservice)
 
 	server := rest.NewServer(buyerhandler,
 		cartitemhandler,
 		categoryHandler,
-		orderhandler,
 		orderitemhandler,
 		producthandler,
 		profilehandler,
@@ -89,6 +92,7 @@ func Server() {
 		guestcarthandler,
 		selleraccounthandler,
 		carthandler,
+		orderhandler,
 	)
 	server.Start(cnf)
 

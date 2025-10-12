@@ -33,7 +33,6 @@ type Server struct {
 	buyerHandler         *buyerhandler.Handler
 	cartitemhandler      *cartitemhandler.Handler
 	categoryHandler      *categoryHandler.Handler
-	orderhandler         *orderhandler.Handler
 	orderitemhandler     *orderitemhandler.Handler
 	producthandler       *producthandler.Handler
 	profilehandler       *profilehandler.Handler
@@ -47,13 +46,13 @@ type Server struct {
 	guestcarthandler     *guestcarthandler.GuestcartHandler
 	selleraccounthandler *selleraccounthandler.SellerRegistrationHandler
 	carthandler          *carthandler.CartHandler
+	orderhandler         *orderhandler.OrderHandler
 }
 
 func NewServer(
 	buyerHandler *buyerhandler.Handler,
 	cartitemHandler *cartitemhandler.Handler,
 	categoryHandler *categoryHandler.Handler,
-	orderHandler *orderhandler.Handler,
 	orderitemHandler *orderitemhandler.Handler,
 	productHandler *producthandler.Handler,
 	profileHandler *profilehandler.Handler,
@@ -67,13 +66,13 @@ func NewServer(
 	guestcartHandler *guestcarthandler.GuestcartHandler,
 	sellerAccountHandler *selleraccounthandler.SellerRegistrationHandler,
 	cartHandler *carthandler.CartHandler,
+	orderHandler *orderhandler.OrderHandler,
 
 ) *Server {
 	return &Server{
 		buyerHandler:         buyerHandler,
 		cartitemhandler:      cartitemHandler,
 		categoryHandler:      categoryHandler,
-		orderhandler:         orderHandler,
 		orderitemhandler:     orderitemHandler,
 		producthandler:       productHandler,
 		profilehandler:       profileHandler,
@@ -87,6 +86,7 @@ func NewServer(
 		guestcarthandler:     guestcartHandler,
 		selleraccounthandler: sellerAccountHandler,
 		carthandler:          cartHandler,
+		orderhandler:         orderHandler,
 	}
 
 }
@@ -98,7 +98,6 @@ func (server *Server) Start(cnf Config.Config) {
 	server.buyerHandler.BuyerRoute(mux)
 	server.cartitemhandler.CartItemRoute(mux)
 	server.categoryHandler.CategoryRoute(mux)
-	server.orderhandler.OrderRoute(mux)
 	server.orderitemhandler.OrderItemRoute(mux)
 	server.producthandler.ProductRoute(mux)
 	server.profilehandler.Profile(mux)
@@ -112,6 +111,7 @@ func (server *Server) Start(cnf Config.Config) {
 	server.guestcarthandler.GuestCartRoute(mux)
 	server.selleraccounthandler.SellerAccountRoute(mux)
 	server.carthandler.CartItemRoute(mux)
+	server.orderhandler.OrderRoute(mux)
 
 	// Handle all cors
 	handler := middleware.Cors(mux)
