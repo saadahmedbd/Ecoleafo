@@ -1,7 +1,14 @@
 package orderhandler
 
-type Handler struct{}
+import orderservice "github.com/saadahmedbd/Treestore/Rest/Service/OrderService"
 
-func NewHandler() *Handler {
-	return &Handler{}
+type OrderHandler struct {
+	orderService orderservice.OrderService
+}
+
+func NewOrderHandler(orederService orderservice.OrderService) *OrderHandler {
+
+	return &OrderHandler{
+		orderService: orederService,
+	}
 }

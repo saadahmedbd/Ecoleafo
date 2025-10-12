@@ -7,7 +7,7 @@ import (
 	util "github.com/saadahmedbd/Treestore/Util"
 )
 
-func (h *OrderHandler) GetOrderById(w http.ResponseWriter, r *http.Request) {
+func (h *OrderHandler) GetOrderHistory(w http.ResponseWriter, r *http.Request) {
 	userIDStr := r.Header.Get("user_id")
 	userIDType := r.Header.Get("user_role")
 
@@ -26,19 +26,18 @@ func (h *OrderHandler) GetOrderById(w http.ResponseWriter, r *http.Request) {
 
 	orderId := r.URL.Query().Get("id")
 	if orderId == "" {
-		http.Error(w, "order id is required", http.StatusBadRequest)
+		http.Error(w, "order id is empty", http.StatusBadRequest)
 		return
 	}
 	sId, err := strconv.Atoi(orderId)
 	if err != nil {
-		http.Error(w, "id not convert", http.StatusNoContent)
+		http.Error(w, "invalid order id", http.StatusNoContent)
 		return
 	}
-	order, err := h.orderService.GetOrderByID(uint(sId), uint(userID), userIDType)
+	history, err := h.orderService.GetOrderHistory(uint(sId), uint(userID), userIDType)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusNotFound)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
 	}
-	// not return password
-
-	util.SendData(w, order, 200)
+	util.SendData(w, history, 200)
 }
