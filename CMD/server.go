@@ -3,6 +3,7 @@ package CMD
 import (
 	"github.com/saadahmedbd/Treestore/Config"
 	rest "github.com/saadahmedbd/Treestore/Rest"
+	adminhandler "github.com/saadahmedbd/Treestore/Rest/Handler/AdminHandler"
 	authhandler "github.com/saadahmedbd/Treestore/Rest/Handler/AuthHandler"
 	buyerhandler "github.com/saadahmedbd/Treestore/Rest/Handler/BuyerHandler"
 	buyerprofilehandler "github.com/saadahmedbd/Treestore/Rest/Handler/BuyerProfileHandler"
@@ -21,12 +22,15 @@ import (
 	carthandler "github.com/saadahmedbd/Treestore/Rest/Handler/cartHandler"
 	selleraccounthandler "github.com/saadahmedbd/Treestore/Rest/Handler/sellerAccountHandler"
 	repository "github.com/saadahmedbd/Treestore/Rest/Repository"
+	adminrepo "github.com/saadahmedbd/Treestore/Rest/Repository/AdminRepo"
 	buyercompleterepo "github.com/saadahmedbd/Treestore/Rest/Repository/BuyerCompleteRepo"
 	buyerProfilerepo "github.com/saadahmedbd/Treestore/Rest/Repository/BuyerProfileRepo"
 	cartitemrepo "github.com/saadahmedbd/Treestore/Rest/Repository/CartItemRepo"
 	guestcartrepo "github.com/saadahmedbd/Treestore/Rest/Repository/GuestCartRepo"
 	orderrepo "github.com/saadahmedbd/Treestore/Rest/Repository/OrderRepo"
+	reguserrepo "github.com/saadahmedbd/Treestore/Rest/Repository/RegUserRepo"
 	selleraccountrepo "github.com/saadahmedbd/Treestore/Rest/Repository/SellerAccountRepo"
+	adminservice "github.com/saadahmedbd/Treestore/Rest/Service/AdminService"
 	orderservice "github.com/saadahmedbd/Treestore/Rest/Service/OrderService"
 	productservice "github.com/saadahmedbd/Treestore/Rest/Service/ProductService"
 	selleraccountservice "github.com/saadahmedbd/Treestore/Rest/Service/SellerAccountService"
@@ -47,6 +51,8 @@ func Server() {
 	selleraccountrepo := selleraccountrepo.NewSellerRegistrationRepository(Config.DB)
 	cartitemrepo := cartitemrepo.NewCartRepository(Config.DB)
 	orderrepo := orderrepo.NewOrderRepository(Config.DB)
+	reguserrepo := reguserrepo.NewRegUserRepository(Config.DB)
+	adminrepo := adminrepo.NewAdminRepository(Config.DB)
 
 	//service
 	productservice := productservice.NewProductService(Config.DB)
@@ -56,6 +62,7 @@ func Server() {
 	selleracoubtService := selleraccountservice.NewSellerRegistrationService(selleraccountrepo)
 	cartservice := cartservice.NewCartService(cartitemrepo)
 	orderservice := orderservice.NewOrderService(orderrepo, cartitemrepo, buyerProfilerepo, *productservice)
+	adminservice := adminservice.NewAdminService(adminrepo, reguserrepo)
 
 	//handler
 	buyerhandler := buyerhandler.NewHandler()
@@ -75,6 +82,7 @@ func Server() {
 	selleraccounthandler := selleraccounthandler.NewSellerRegistrationHandler(selleracoubtService)
 	carthandler := carthandler.NewCartService(cartservice)
 	orderhandler := orderhandler.NewOrderHandler(orderservice)
+	adminhandler := adminhandler.NewAdminHandler(adminservice)
 
 	server := rest.NewServer(buyerhandler,
 		cartitemhandler,
@@ -93,6 +101,7 @@ func Server() {
 		selleraccounthandler,
 		carthandler,
 		orderhandler,
+		adminhandler,
 	)
 	server.Start(cnf)
 

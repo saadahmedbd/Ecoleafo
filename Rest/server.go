@@ -7,6 +7,7 @@ import (
 	"strconv"
 
 	"github.com/saadahmedbd/Treestore/Config"
+	adminhandler "github.com/saadahmedbd/Treestore/Rest/Handler/AdminHandler"
 	authhandler "github.com/saadahmedbd/Treestore/Rest/Handler/AuthHandler"
 	buyerhandler "github.com/saadahmedbd/Treestore/Rest/Handler/BuyerHandler"
 	buyerprofilehandler "github.com/saadahmedbd/Treestore/Rest/Handler/BuyerProfileHandler"
@@ -47,6 +48,7 @@ type Server struct {
 	selleraccounthandler *selleraccounthandler.SellerRegistrationHandler
 	carthandler          *carthandler.CartHandler
 	orderhandler         *orderhandler.OrderHandler
+	adminhandler         *adminhandler.Adminhandler
 }
 
 func NewServer(
@@ -67,6 +69,7 @@ func NewServer(
 	sellerAccountHandler *selleraccounthandler.SellerRegistrationHandler,
 	cartHandler *carthandler.CartHandler,
 	orderHandler *orderhandler.OrderHandler,
+	adminHadler *adminhandler.Adminhandler,
 
 ) *Server {
 	return &Server{
@@ -87,6 +90,7 @@ func NewServer(
 		selleraccounthandler: sellerAccountHandler,
 		carthandler:          cartHandler,
 		orderhandler:         orderHandler,
+		adminhandler:         adminHadler,
 	}
 
 }
@@ -112,6 +116,7 @@ func (server *Server) Start(cnf Config.Config) {
 	server.selleraccounthandler.SellerAccountRoute(mux)
 	server.carthandler.CartItemRoute(mux)
 	server.orderhandler.OrderRoute(mux)
+	server.adminhandler.AdminRoute(mux)
 
 	// Handle all cors
 	handler := middleware.Cors(mux)
