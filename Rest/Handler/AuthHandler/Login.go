@@ -99,7 +99,7 @@ func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
 			lastName = ""
 		} else {
 			userRoles = []string{"buyer"}
-			userType = "buyer"
+			userType = "please compete buyer profile"
 		}
 	}
 
