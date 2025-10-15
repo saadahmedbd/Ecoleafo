@@ -27,6 +27,7 @@ type RegUser struct {
 	// Relationships
 	SellerProfile *User  `json:"seller_profile,omitempty" gorm:"foreignKey:UserId;references:ID"`
 	BuyerProfile  *Buyer `json:"buyer_profile,omitempty" gorm:"foreignKey:UserId;references:ID"`
+	AdminProfile  *Admin `json:"admin_profile,omitempty" gorm:"foreignKey:UserID;references:ID"`
 }
 
 func (u *RegUser) CheckPassword(password string) error {
