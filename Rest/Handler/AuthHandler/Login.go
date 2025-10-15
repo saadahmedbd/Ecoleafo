@@ -90,9 +90,17 @@ func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
 
 	// If not found in either table, check if this is an admin
 	if buyerErr != nil && sellerErr != nil {
-		// Assume admin or default buyer
-		userRoles = []string{"buyer"}
-		userType = "buyer"
+		var admin models.Admin
+		adminErr := h.service.db.Where("user_id = ?", regUser.ID).First(&admin).Error
+		if adminErr == nil {
+			userType = "admin"
+			userRoles = []string{"admin"}
+			firstName = admin.FullName
+			lastName = ""
+		} else {
+			userRoles = []string{"buyer"}
+			userType = "buyer"
+		}
 	}
 
 	// Generate JWT token with the RegUser.ID (which is referenced by user_id in other tables)
