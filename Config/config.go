@@ -11,10 +11,11 @@ import (
 var configaration Config
 
 type Config struct {
-	Version      string
-	ServiceName  string
-	HttpPort     int64
-	JwtSecretKey string
+	Version         string
+	ServiceName     string
+	HttpPort        int64
+	JwtSecretKey    string
+	AllowedOrigins  string
 }
 
 func loadConfig() {
@@ -49,12 +50,17 @@ func loadConfig() {
 		fmt.Println("required jwt secret key")
 		os.Exit(1)
 	}
+	allowedOrigins := os.Getenv("ALLOWED_ORIGINS")
+	if allowedOrigins == "" {
+		allowedOrigins = "*"
+	}
 
 	configaration = Config{
-		Version:      version,
-		ServiceName:  serviceName,
-		HttpPort:     Port,
-		JwtSecretKey: jwtSecretKey,
+		Version:        version,
+		ServiceName:    serviceName,
+		HttpPort:       Port,
+		JwtSecretKey:   jwtSecretKey,
+		AllowedOrigins: allowedOrigins,
 	}
 }
 func GetConfig() Config {
