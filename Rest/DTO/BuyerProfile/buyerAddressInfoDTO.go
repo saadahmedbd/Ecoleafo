@@ -10,5 +10,6 @@ type AddressInfo struct {
 	District     string `json:"district"`
 	Country      string `json:"country"`
 	PostalCode   string `json:"postal_code"`
+	Phone        string `json:"phone"`
 	IsDefault    bool   `json:"is_default"`
 }

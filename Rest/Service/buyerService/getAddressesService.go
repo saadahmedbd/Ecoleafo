@@ -22,9 +22,11 @@ func (s *buyerService) GetAddresses(userIDFromJWT uint) ([]buyerprofile.AddressI
 			AddressLine1: addr.AddressLine1,
 			AddressLine2: addr.AddressLine2,
 			City:         addr.City,
-			State:        addr.State,
+			Street:       addr.Street,
 			District:     addr.District,
+			State:        addr.State,
 			Country:      addr.Country,
+			Phone:        addr.Phone,
 			PostalCode:   addr.PostalCode,
 			IsDefault:    addr.IsDefault,
 		})

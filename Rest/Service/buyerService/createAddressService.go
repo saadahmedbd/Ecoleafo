@@ -23,6 +23,7 @@ func (s *buyerService) CreateAddress(userIDFromJWT uint, req buyerprofile.Addres
 		District:     req.District,
 		Country:      req.Country,
 		PostalCode:   req.PostalCode,
+		Phone:        req.Phone,
 		IsDefault:    req.IsDefault,
 	}
 
@@ -36,7 +37,7 @@ func (s *buyerService) CreateAddress(userIDFromJWT uint, req buyerprofile.Addres
 	}
 
 	return &buyerprofile.AddressInfo{
-		
+		ID:           address.ID,
 		AddressLine1: address.AddressLine1,
 		AddressLine2: address.AddressLine2,
 		Street:       address.Street,
@@ -45,6 +46,7 @@ func (s *buyerService) CreateAddress(userIDFromJWT uint, req buyerprofile.Addres
 		District:     address.District,
 		Country:      address.Country,
 		PostalCode:   address.PostalCode,
+		Phone:        address.Phone,
 		IsDefault:    address.IsDefault,
 	}, nil
 }
