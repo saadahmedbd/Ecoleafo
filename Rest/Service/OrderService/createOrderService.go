@@ -15,6 +15,22 @@ func (s *orderService) CreateOrder(buyerID uint, req order.CreateOrderRequest) (
 	if err != nil {
 		return nil, errors.New("buyer not found")
 	}
+	// validate buyer has at least one address
+	addresses, err := s.buyerProfilerepo.GetBuyerAddresses(buyerID)
+	if err != nil || len(addresses) == 0 {
+		return nil, errors.New("please add a delivery address before placing order")
+	}
+	// validate address has required fields
+	hasValidAddress := false
+	for _, addr := range addresses {
+		if addr.Phone != "" && addr.AddressLine1 != "" && addr.City != "" && addr.District != "" && addr.State != "" && addr.PostalCode != "" {
+			hasValidAddress = true
+			break
+		}
+	}
+	if !hasValidAddress {
+		return nil, errors.New("please complete your address with phone, address line, city, district, state, and postal code")
+	}
 	//get cart items
 	cartItems, err := s.cartitemrepo.GetCart(buyerID, true)
 	if err != nil || len(cartItems) == 0 {
