@@ -71,11 +71,24 @@ func (h *Handler) Registation(w http.ResponseWriter, r *http.Request) {
 		LastName:   req.LastName,
 		Email:      req.Email,
 		Password:   hashed,
+		Role:       "buyer",
 		Created_At: time.Now(),
 	}
 	if err := tx.Create(&user).Error; err != nil {
 		tx.Rollback()
 		http.Error(w, "Error creating user: "+err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	// Automatically create buyer record for cart functionality
+	buyer := models.Buyer{
+		RoleID:   3,
+		UserId:   user.ID,
+		Password: hashed,
+	}
+	if err := tx.Create(&buyer).Error; err != nil {
+		tx.Rollback()
+		http.Error(w, "Error creating buyer profile: "+err.Error(), http.StatusInternalServerError)
 		return
 	}
 
