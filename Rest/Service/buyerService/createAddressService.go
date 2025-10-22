@@ -15,6 +15,7 @@ func (s *buyerService) CreateAddress(userIDFromJWT uint, req buyerprofile.Addres
 
 	address := &models.Address{
 		BuyerID:      buyer.ID,
+		FullName:     req.FullName,
 		AddressLine1: req.AddressLine1,
 		AddressLine2: req.AddressLine2,
 		Street:       req.Street,
@@ -38,6 +39,7 @@ func (s *buyerService) CreateAddress(userIDFromJWT uint, req buyerprofile.Addres
 
 	return &buyerprofile.AddressInfo{
 		ID:           address.ID,
+		FullName:     address.FullName,
 		AddressLine1: address.AddressLine1,
 		AddressLine2: address.AddressLine2,
 		Street:       address.Street,

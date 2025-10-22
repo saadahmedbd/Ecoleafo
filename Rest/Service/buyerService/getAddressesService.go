@@ -19,6 +19,7 @@ func (s *buyerService) GetAddresses(userIDFromJWT uint) ([]buyerprofile.AddressI
 	for _, addr := range addresses {
 		addressInfos = append(addressInfos, buyerprofile.AddressInfo{
 			ID:           addr.ID,
+			FullName:     addr.FullName,
 			AddressLine1: addr.AddressLine1,
 			AddressLine2: addr.AddressLine2,
 			City:         addr.City,

@@ -2,6 +2,7 @@ package buyerprofile
 
 type AddressInfo struct {
 	ID           uint   `json:"id"`
+	FullName     string `json:"full_name"`
 	AddressLine1 string `json:"address_line_1"`
 	AddressLine2 string `json:"address_line_2"`
 	Street       string `json:"street"`
