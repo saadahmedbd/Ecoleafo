@@ -14,9 +14,7 @@ func (s *guestcartservice) CreateCheckoutAddress(userID uint, req address.Create
 	address := &models.Address{
 		BuyerID:      buyer.ID,
 		Type:         req.Type,
-		FirstName:    req.FirstName,
-		LastName:     req.LastName,
-		Company:      req.Company,
+		FullName:     req.FullName,
 		AddressLine1: req.AddressLine1,
 		AddressLine2: req.AddressLine2,
 		Street:       req.Street,

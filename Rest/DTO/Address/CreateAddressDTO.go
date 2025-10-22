@@ -2,9 +2,7 @@ package address
 
 type CreateAddressRequest struct {
 	Type         string `json:"type" validate:"required,oneof=shipping billing"` // shipping, billing
-	FirstName    string `json:"first_name" validate:"required"`
-	LastName     string `json:"last_name" validate:"required"`
-	Company      string `json:"company"`
+	FullName     string `json:"full_name" validate:"required"`
 	AddressLine1 string `json:"address_line_1" validate:"required"`
 	AddressLine2 string `json:"address_line_2"`
 	Street       string `json:"street"`
