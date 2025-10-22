@@ -15,6 +15,9 @@ func (s *buyerService) UpdateAddress(userIDFromJWT uint, addressID uint, req buy
 	if err != nil {
 		return nil, err
 	}
+	if req.FullName != "" {
+		address.FullName = req.FullName
+	}
 
 	// Update only non-empty fields
 	if req.AddressLine1 != "" {
@@ -54,6 +57,7 @@ func (s *buyerService) UpdateAddress(userIDFromJWT uint, addressID uint, req buy
 
 	return &buyerprofile.AddressInfo{
 		ID:           address.ID,
+		FullName:     address.FullName,
 		AddressLine1: address.AddressLine1,
 		AddressLine2: address.AddressLine2,
 		Street:       address.Street,
