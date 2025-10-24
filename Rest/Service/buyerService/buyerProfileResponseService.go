@@ -11,6 +11,7 @@ func (s *buyerService) mapToBuyerProfileResponse(buyer *models.Buyer) *buyerprof
 		ID:               buyer.ID,
 		UserId:           buyer.UserId,
 		Phone:            buyer.Phone,
+		ProfilePicture:   buyer.ProfilePicture,
 		DefaultAddress:   buyer.DefaultAddress,
 		IsActive:         buyer.IsActive,
 		EmailVerified:    buyer.EmailVerified,
@@ -44,6 +45,8 @@ func (s *buyerService) mapToBuyerProfileResponse(buyer *models.Buyer) *buyerprof
 	for _, addr := range buyer.Addresses {
 		response.Addresses = append(response.Addresses, buyerprofile.AddressInfo{
 			ID:           addr.ID,
+			Phone:        addr.Phone,
+			FullName:     addr.FullName,
 			AddressLine1: addr.AddressLine1,
 			AddressLine2: addr.AddressLine2,
 			City:         addr.City,

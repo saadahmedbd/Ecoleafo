@@ -15,6 +15,10 @@ func (h *Buyerprofilehandler) BuyerRoute(mux *http.ServeMux) {
 		middleware.AuthenticateJWT,
 		middleware.Logger,
 	))
+	mux.Handle("POST /api/buyer/upload-profile-picture", middleware.Chain(http.HandlerFunc(h.UploadBuyerProfilePicture),
+		middleware.AuthenticateJWT,
+		middleware.Logger,
+	))
 	mux.Handle("PUT /api/buyer/profile/password", middleware.Chain(http.HandlerFunc(h.ChangeBuyerPassword),
 		middleware.AuthenticateJWT,
 		middleware.Logger,

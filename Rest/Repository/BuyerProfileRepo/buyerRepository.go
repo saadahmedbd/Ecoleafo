@@ -40,7 +40,9 @@ func NewBuyerRepository(db *gorm.DB) BuyerRepository {
 
 func (r *buyerRepository) GetBuyerByUserID(userID uint) (*models.Buyer, error) {
 	var buyer models.Buyer
-	err := r.db.Where("user_id =?", userID).First(&buyer).Error
+	err := r.db.Preload("RegUser").
+		Where("user_id =?", userID).
+		First(&buyer).Error
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, fmt.Errorf("buyer not found")
@@ -83,9 +85,53 @@ func (r *buyerRepository) GetBuyerWithRelations(buyerID uint) (*models.Buyer, er
 	}
 	return &buyer, nil
 }
-
 func (r *buyerRepository) UpdateBuyerProfile(buyer *models.Buyer) error {
-	return r.db.Save(&buyer).Error
+	tx := r.db.Begin()
+
+	// --- 1️⃣ Buyer table updates ---
+	buyerUpdate := map[string]interface{}{}
+
+	if buyer.Phone != "" {
+		buyerUpdate["phone"] = buyer.Phone
+	}
+	if buyer.ProfilePicture != "" {
+		buyerUpdate["profile_picture"] = buyer.ProfilePicture
+	}
+
+	if len(buyerUpdate) > 0 {
+		if err := tx.Model(&models.Buyer{}).
+			Where("id = ?", buyer.ID).
+			Updates(buyerUpdate).Error; err != nil {
+			tx.Rollback()
+			return err
+		}
+	}
+
+	// --- 2️⃣ RegUser table updates ---
+	if buyer.RegUser.ID != 0 {
+		userUpdate := map[string]interface{}{}
+
+		if buyer.RegUser.FirstName != "" {
+			userUpdate["first_name"] = buyer.RegUser.FirstName
+		}
+		if buyer.RegUser.LastName != "" {
+			userUpdate["last_name"] = buyer.RegUser.LastName
+		}
+		if buyer.RegUser.Email != "" {
+			userUpdate["email"] = buyer.RegUser.Email
+		}
+
+		if len(userUpdate) > 0 {
+			if err := tx.Model(&models.RegUser{}).
+				Where("id = ?", buyer.RegUser.ID).
+				Updates(userUpdate).Error; err != nil {
+				tx.Rollback()
+				return err
+			}
+		}
+	}
+
+	return tx.Commit().Error
 }
 
 func (r *buyerRepository) GetBuyerStats(buyerID uint) (*buyerprofile.BuyerStateResponse, error) {
@@ -262,5 +308,3 @@ func (r *buyerRepository) SetDefaultAddress(buyerID, addressID uint) error {
 
 	return tx.Commit().Error
 }
-
-

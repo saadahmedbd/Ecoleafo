@@ -10,6 +10,7 @@ type BuyerProfileResponse struct {
 	ID               uint                           `json:"id"`
 	UserId           uint                           `json:"user_id"`
 	Phone            string                         `json:"phone"`
+	ProfilePicture   string                         `json:"profile_picture"`
 	DefaultAddress   string                         `json:"default_address"`
 	IsActive         bool                           `json:"is_active"`
 	EmailVerified    bool                           `json:"email_verified"`

@@ -8,11 +8,12 @@ import (
 
 // Buyer represents customers who can place orders
 type Buyer struct {
-	ID       uint   `json:"id" gorm:"primaryKey;autoIncrement"`
-	RoleID   uint   `json:"role_id" gorm:"not null"`
-	UserId   uint   `json:"user_id" gorm:"uniqueindex"`
-	Password string `json:"-" gorm:"size:255;not null"` // Hidden in JSON
-	Phone    string `json:"phone" gorm:"size:20"`
+	ID             uint   `json:"id" gorm:"primaryKey;autoIncrement"`
+	RoleID         uint   `json:"role_id" gorm:"not null"`
+	UserId         uint   `json:"user_id" gorm:"uniqueindex"`
+	Password       string `json:"-" gorm:"size:255;not null"` // Hidden in JSON
+	Phone          string `json:"phone" gorm:"size:20"`
+	ProfilePicture string `json:"profile_picture" gorm:"size=500"`
 	//address
 	DefaultAddress   string `json:"default_address" gorm:"type:text"`
 	DefaultAddressID *uint  `json:"default_address_id"` // Link to Address table

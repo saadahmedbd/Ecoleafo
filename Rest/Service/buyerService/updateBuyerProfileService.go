@@ -15,8 +15,17 @@ func (s *buyerService) UpdateBuyerProfile(userIDFromJWT uint, req buyerprofile.U
 	if req.Phone != "" {
 		buyer.Phone = req.Phone
 	}
-	if req.DefaultAddress != "" {
-		buyer.DefaultAddress = req.DefaultAddress
+	if req.FirstName != "" {
+		buyer.RegUser.FirstName = req.FirstName
+	}
+	if req.LastName != "" {
+		buyer.RegUser.LastName = req.LastName
+	}
+	if req.Email != "" {
+		buyer.RegUser.Email = req.Email
+	}
+	if req.ProfilePicture != "" {
+		buyer.ProfilePicture = req.ProfilePicture
 	}
 
 	if err := s.buyerRepo.UpdateBuyerProfile(buyer); err != nil {
