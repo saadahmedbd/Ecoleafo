@@ -1,6 +1,8 @@
 package CMD
 
 import (
+	"log"
+
 	"github.com/saadahmedbd/Treestore/Config"
 	rest "github.com/saadahmedbd/Treestore/Rest"
 	adminhandler "github.com/saadahmedbd/Treestore/Rest/Handler/AdminHandler"
@@ -63,6 +65,10 @@ func Server() {
 	cartservice := cartservice.NewCartService(cartitemrepo)
 	orderservice := orderservice.NewOrderService(orderrepo, cartitemrepo, buyerProfilerepo, *productservice)
 	adminservice := adminservice.NewAdminService(adminrepo, reguserrepo)
+	cloudniaryservice := Config.InitializeCloudinary()
+	if cloudniaryservice == nil {
+		log.Fatalf("Failed to initialize Cloudinary service. Check your credentials.")
+	}
 
 	//handler
 	buyerhandler := buyerhandler.NewHandler()
@@ -77,7 +83,7 @@ func Server() {
 	userhandler := userhandler.NewHandler()
 	authhandler := authhandler.NewHandler(authhandler.NewProductService(Config.DB))
 	sellerprofilehandler := sellerproflehandler.NewSellerProfileHandler(sellerprofileservice)
-	buyerprofilehandler := buyerprofilehandler.NewBuyerProfileHandler(buyerProfileservice)
+	buyerprofilehandler := buyerprofilehandler.NewBuyerProfileHandler(buyerProfileservice, *cloudniaryservice)
 	guestcarthandler := guestcarthandler.NewGuestCartHandler(guestcartservice)
 	selleraccounthandler := selleraccounthandler.NewSellerRegistrationHandler(selleracoubtService)
 	carthandler := carthandler.NewCartService(cartservice)

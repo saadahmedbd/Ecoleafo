@@ -5,6 +5,13 @@ go 1.24.2
 require github.com/gorilla/mux v1.8.1
 
 require (
+	github.com/cloudinary/cloudinary-go/v2 v2.13.0 // indirect
+	github.com/creasty/defaults v1.7.0 // indirect
+	github.com/google/uuid v1.5.0 // indirect
+	github.com/gorilla/schema v1.4.1 // indirect
+)
+
+require (
 	github.com/golang-jwt/jwt v3.2.2+incompatible
 	github.com/golang-jwt/jwt/v5 v5.3.0 // indirect
 	github.com/jackc/pgpassfile v1.0.0 // indirect

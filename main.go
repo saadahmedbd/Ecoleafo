@@ -9,10 +9,11 @@ import (
 func main() {
 	// Run Auto Migration
 	Config.Connect()
-	
+
 	// Seed super admin
 	database.SeedSuperAdminFromEnv(Config.DB)
-
+	// Initialize Cloudinary service
+	Config.InitializeCloudinary()
 	CMD.Server()
 
 }
