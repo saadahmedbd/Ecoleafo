@@ -1,36 +1,47 @@
 package categoryHandler
 
 import (
-	"fmt"
 	"net/http"
 	"strconv"
+	"strings"
 
-	"github.com/saadahmedbd/Treestore/Config"
-	models "github.com/saadahmedbd/Treestore/Models"
+	util "github.com/saadahmedbd/Treestore/Util"
 )
 
-func (h *Handler) DeleteCategory(w http.ResponseWriter, r *http.Request) {
-	if r.Method != "DELETE" {
-		http.Error(w, "Please provide valid request", http.StatusBadRequest)
+// DeleteCategory handles DELETE requests to delete a category
+// DELETE /api/categories/delete?id=1
+func (h *CategoryHandler) DeleteCategory(w http.ResponseWriter, r *http.Request) {
+	// Check if user has admin role
+	userType := r.Header.Get("user_role")
+	if userType == "" {
+		http.Error(w, "user_role not found in headers", http.StatusUnauthorized)
 		return
 	}
-	categoryId := r.PathValue("categoryId")
-	id, err := strconv.Atoi(categoryId)
-	if err != nil {
-		http.Error(w, "Invalid category id", http.StatusBadRequest)
+	// Check if user is a seller - adjust based on your role format
+	// Since roles is []string in JWT, it comes as "[seller]" or "[admin seller]"
+	if !strings.Contains(userType, "admin") {
+		http.Error(w, `{"error":"only admin can create products"}`, http.StatusForbidden)
 		return
 	}
-	//try to delete
-	var categories models.Category
-	if err := Config.DB.First(&categories, id).Error; err != nil {
-		http.Error(w, "user not found", http.StatusBadRequest)
-		return
-	}
-	if err := Config.DB.Delete(&categories).Error; err != nil {
-		http.Error(w, "Failed to delete category", http.StatusInternalServerError)
-		return
-	}
-	// util.SendData(w, seller, 200)
-	w.Write([]byte(fmt.Sprintf("category %d deleted successfully", id)))
 
+	// Parse category ID
+	idStr := r.URL.Query().Get("id")
+	if idStr == "" {
+		util.RespondJSON(w, http.StatusBadRequest, nil, "Category ID is required")
+		return
+	}
+
+	id, err := strconv.ParseUint(idStr, 10, 32)
+	if err != nil {
+		util.RespondJSON(w, http.StatusBadRequest, nil, "Invalid category ID")
+		return
+	}
+
+	// Delete category
+	if err := h.categoryService.DeleteCategory(uint(id)); err != nil {
+		util.RespondJSON(w, http.StatusBadRequest, nil, err.Error())
+		return
+	}
+
+	util.RespondJSON(w, http.StatusOK, nil, "Category deleted successfully")
 }

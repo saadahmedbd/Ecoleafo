@@ -28,8 +28,10 @@ import (
 	buyercompleterepo "github.com/saadahmedbd/Treestore/Rest/Repository/BuyerCompleteRepo"
 	buyerProfilerepo "github.com/saadahmedbd/Treestore/Rest/Repository/BuyerProfileRepo"
 	cartitemrepo "github.com/saadahmedbd/Treestore/Rest/Repository/CartItemRepo"
+	categoryrepo "github.com/saadahmedbd/Treestore/Rest/Repository/CategoryRepo"
 	guestcartrepo "github.com/saadahmedbd/Treestore/Rest/Repository/GuestCartRepo"
 	orderrepo "github.com/saadahmedbd/Treestore/Rest/Repository/OrderRepo"
+	productrepo "github.com/saadahmedbd/Treestore/Rest/Repository/ProductRepo"
 	reguserrepo "github.com/saadahmedbd/Treestore/Rest/Repository/RegUserRepo"
 	selleraccountrepo "github.com/saadahmedbd/Treestore/Rest/Repository/SellerAccountRepo"
 	adminservice "github.com/saadahmedbd/Treestore/Rest/Service/AdminService"
@@ -38,6 +40,7 @@ import (
 	selleraccountservice "github.com/saadahmedbd/Treestore/Rest/Service/SellerAccountService"
 	buyerservice "github.com/saadahmedbd/Treestore/Rest/Service/buyerService"
 	cartservice "github.com/saadahmedbd/Treestore/Rest/Service/cartService"
+	categoryservice "github.com/saadahmedbd/Treestore/Rest/Service/categoryService"
 	guestcartservice "github.com/saadahmedbd/Treestore/Rest/Service/guestCartService"
 	sellerprofileservice "github.com/saadahmedbd/Treestore/Rest/Service/sellerProfileService"
 )
@@ -55,6 +58,8 @@ func Server() {
 	orderrepo := orderrepo.NewOrderRepository(Config.DB)
 	reguserrepo := reguserrepo.NewRegUserRepository(Config.DB)
 	adminrepo := adminrepo.NewAdminRepository(Config.DB)
+	categoryrepo := categoryrepo.NewCategoryRepository(Config.DB)
+	productrepo := productrepo.NewProductRepository(Config.DB)
 
 	//service
 	productservice := productservice.NewProductService(Config.DB)
@@ -69,11 +74,11 @@ func Server() {
 	if cloudniaryservice == nil {
 		log.Fatalf("Failed to initialize Cloudinary service. Check your credentials.")
 	}
+	categoryService := categoryservice.NewCategoryService(categoryrepo, productrepo)
 
 	//handler
 	buyerhandler := buyerhandler.NewHandler()
 	cartitemhandler := cartitemhandler.NewHandler()
-	categoryHandler := categoryHandler.NewHandler()
 	orderitemhandler := orderitemhandler.NewHandler()
 	producthandler := producthandler.NewHandler(productservice)
 	profilehandler := profilehandler.NewHandler()
@@ -89,10 +94,10 @@ func Server() {
 	carthandler := carthandler.NewCartService(cartservice)
 	orderhandler := orderhandler.NewOrderHandler(orderservice)
 	adminhandler := adminhandler.NewAdminHandler(adminservice)
+	categoryHandler := categoryHandler.NewCategoryHandler(categoryService)
 
 	server := rest.NewServer(buyerhandler,
 		cartitemhandler,
-		categoryHandler,
 		orderitemhandler,
 		producthandler,
 		profilehandler,
@@ -108,6 +113,7 @@ func Server() {
 		carthandler,
 		orderhandler,
 		adminhandler,
+		categoryHandler,
 	)
 	server.Start(cnf)
 

@@ -33,7 +33,6 @@ import (
 type Server struct {
 	buyerHandler         *buyerhandler.Handler
 	cartitemhandler      *cartitemhandler.Handler
-	categoryHandler      *categoryHandler.Handler
 	orderitemhandler     *orderitemhandler.Handler
 	producthandler       *producthandler.Handler
 	profilehandler       *profilehandler.Handler
@@ -49,12 +48,12 @@ type Server struct {
 	carthandler          *carthandler.CartHandler
 	orderhandler         *orderhandler.OrderHandler
 	adminhandler         *adminhandler.Adminhandler
+	categoryHandler      *categoryHandler.CategoryHandler
 }
 
 func NewServer(
 	buyerHandler *buyerhandler.Handler,
 	cartitemHandler *cartitemhandler.Handler,
-	categoryHandler *categoryHandler.Handler,
 	orderitemHandler *orderitemhandler.Handler,
 	productHandler *producthandler.Handler,
 	profileHandler *profilehandler.Handler,
@@ -70,12 +69,12 @@ func NewServer(
 	cartHandler *carthandler.CartHandler,
 	orderHandler *orderhandler.OrderHandler,
 	adminHadler *adminhandler.Adminhandler,
+	categoryHandler *categoryHandler.CategoryHandler,
 
 ) *Server {
 	return &Server{
 		buyerHandler:         buyerHandler,
 		cartitemhandler:      cartitemHandler,
-		categoryHandler:      categoryHandler,
 		orderitemhandler:     orderitemHandler,
 		producthandler:       productHandler,
 		profilehandler:       profileHandler,
@@ -91,6 +90,7 @@ func NewServer(
 		carthandler:          cartHandler,
 		orderhandler:         orderHandler,
 		adminhandler:         adminHadler,
+		categoryHandler:      categoryHandler,
 	}
 
 }
@@ -101,7 +101,6 @@ func (server *Server) Start(cnf Config.Config) {
 
 	server.buyerHandler.BuyerRoute(mux)
 	server.cartitemhandler.CartItemRoute(mux)
-	server.categoryHandler.CategoryRoute(mux)
 	server.orderitemhandler.OrderItemRoute(mux)
 	server.producthandler.ProductRoute(mux)
 	server.profilehandler.Profile(mux)
@@ -117,6 +116,7 @@ func (server *Server) Start(cnf Config.Config) {
 	server.carthandler.CartItemRoute(mux)
 	server.orderhandler.OrderRoute(mux)
 	server.adminhandler.AdminRoute(mux)
+	server.categoryHandler.CategoryRoute(mux)
 
 	// Handle all cors
 	handler := middleware.Cors(mux)
