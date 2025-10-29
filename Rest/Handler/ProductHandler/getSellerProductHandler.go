@@ -15,9 +15,6 @@ func (h *Handler) GetSellerProduct(w http.ResponseWriter, r *http.Request) {
 	userIDStr := r.Header.Get("user_id")
 	userType := r.Header.Get("user_role")
 
-	// Debug logging
-	fmt.Printf("DEBUG GetSellerProducts - user_id: %s, user_role: %s\n", userIDStr, userType)
-
 	// Validation
 	if userIDStr == "" {
 		http.Error(w, `{"error":"user_id not found in headers"}`, http.StatusUnauthorized)
@@ -75,8 +72,6 @@ func (h *Handler) GetSellerProduct(w http.ResponseWriter, r *http.Request) {
 		SortBy:   sortBy,
 		Order:    order,
 	}
-
-	fmt.Printf("DEBUG: Getting products for user %d with filters: %+v\n", uint(userID), filters)
 
 	// Get seller products
 	result, err := h.service.GetSellerProducts(uint(userID), filters)

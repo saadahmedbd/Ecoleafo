@@ -7,7 +7,7 @@ import (
 )
 
 func (h *GuestcartHandler) GuestCartRoute(mux *http.ServeMux) {
-	mux.Handle("GET /api/cart", middleware.Chain(http.HandlerFunc(h.GetCart),
+	mux.Handle("GET /api/guest/cart", middleware.Chain(http.HandlerFunc(h.GetCart),
 		middleware.Cors,
 		middleware.Logger,
 	))
