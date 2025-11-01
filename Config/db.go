@@ -72,6 +72,10 @@ func Connect() {
 		&models.SellerCategory{},
 		&models.OrderHistory{},
 		&models.Notification{},
+		&models.SellerLoginActivity{},
+		&models.SellerNotificationPreference{},
+		&models.SellerPolicy{},
+		&models.SellerVerificationDocument{},
 	)
 	if err != nil {
 		fmt.Println(" Migration failed:", err)

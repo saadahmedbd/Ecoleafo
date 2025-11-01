@@ -21,6 +21,7 @@ import (
 	reviewhandler "github.com/saadahmedbd/Treestore/Rest/Handler/ReviewHandler"
 	rolehandler "github.com/saadahmedbd/Treestore/Rest/Handler/RoleHandler"
 	searchhandler "github.com/saadahmedbd/Treestore/Rest/Handler/SearchHandler"
+	selleraccountsettinghandler "github.com/saadahmedbd/Treestore/Rest/Handler/SellerAccountSettingHandler"
 	sellerproflehandler "github.com/saadahmedbd/Treestore/Rest/Handler/SellerProfleHandler"
 	userhandler "github.com/saadahmedbd/Treestore/Rest/Handler/UserHandler"
 	carthandler "github.com/saadahmedbd/Treestore/Rest/Handler/cartHandler"
@@ -31,24 +32,25 @@ import (
 
 // crete dependency
 type Server struct {
-	buyerHandler         *buyerhandler.Handler
-	cartitemhandler      *cartitemhandler.Handler
-	orderitemhandler     *orderitemhandler.Handler
-	producthandler       *producthandler.Handler
-	profilehandler       *profilehandler.Handler
-	reviewhandler        *reviewhandler.Handler
-	rolehandler          *rolehandler.Handler
-	searchhandler        *searchhandler.Handler
-	userhandler          *userhandler.Handler
-	authhandler          *authhandler.Handler
-	sellerprofilehandler *sellerproflehandler.SellerProfileHandler
-	buyerprofilehandler  *buyerprofilehandler.Buyerprofilehandler
-	guestcarthandler     *guestcarthandler.GuestcartHandler
-	selleraccounthandler *selleraccounthandler.SellerRegistrationHandler
-	carthandler          *carthandler.CartHandler
-	orderhandler         *orderhandler.OrderHandler
-	adminhandler         *adminhandler.Adminhandler
-	categoryHandler      *categoryHandler.CategoryHandler
+	buyerHandler                *buyerhandler.Handler
+	cartitemhandler             *cartitemhandler.Handler
+	orderitemhandler            *orderitemhandler.Handler
+	producthandler              *producthandler.Handler
+	profilehandler              *profilehandler.Handler
+	reviewhandler               *reviewhandler.Handler
+	rolehandler                 *rolehandler.Handler
+	searchhandler               *searchhandler.Handler
+	userhandler                 *userhandler.Handler
+	authhandler                 *authhandler.Handler
+	sellerprofilehandler        *sellerproflehandler.SellerProfileHandler
+	buyerprofilehandler         *buyerprofilehandler.Buyerprofilehandler
+	guestcarthandler            *guestcarthandler.GuestcartHandler
+	selleraccounthandler        *selleraccounthandler.SellerRegistrationHandler
+	carthandler                 *carthandler.CartHandler
+	orderhandler                *orderhandler.OrderHandler
+	adminhandler                *adminhandler.Adminhandler
+	categoryHandler             *categoryHandler.CategoryHandler
+	selleraccountsettinghandler *selleraccountsettinghandler.Selleraccountsettinghandler
 }
 
 func NewServer(
@@ -70,27 +72,29 @@ func NewServer(
 	orderHandler *orderhandler.OrderHandler,
 	adminHadler *adminhandler.Adminhandler,
 	categoryHandler *categoryHandler.CategoryHandler,
+	selleraccountsettinghandler *selleraccountsettinghandler.Selleraccountsettinghandler,
 
 ) *Server {
 	return &Server{
-		buyerHandler:         buyerHandler,
-		cartitemhandler:      cartitemHandler,
-		orderitemhandler:     orderitemHandler,
-		producthandler:       productHandler,
-		profilehandler:       profileHandler,
-		reviewhandler:        reviewHandler,
-		rolehandler:          rolehandler,
-		searchhandler:        searchHandler,
-		userhandler:          userHandler,
-		authhandler:          authhandler,
-		sellerprofilehandler: sellerProfileHandler,
-		buyerprofilehandler:  buyerProfileHandler,
-		guestcarthandler:     guestcartHandler,
-		selleraccounthandler: sellerAccountHandler,
-		carthandler:          cartHandler,
-		orderhandler:         orderHandler,
-		adminhandler:         adminHadler,
-		categoryHandler:      categoryHandler,
+		buyerHandler:                buyerHandler,
+		cartitemhandler:             cartitemHandler,
+		orderitemhandler:            orderitemHandler,
+		producthandler:              productHandler,
+		profilehandler:              profileHandler,
+		reviewhandler:               reviewHandler,
+		rolehandler:                 rolehandler,
+		searchhandler:               searchHandler,
+		userhandler:                 userHandler,
+		authhandler:                 authhandler,
+		sellerprofilehandler:        sellerProfileHandler,
+		buyerprofilehandler:         buyerProfileHandler,
+		guestcarthandler:            guestcartHandler,
+		selleraccounthandler:        sellerAccountHandler,
+		carthandler:                 cartHandler,
+		orderhandler:                orderHandler,
+		adminhandler:                adminHadler,
+		categoryHandler:             categoryHandler,
+		selleraccountsettinghandler: selleraccountsettinghandler,
 	}
 
 }
@@ -117,6 +121,7 @@ func (server *Server) Start(cnf Config.Config) {
 	server.orderhandler.OrderRoute(mux)
 	server.adminhandler.AdminRoute(mux)
 	server.categoryHandler.CategoryRoute(mux)
+	server.selleraccountsettinghandler.RegisterSellerAccountSettingHandler(mux)
 
 	// Handle all cors
 	handler := middleware.Cors(mux)

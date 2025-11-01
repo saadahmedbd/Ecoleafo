@@ -7,11 +7,11 @@ import (
 )
 
 func (h *SellerProfileHandler) SellerRoute(mux *http.ServeMux) {
-	mux.Handle("GET /api/seller/profile", middleware.Chain(http.HandlerFunc(h.GetSellerProfile),
+	mux.Handle("GET /api/seller/seller-profile", middleware.Chain(http.HandlerFunc(h.GetSellerProfile),
 		middleware.AuthenticateJWT,
 		middleware.Logger,
 	))
-	mux.Handle("PUT /api/seller/profile", middleware.Chain(http.HandlerFunc(h.UpdateSellerProfile),
+	mux.Handle("PUT /api/seller/seller-profile", middleware.Chain(http.HandlerFunc(h.UpdateSellerProfile),
 		middleware.AuthenticateJWT,
 		middleware.Logger,
 	))

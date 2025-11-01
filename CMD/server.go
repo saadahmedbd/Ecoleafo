@@ -19,6 +19,7 @@ import (
 	reviewhandler "github.com/saadahmedbd/Treestore/Rest/Handler/ReviewHandler"
 	rolehandler "github.com/saadahmedbd/Treestore/Rest/Handler/RoleHandler"
 	searchhandler "github.com/saadahmedbd/Treestore/Rest/Handler/SearchHandler"
+	selleraccountsettinghandler "github.com/saadahmedbd/Treestore/Rest/Handler/SellerAccountSettingHandler"
 	sellerproflehandler "github.com/saadahmedbd/Treestore/Rest/Handler/SellerProfleHandler"
 	userhandler "github.com/saadahmedbd/Treestore/Rest/Handler/UserHandler"
 	carthandler "github.com/saadahmedbd/Treestore/Rest/Handler/cartHandler"
@@ -34,10 +35,12 @@ import (
 	productrepo "github.com/saadahmedbd/Treestore/Rest/Repository/ProductRepo"
 	reguserrepo "github.com/saadahmedbd/Treestore/Rest/Repository/RegUserRepo"
 	selleraccountrepo "github.com/saadahmedbd/Treestore/Rest/Repository/SellerAccountRepo"
+	selleraccountsettingrepo "github.com/saadahmedbd/Treestore/Rest/Repository/sellerAccountSettingRepo"
 	adminservice "github.com/saadahmedbd/Treestore/Rest/Service/AdminService"
 	orderservice "github.com/saadahmedbd/Treestore/Rest/Service/OrderService"
 	productservice "github.com/saadahmedbd/Treestore/Rest/Service/ProductService"
 	selleraccountservice "github.com/saadahmedbd/Treestore/Rest/Service/SellerAccountService"
+	selleraccountsettingservice "github.com/saadahmedbd/Treestore/Rest/Service/SellerAccountSettingService"
 	buyerservice "github.com/saadahmedbd/Treestore/Rest/Service/buyerService"
 	cartservice "github.com/saadahmedbd/Treestore/Rest/Service/cartService"
 	categoryservice "github.com/saadahmedbd/Treestore/Rest/Service/categoryService"
@@ -60,7 +63,7 @@ func Server() {
 	adminrepo := adminrepo.NewAdminRepository(Config.DB)
 	categoryrepo := categoryrepo.NewCategoryRepository(Config.DB)
 	productrepo := productrepo.NewProductRepository(Config.DB)
-
+	selleraccountsettingrepo := selleraccountsettingrepo.NewSellerAccountSettingRepositoryOptions(Config.DB)
 	//service
 	productservice := productservice.NewProductService(Config.DB)
 	sellerprofileservice := sellerprofileservice.NewSellerService(repository)
@@ -75,7 +78,7 @@ func Server() {
 		log.Fatalf("Failed to initialize Cloudinary service. Check your credentials.")
 	}
 	categoryService := categoryservice.NewCategoryService(categoryrepo, productrepo)
-
+	selleraccountsettingservice := selleraccountsettingservice.NewSellerAccountSettingService(selleraccountsettingrepo)
 	//handler
 	buyerhandler := buyerhandler.NewHandler()
 	cartitemhandler := cartitemhandler.NewHandler()
@@ -95,7 +98,7 @@ func Server() {
 	orderhandler := orderhandler.NewOrderHandler(orderservice)
 	adminhandler := adminhandler.NewAdminHandler(adminservice)
 	categoryHandler := categoryHandler.NewCategoryHandler(categoryService)
-
+	selleraccountsettinghandler := selleraccountsettinghandler.NewSelleraccountsettinghandler(selleraccountsettingservice)
 	server := rest.NewServer(buyerhandler,
 		cartitemhandler,
 		orderitemhandler,
@@ -114,6 +117,7 @@ func Server() {
 		orderhandler,
 		adminhandler,
 		categoryHandler,
+		selleraccountsettinghandler,
 	)
 	server.Start(cnf)
 

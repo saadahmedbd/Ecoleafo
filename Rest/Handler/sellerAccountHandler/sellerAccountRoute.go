@@ -28,7 +28,7 @@ func (h *SellerRegistrationHandler) SellerAccountRoute(mux *http.ServeMux) {
 		middleware.Logger,
 		middleware.AuthenticateJWT,
 	))
-	mux.Handle("PUT /api/seller/store", middleware.Chain(http.HandlerFunc(h.UpdateStoreInfo),
+	mux.Handle("PUT /api/seller/seller-store", middleware.Chain(http.HandlerFunc(h.UpdateStoreInfo),
 		middleware.Cors,
 		middleware.Logger,
 		middleware.AuthenticateJWT,
