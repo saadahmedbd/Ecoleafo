@@ -134,7 +134,7 @@ DB_PASSWORD=your_password_here
 DB_NAME=ecommerce_db
 
 # Server Configuration
-SERVER_PORT=8080
+SERVER_PORT=3000
 
 # JWT Configuration
 JWT_SECRET=your-super-secret-key-change-this-in-production

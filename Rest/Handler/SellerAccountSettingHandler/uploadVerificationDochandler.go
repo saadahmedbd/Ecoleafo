@@ -3,6 +3,7 @@ package selleraccountsettinghandler
 import (
 	"net/http"
 	"path/filepath"
+	"strconv"
 	"strings"
 
 	util "github.com/saadahmedbd/Treestore/Util"
@@ -14,7 +15,24 @@ import (
 // ==========================================
 
 func (h *Selleraccountsettinghandler) UploadVerificationDocument(w http.ResponseWriter, r *http.Request) {
-	sellerID := r.Context().Value("seller_id").(uint)
+	userIDStr := r.Header.Get("user_id")
+	userType := r.Header.Get("user_role")
+
+	if userIDStr == "" || userType == "" {
+		http.Error(w, `{"error":"authentication required"}`, http.StatusUnauthorized)
+		return
+	}
+
+	if !strings.Contains(userType, "seller") {
+		http.Error(w, `{"error":"only sellers can access this"}`, http.StatusForbidden)
+		return
+	}
+
+	userID, err := strconv.ParseUint(userIDStr, 10, 32)
+	if err != nil {
+		http.Error(w, `{"error":"invalid user_id"}`, http.StatusBadRequest)
+		return
+	}
 
 	// Parse multipart form (max 5MB)
 	if err := r.ParseMultipartForm(5 << 20); err != nil {
@@ -50,7 +68,7 @@ func (h *Selleraccountsettinghandler) UploadVerificationDocument(w http.Response
 		return
 	}
 
-	response, err := h.service.UploadVerificationDocument(sellerID, documentType, documentURL)
+	response, err := h.service.UploadVerificationDocument(uint(userID), documentType, documentURL)
 	if err != nil {
 		util.RespondError(w, http.StatusBadRequest, err.Error())
 		return
