@@ -41,12 +41,17 @@ type User struct {
 	PostalCode string `json:"postal_code" gorm:"size:20"`                      // postal code
 
 	// Status & Verification
+	Status         string `json:"status" gorm:"size:20;default:'pending'"` // pending, approved, rejected, suspended
+	ApprovalStatus string `json:"approval_status" gorm:"size:20;default:'pending'"`
+
 	IsActive        bool       `json:"is_active" gorm:"default:true"`
 	IsVerified      bool       `json:"is_verified" gorm:"default:false"`  // Seller verification
 	IsApproved      bool       `json:"is_approved" gorm:"default:false"`  //  approval status
 	ApprovedAt      *time.Time `json:"approved_at"`                       //  approval date
 	RejectedAt      *time.Time `json:"rejected_at"`                       //  rejection date
 	RejectionReason string     `json:"rejection_reason" gorm:"type:text"` // rejection reason
+
+	ApprovedBy *uint `json:"approved_by"`
 
 	CreatedAt time.Time      `json:"created_at"`
 	UpdatedAt time.Time      `json:"updated_at"`
@@ -55,7 +60,8 @@ type User struct {
 	// Relationships
 	Role             Role                  `json:"role" gorm:"foreignKey:RoleID"`
 	Products         []Product             `json:"products" gorm:"foreignKey:SellerID;references:ID"` // Seller's products
-	RegUser          RegUser               `json:"reg_user" gorm:"foreignKey:UserId;references:ID"`
+	RegUser          *RegUser              `json:"reg_user" gorm:"foreignKey:UserId;references:ID"`
 	PaymentMethods   []SellerPaymentMethod `json:"payment_methods" gorm:"foreignKey:SellerID"`   //
 	SellerCategories []SellerCategory      `json:"seller_categories" gorm:"foreignKey:SellerID"` //
+	ApprovedByAdmin  *Admin                `json:"approved_by_admin,omitempty" gorm:"foreignKey:ApprovedBy;references:ID"`
 }

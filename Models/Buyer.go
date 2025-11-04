@@ -16,6 +16,7 @@ type Buyer struct {
 	ProfilePicture         string `json:"profile_picture" gorm:"size=500"`
 	ProfilePictureUrl      string `json:"profile_picture_url" gorm:"size=500"`
 	ProfilePicturePublicID string `json:"profile_picture_public_id" gorm:"size=255"`
+	Status                 string `json:"status" gorm:"size:20;default:'active'"`
 	//address
 	DefaultAddress   string `json:"default_address" gorm:"type:text"`
 	DefaultAddressID *uint  `json:"default_address_id"` // Link to Address table
@@ -33,7 +34,7 @@ type Buyer struct {
 
 	// Relationships
 	Role        Role       `json:"role" gorm:"foreignKey:RoleID"`
-	RegUser     RegUser    `json:"reg_user" gorm:"foreignKey:UserId;references:ID"`
+	RegUser     *RegUser   `json:"reg_user" gorm:"foreignKey:UserId;references:ID"`
 	DefaultAddr *Address   `json:"default_addr,omitempty" gorm:"foreignKey:DefaultAddressID"` // Added add
 	Orders      []Order    `json:"orders" gorm:"foreignKey:BuyerID"`
 	CartItems   []CartItem `json:"cart_items" gorm:"foreignKey:BuyerID"`

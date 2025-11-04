@@ -23,10 +23,11 @@ type Order struct {
 	Total          float64 `json:"total" gorm:"type:decimal(12,2);not null"` // Renamed from Total to TotalAmount
 
 	//customer information
-	ShippingAddress string `json:"shipping_address" gorm:"type:text;not null;default:'n/a"`
-	BillingAddress  string `json:"billing_address" gorm:"type:text"` // Added billing address
-	CustomerEmail   string `json:"customer_email" gorm:"size:100;not null"`
-	CustomerPhone   string `json:"customer_phone" gorm:"size:20"`
+	ShippingAddress    string `json:"shipping_address" gorm:"type:text;not null;default:'n/a"`
+	BillingAddress     string `json:"billing_address" gorm:"type:text"` // Added billing address
+	CustomerEmail      string `json:"customer_email" gorm:"size:100;not null"`
+	CustomerPhone      string `json:"customer_phone" gorm:"size:20"`
+	CancellationReason string `json:"cancellation_reason" gorm:"type:text"`
 
 	//logistics information
 	TrackingNumber string     `json:"tracking_number" gorm:"size:100"` // Added tracking

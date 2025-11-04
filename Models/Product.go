@@ -41,9 +41,13 @@ type Product struct {
 	IsApproved bool `json:"is_approved" gorm:"default:false"` // Admin approval required
 	IsFeatured bool `json:"is_featured" gorm:"default:false"` // Added featured products
 
-	CreatedAt time.Time      `json:"created_at"`
-	UpdatedAt time.Time      `json:"updated_at"`
-	DeletedAt gorm.DeletedAt `json:"deleted_at" gorm:"index"`
+	ApprovedBy      *uint          `json:"approved_by"`
+	ApprovedAt      *time.Time     `json:"approved_at"`
+	ApprovalStatus  string         `json:"approval_status" gorm:"size:20;default:'pending'"`
+	RejectionReason string         `json:"rejection_reason" gorm:"type:text"`
+	CreatedAt       time.Time      `json:"created_at"`
+	UpdatedAt       time.Time      `json:"updated_at"`
+	DeletedAt       gorm.DeletedAt `json:"deleted_at" gorm:"index"`
 
 	// SEO & Analytics (NEW)
 	MetaTitle       string  `json:"meta_title" gorm:"size:255"`                        // SEO title
@@ -54,12 +58,13 @@ type Product struct {
 	ReviewCount     int     `json:"review_count" gorm:"default:0"`                     // Number of reviews
 
 	// Relationships
-	Seller        User               `json:"seller" gorm:"foreignKey:SellerID;references:ID"`
-	Category      Category           `json:"category" gorm:"foreignKey:CategoryID"`
-	Images        []ProductImage     `json:"images" gorm:"foreignKey:ProductID"`     // Multiple images
-	Attributes    []ProductAttribute `json:"attributes" gorm:"foreignKey:ProductID"` // Flexible attributes
-	CartItems     []CartItem         `json:"cart_items" gorm:"foreignKey:ProductID"`
-	OrderItems    []OrderItem        `json:"order_items" gorm:"foreignKey:ProductID"`
-	Reviews       []Review           `json:"reviews" gorm:"foreignKey:ProductID"`
-	WishlistItems []Wishlist         `json:"wishlist_items" gorm:"foreignKey:ProductID"`
+	Seller          User               `json:"seller" gorm:"foreignKey:SellerID;references:ID"`
+	Category        Category           `json:"category" gorm:"foreignKey:CategoryID"`
+	Images          []ProductImage     `json:"images" gorm:"foreignKey:ProductID"`     // Multiple images
+	Attributes      []ProductAttribute `json:"attributes" gorm:"foreignKey:ProductID"` // Flexible attributes
+	CartItems       []CartItem         `json:"cart_items" gorm:"foreignKey:ProductID"`
+	OrderItems      []OrderItem        `json:"order_items" gorm:"foreignKey:ProductID"`
+	Reviews         []Review           `json:"reviews" gorm:"foreignKey:ProductID"`
+	WishlistItems   []Wishlist         `json:"wishlist_items" gorm:"foreignKey:ProductID"`
+	ApprovedByAdmin *Admin             `json:"approved_by_admin,omitempty" gorm:"foreignKey:ApprovedBy;references:ID"`
 }
