@@ -19,7 +19,7 @@ func (h *Selleraccountsettinghandler) RegisterSellerAccountSettingHandler(mux *h
 		middleware.AuthenticateJWT,
 	))
 	//account managment
-	mux.Handle("put /api/seller/account", middleware.Chain(http.HandlerFunc(h.UpdateAccount),
+	mux.Handle("PUT /api/seller/account", middleware.Chain(http.HandlerFunc(h.UpdateAccount),
 		middleware.Logger,
 		middleware.Cors,
 		middleware.AuthenticateJWT,
@@ -83,12 +83,12 @@ func (h *Selleraccountsettinghandler) RegisterSellerAccountSettingHandler(mux *h
 		middleware.AuthenticateJWT,
 	))
 	//security
-	mux.Handle("GET /api/seller/verification/2fa", middleware.Chain(http.HandlerFunc(h.Toggle2FA),
+	mux.Handle("PUT /api/seller/security/2fa", middleware.Chain(http.HandlerFunc(h.Toggle2FA),
 		middleware.Logger,
 		middleware.Cors,
 		middleware.AuthenticateJWT,
 	))
-	mux.Handle("POST /api/seller/verification/activity", middleware.Chain(http.HandlerFunc(h.GetLoginActivity),
+	mux.Handle("GET /api/seller/security/activity", middleware.Chain(http.HandlerFunc(h.GetLoginActivity),
 		middleware.Logger,
 		middleware.Cors,
 		middleware.AuthenticateJWT,

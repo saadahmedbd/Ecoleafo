@@ -21,6 +21,7 @@ type User struct {
 	StoreDesc     string `json:"store_description" gorm:"type:text"`     // Store description
 	StoreLogo     string `json:"store_logo" gorm:"size:500"`             // Added store logo
 	StoreBanner   string `json:"store_banner" gorm:"size:500"`           // Added store banner
+	Website       string `json:"website" gorm:"size:100;default:'N/A'"`
 	//Business detils
 	BusinessType    string `json:"business_type" gorm:"size:50;default:'individual'"` // individual, company, nursery
 	TaxNumber       string `json:"tax_number" gorm:"size:50"`                         // Added tax info
