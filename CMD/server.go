@@ -6,6 +6,7 @@ import (
 	"github.com/saadahmedbd/Treestore/Config"
 	rest "github.com/saadahmedbd/Treestore/Rest"
 	adminhandler "github.com/saadahmedbd/Treestore/Rest/Handler/AdminHandler"
+	adminmangementhandler "github.com/saadahmedbd/Treestore/Rest/Handler/AdminmangementHandler"
 	authhandler "github.com/saadahmedbd/Treestore/Rest/Handler/AuthHandler"
 	buyerhandler "github.com/saadahmedbd/Treestore/Rest/Handler/BuyerHandler"
 	buyerprofilehandler "github.com/saadahmedbd/Treestore/Rest/Handler/BuyerProfileHandler"
@@ -25,6 +26,7 @@ import (
 	carthandler "github.com/saadahmedbd/Treestore/Rest/Handler/cartHandler"
 	selleraccounthandler "github.com/saadahmedbd/Treestore/Rest/Handler/sellerAccountHandler"
 	repository "github.com/saadahmedbd/Treestore/Rest/Repository"
+	adminmangement "github.com/saadahmedbd/Treestore/Rest/Repository/AdminMangement"
 	adminrepo "github.com/saadahmedbd/Treestore/Rest/Repository/AdminRepo"
 	buyercompleterepo "github.com/saadahmedbd/Treestore/Rest/Repository/BuyerCompleteRepo"
 	buyerProfilerepo "github.com/saadahmedbd/Treestore/Rest/Repository/BuyerProfileRepo"
@@ -36,6 +38,7 @@ import (
 	reguserrepo "github.com/saadahmedbd/Treestore/Rest/Repository/RegUserRepo"
 	selleraccountrepo "github.com/saadahmedbd/Treestore/Rest/Repository/SellerAccountRepo"
 	selleraccountsettingrepo "github.com/saadahmedbd/Treestore/Rest/Repository/sellerAccountSettingRepo"
+	adminmangementservice "github.com/saadahmedbd/Treestore/Rest/Service/AdminMangementService"
 	adminservice "github.com/saadahmedbd/Treestore/Rest/Service/AdminService"
 	orderservice "github.com/saadahmedbd/Treestore/Rest/Service/OrderService"
 	productservice "github.com/saadahmedbd/Treestore/Rest/Service/ProductService"
@@ -64,6 +67,13 @@ func Server() {
 	categoryrepo := categoryrepo.NewCategoryRepository(Config.DB)
 	productrepo := productrepo.NewProductRepository(Config.DB)
 	selleraccountsettingrepo := selleraccountsettingrepo.NewSellerAccountSettingRepositoryOptions(Config.DB)
+	//admin management repository
+	adminbuyerrepo := adminmangement.NewBuyerRepository(Config.DB)
+	adminsellerrepo := adminmangement.NewSellerRepository(Config.DB)
+	adminproductrepo := adminmangement.NewProductRepository(Config.DB)
+	adminorderrepo := adminmangement.NewOrderRepository(Config.DB)
+	adminauditlogrepo := adminmangement.NewAuditLogRepository(Config.DB)
+
 	//service
 	productservice := productservice.NewProductService(Config.DB)
 	sellerprofileservice := sellerprofileservice.NewSellerService(repository)
@@ -79,6 +89,13 @@ func Server() {
 	}
 	categoryService := categoryservice.NewCategoryService(categoryrepo, productrepo)
 	selleraccountsettingservice := selleraccountsettingservice.NewSellerAccountSettingService(selleraccountsettingrepo)
+	//admin management service
+	adminbuyerservice := adminmangementservice.NewBuyerService(adminbuyerrepo, adminauditlogrepo)
+	adminsellerservice := adminmangementservice.NewSellerService(adminsellerrepo, adminauditlogrepo)
+	adminproductservice := adminmangementservice.NewProductService(adminproductrepo, adminauditlogrepo)
+	adminorderservice := adminmangementservice.NewOrderService(adminorderrepo, adminauditlogrepo)
+	admindashboardservice := adminmangementservice.NewDashboardService(adminbuyerservice, adminsellerservice, adminproductservice, adminorderservice)
+
 	//handler
 	buyerhandler := buyerhandler.NewHandler()
 	cartitemhandler := cartitemhandler.NewHandler()
@@ -99,6 +116,12 @@ func Server() {
 	adminhandler := adminhandler.NewAdminHandler(adminservice)
 	categoryHandler := categoryHandler.NewCategoryHandler(categoryService)
 	selleraccountsettinghandler := selleraccountsettinghandler.NewSelleraccountsettinghandler(selleraccountsettingservice)
+	//handler of admin management
+	adminbuyerhandler := adminmangementhandler.NewBuyerHandler(adminbuyerservice)
+	adminsellerhandler := adminmangementhandler.NewSellerHandler(adminsellerservice)
+	adminproducthandler := adminmangementhandler.NewProductHandler(adminproductservice)
+	adminorderhandler := adminmangementhandler.NewOrderHandler(adminorderservice)
+	admindashboardhandler := adminmangementhandler.NewDashboardHandler(admindashboardservice)
 	server := rest.NewServer(buyerhandler,
 		cartitemhandler,
 		orderitemhandler,
@@ -118,6 +141,12 @@ func Server() {
 		adminhandler,
 		categoryHandler,
 		selleraccountsettinghandler,
+		//admin management
+		adminbuyerhandler,
+		adminsellerhandler,
+		adminproducthandler,
+		adminorderhandler,
+		admindashboardhandler,
 	)
 	server.Start(cnf)
 

@@ -8,6 +8,7 @@ import (
 
 	"github.com/saadahmedbd/Treestore/Config"
 	adminhandler "github.com/saadahmedbd/Treestore/Rest/Handler/AdminHandler"
+	adminmangementhandler "github.com/saadahmedbd/Treestore/Rest/Handler/AdminmangementHandler"
 	authhandler "github.com/saadahmedbd/Treestore/Rest/Handler/AuthHandler"
 	buyerhandler "github.com/saadahmedbd/Treestore/Rest/Handler/BuyerHandler"
 	buyerprofilehandler "github.com/saadahmedbd/Treestore/Rest/Handler/BuyerProfileHandler"
@@ -51,6 +52,12 @@ type Server struct {
 	adminhandler                *adminhandler.Adminhandler
 	categoryHandler             *categoryHandler.CategoryHandler
 	selleraccountsettinghandler *selleraccountsettinghandler.Selleraccountsettinghandler
+	// handler for admin management
+	adminbuyermanagementhandler    *adminmangementhandler.BuyerHandler
+	adminsellermanagementhandler   *adminmangementhandler.SellerHandler
+	adminproductmanagementhandler  *adminmangementhandler.ProductHandler
+	adminordermanagementhandler    *adminmangementhandler.OrderHandler
+	admindashboardmanagementhandler *adminmangementhandler.DashboardHandler
 }
 
 func NewServer(
@@ -73,6 +80,12 @@ func NewServer(
 	adminHadler *adminhandler.Adminhandler,
 	categoryHandler *categoryHandler.CategoryHandler,
 	selleraccountsettinghandler *selleraccountsettinghandler.Selleraccountsettinghandler,
+	// admin management page
+	adminBuyerManagementhandler *adminmangementhandler.BuyerHandler,
+	adminSellerManagementhandler *adminmangementhandler.SellerHandler,
+	adminProductManagementhandler *adminmangementhandler.ProductHandler,
+	adminOrderManagementhandler *adminmangementhandler.OrderHandler,
+	adminDashboardManagementhandler *adminmangementhandler.DashboardHandler,
 
 ) *Server {
 	return &Server{
@@ -95,6 +108,12 @@ func NewServer(
 		adminhandler:                adminHadler,
 		categoryHandler:             categoryHandler,
 		selleraccountsettinghandler: selleraccountsettinghandler,
+		// admin management page
+		adminbuyermanagementhandler:    adminBuyerManagementhandler,
+		adminsellermanagementhandler:   adminSellerManagementhandler,
+		adminproductmanagementhandler:  adminProductManagementhandler,
+		adminordermanagementhandler:    adminOrderManagementhandler,
+		admindashboardmanagementhandler: adminDashboardManagementhandler,
 	}
 
 }
@@ -122,6 +141,12 @@ func (server *Server) Start(cnf Config.Config) {
 	server.adminhandler.AdminRoute(mux)
 	server.categoryHandler.CategoryRoute(mux)
 	server.selleraccountsettinghandler.RegisterSellerAccountSettingHandler(mux)
+	// admin management page
+	server.adminbuyermanagementhandler.RegisterBuyer(mux)
+	server.adminsellermanagementhandler.RegisterSeller(mux)
+	server.adminproductmanagementhandler.RegisterProductRoutes(mux)
+	server.adminordermanagementhandler.RegisterOrderRoutes(mux)
+	server.admindashboardmanagementhandler.RegisterDashboardRoutes(mux)
 
 	// Handle all cors
 	handler := middleware.Cors(mux)

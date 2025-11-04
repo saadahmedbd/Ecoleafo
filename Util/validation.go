@@ -18,7 +18,7 @@ func init() {
 // ValidateStruct validates a struct using validator tags
 
 // formatValidationError formats validation error messages
-func formatValidationError(err validator.FieldError) string {
+func FormatValidationError(err validator.FieldError) string {
 	field := err.Field()
 	tag := err.Tag()
 
@@ -78,5 +78,22 @@ func ValidatePassword(password string) error {
 		return errors.New("password must contain at least one number")
 	}
 
+	return nil
+}
+
+// ValidateRequired checks if a field is not empty
+func ValidateRequired(field, fieldName string) error {
+	if strings.TrimSpace(field) == "" {
+		return errors.New(fieldName + " is required")
+	}
+	return nil
+}
+
+// ValidateSlug validates a URL slug
+func ValidateSlug(slug string) error {
+	slugRegex := regexp.MustCompile(`^[a-z0-9]+(?:-[a-z0-9]+)*$`)
+	if !slugRegex.MatchString(slug) {
+		return errors.New("invalid slug format")
+	}
 	return nil
 }
