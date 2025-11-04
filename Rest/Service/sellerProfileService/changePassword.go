@@ -18,7 +18,7 @@ func (s *sellerService) ChangePassword(userIDFromJWT uint, req sellerprofile.Cha
 	if err != nil {
 		return err
 	}
-	
+
 	// Then get full seller with relations
 	sellerWithRelations, err := s.sellerRepo.GetSellerWithRelations(seller.ID)
 	if err != nil {
@@ -38,5 +38,5 @@ func (s *sellerService) ChangePassword(userIDFromJWT uint, req sellerprofile.Cha
 
 	// Update RegUser password directly in database
 	sellerWithRelations.RegUser.Password = hashedPassword
-	return s.sellerRepo.UpdateRegUser(&sellerWithRelations.RegUser)
+	return s.sellerRepo.UpdateRegUser(sellerWithRelations.RegUser)
 }

@@ -38,6 +38,6 @@ func (s *buyerService) ChangePassword(userIDFromJWT uint, req buyerprofile.Chang
 
 	// Update RegUser password directly in database
 	buyerWithRelations.RegUser.Password = hashedPassword
-	return s.buyerRepo.UpdateRegUser(&buyerWithRelations.RegUser)
+	return s.buyerRepo.UpdateRegUser(buyerWithRelations.RegUser)
 
 }
