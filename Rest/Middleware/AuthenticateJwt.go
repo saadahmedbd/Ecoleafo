@@ -7,41 +7,58 @@ import (
 	"strings"
 
 	util "github.com/saadahmedbd/Treestore/Util"
+	"github.com/saadahmedbd/Treestore/constants"
 )
 
 func AuthenticateJWT(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		header := r.Header.Get("Authorization")
-		if header == "" {
-			http.Error(w, `{"error":"Missing Authorization header"}`, http.StatusUnauthorized)
-			return
-		}
-		if !strings.HasPrefix(header, "Bearer ") {
+		if header == "" || !strings.HasPrefix(header, "Bearer ") {
 			http.Error(w, `{"error":"Missing or invalid auth header"}`, http.StatusUnauthorized)
 			return
 		}
-		tokenStr := strings.TrimSpace(strings.TrimPrefix(header, "Bearer "))
-		if tokenStr == "" {
-			http.Error(w, `{"error":"Missing token after Bearer"}`, http.StatusUnauthorized)
-			return
-		}
 
+		tokenStr := strings.TrimSpace(strings.TrimPrefix(header, "Bearer "))
 		claims, err := util.VerifyJwt(tokenStr)
 		if err != nil {
 			http.Error(w, fmt.Sprintf(`{"error":"Invalid or expired token: %s"}`, err.Error()), http.StatusUnauthorized)
 			return
 		}
 
-		ctx := context.WithValue(r.Context(), "claims", claims)
-		
-		// Add user_id and role to headers for easy access
-		if userID, ok := claims["user_id"]; ok {
-			r.Header.Set("user_id", fmt.Sprintf("%v", userID))
+		// Extract user_id
+		userID, ok1 := claims["user_id"].(float64)
+		if !ok1 {
+			util.SendError(w, "Invalid token claims structure", http.StatusUnauthorized)
+			return
 		}
-		if roles, ok := claims["role"]; ok {
-			r.Header.Set("user_role", fmt.Sprintf("%v", roles))
+
+		// Extract role (support both single string or array)
+		roleVal, ok2 := claims["role"]
+		if !ok2 || roleVal == nil {
+			util.SendError(w, "Invalid token claims structure", http.StatusUnauthorized)
+			return
 		}
-		
+
+		var roleStr string
+		switch v := roleVal.(type) {
+		case string:
+			roleStr = v
+		case []interface{}:
+			if len(v) > 0 {
+				if s, ok := v[0].(string); ok {
+					roleStr = s
+				}
+			}
+		}
+
+		//  Add to context
+		ctx := context.WithValue(r.Context(), constants.ContextKeyUserID, uint(userID))
+		ctx = context.WithValue(ctx, constants.ContextKeyRole, roleVal)
+
+		// Also set headers for backward compatibility
+		r.Header.Set("user_id", fmt.Sprintf("%.0f", userID))
+		r.Header.Set("user_role", roleStr)
+
 		next.ServeHTTP(w, r.WithContext(ctx))
 	})
 }
