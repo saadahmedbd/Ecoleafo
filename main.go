@@ -1,6 +1,8 @@
 package main
 
 import (
+	"log"
+
 	"github.com/saadahmedbd/Treestore/CMD"
 	"github.com/saadahmedbd/Treestore/Config"
 	"github.com/saadahmedbd/Treestore/Database"
@@ -13,7 +15,10 @@ func main() {
 	// Seed super admin
 	database.SeedSuperAdminFromEnv(Config.DB)
 	// Initialize Cloudinary service
-	Config.InitializeCloudinary()
+	log.Println("Initializing Cloudinary...")
+	if err := Config.InitCloudinary(); err != nil {
+		log.Fatal("Failed to initialize Cloudinary:", err)
+	}
 	CMD.Server()
 
 }

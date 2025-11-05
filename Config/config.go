@@ -16,9 +16,6 @@ type Config struct {
 	HttpPort             int64
 	JwtSecretKey         string
 	AllowedOrigins       string
-	CloudinaryCloudName  string
-	CloudinaryAPIKey     string
-	CloudinaryAPISecret  string
 }
 
 func loadConfig() {
@@ -58,23 +55,7 @@ func loadConfig() {
 		allowedOrigins = "*"
 	}
 
-	cloudinaryCloudName := os.Getenv("CLOUDINARY_CLOUD_NAME")
-	if cloudinaryCloudName == "" {
-		fmt.Println("required cloudinary cloud name")
-		os.Exit(1)
-	}
 
-	cloudinaryAPIKey := os.Getenv("CLOUDINARY_API_KEY")
-	if cloudinaryAPIKey == "" {
-		fmt.Println("required cloudinary api key")
-		os.Exit(1)
-	}
-
-	cloudinaryAPISecret := os.Getenv("CLOUDINARY_API_SECRET")
-	if cloudinaryAPISecret == "" {
-		fmt.Println("required cloudinary api secret")
-		os.Exit(1)
-	}
 
 	configaration = Config{
 		Version:              version,
@@ -82,9 +63,7 @@ func loadConfig() {
 		HttpPort:             Port,
 		JwtSecretKey:         jwtSecretKey,
 		AllowedOrigins:       allowedOrigins,
-		CloudinaryCloudName:  cloudinaryCloudName,
-		CloudinaryAPIKey:     cloudinaryAPIKey,
-		CloudinaryAPISecret:  cloudinaryAPISecret,
+		
 	}
 }
 func GetConfig() Config {
