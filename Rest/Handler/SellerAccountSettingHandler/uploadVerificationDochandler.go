@@ -2,7 +2,6 @@ package selleraccountsettinghandler
 
 import (
 	"net/http"
-	"path/filepath"
 	"strconv"
 	"strings"
 
@@ -53,26 +52,22 @@ func (h *Selleraccountsettinghandler) UploadVerificationDocument(w http.Response
 	}
 	defer file.Close()
 
-	// Validate file type
-	ext := strings.ToLower(filepath.Ext(header.Filename))
-	validExts := map[string]bool{".jpg": true, ".jpeg": true, ".png": true, ".pdf": true}
-	if !validExts[ext] {
-		util.RespondError(w, http.StatusBadRequest, "Only JPG, PNG, and PDF files allowed")
-		return
-	}
-
-	// Upload file
-	documentURL, err := util.UploadFile(file, header, "verification-docs")
-	if err != nil {
-		util.RespondError(w, http.StatusInternalServerError, "Failed to upload document")
-		return
-	}
-
-	response, err := h.service.UploadVerificationDocument(uint(userID), documentType, documentURL)
+	// Upload to Cloudinary
+	documentURL, err := util.UploadVerificationDocument(file, header)
 	if err != nil {
 		util.RespondError(w, http.StatusBadRequest, err.Error())
 		return
 	}
 
-	util.RespondJSON(w, http.StatusOK, response, "upload successfully")
+	// Save to database
+	response, err := h.service.UploadVerificationDocument(uint(userID), documentType, documentURL)
+	if err != nil {
+		// Clean up uploaded file on database error
+		util.DeleteImageFromCloudinary(documentURL)
+		util.RespondError(w, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	util.RespondJSON(w, http.StatusOK, response, "upload document succesful")
+
 }

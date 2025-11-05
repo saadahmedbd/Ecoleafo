@@ -24,7 +24,7 @@ func (h *Selleraccountsettinghandler) RegisterSellerAccountSettingHandler(mux *h
 		middleware.Cors,
 		middleware.AuthenticateJWT,
 	))
-	mux.Handle("POST /api/seller/account/profile", middleware.Chain(http.HandlerFunc(h.UploadProfilePhoto),
+	mux.Handle("POST /api/seller/account/photo", middleware.Chain(http.HandlerFunc(h.UploadProfilePhoto),
 		middleware.Logger,
 		middleware.Cors,
 		middleware.AuthenticateJWT,

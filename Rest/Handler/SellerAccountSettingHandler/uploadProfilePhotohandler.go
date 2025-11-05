@@ -1,8 +1,8 @@
 package selleraccountsettinghandler
 
 import (
+	"log"
 	"net/http"
-	"path/filepath"
 	"strconv"
 	"strings"
 
@@ -42,30 +42,29 @@ func (h *Selleraccountsettinghandler) UploadProfilePhoto(w http.ResponseWriter, 
 
 	file, header, err := r.FormFile("photo")
 	if err != nil {
+		log.Printf("File upload error: %v", err)
 		util.RespondError(w, http.StatusBadRequest, "Photo file required")
 		return
 	}
 	defer file.Close()
 
-	// Validate file type
-	ext := strings.ToLower(filepath.Ext(header.Filename))
-	if ext != ".jpg" && ext != ".jpeg" && ext != ".png" {
-		util.RespondError(w, http.StatusBadRequest, "Only JPG and PNG files allowed")
-		return
-	}
-
-	// Upload file (implement your file upload logic)
-	photoURL, err := util.UploadFile(file, header, "seller-photos")
+	// Upload to Cloudinary
+	photoURL, err := util.UploadProfilePhoto(file, header)
 	if err != nil {
-		util.RespondError(w, http.StatusInternalServerError, "Failed to upload photo")
+		// log.Printf("File upload error: %v", err)
+		util.RespondError(w, http.StatusBadRequest, err.Error())
 		return
 	}
 
+	// Update database
 	response, err := h.service.UpdateProfilePhoto(uint(userID), photoURL)
 	if err != nil {
+		// If database update fails, try to delete uploaded image
+		util.DeleteImageFromCloudinary(photoURL)
 		util.RespondError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
 
-	util.RespondJSON(w, http.StatusOK, response, "upload profile photo succesful")
+	util.RespondJSON(w, http.StatusOK, response, "upload profile photo successful")
+
 }

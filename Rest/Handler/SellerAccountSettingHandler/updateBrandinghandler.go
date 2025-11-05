@@ -2,7 +2,6 @@ package selleraccountsettinghandler
 
 import (
 	"net/http"
-	"path/filepath"
 	"strconv"
 	"strings"
 
@@ -41,22 +40,15 @@ func (h *Selleraccountsettinghandler) UpdateBranding(w http.ResponseWriter, r *h
 	}
 
 	var logoURL, bannerURL string
+	var uploadErrors []error
 
 	// Handle logo upload
 	if logoFile, logoHeader, err := r.FormFile("logo"); err == nil {
 		defer logoFile.Close()
 
-		// Validate logo
-		ext := strings.ToLower(filepath.Ext(logoHeader.Filename))
-		if ext != ".jpg" && ext != ".jpeg" && ext != ".png" {
-			util.RespondError(w, http.StatusBadRequest, "Invalid logo file type")
-			return
-		}
-
-		logoURL, err = util.UploadFile(logoFile, logoHeader, "store-logos")
+		logoURL, err = util.UploadStoreLogo(logoFile, logoHeader)
 		if err != nil {
-			util.RespondError(w, http.StatusInternalServerError, "Failed to upload logo")
-			return
+			uploadErrors = append(uploadErrors, err)
 		}
 	}
 
@@ -64,25 +56,39 @@ func (h *Selleraccountsettinghandler) UpdateBranding(w http.ResponseWriter, r *h
 	if bannerFile, bannerHeader, err := r.FormFile("banner"); err == nil {
 		defer bannerFile.Close()
 
-		// Validate banner
-		ext := strings.ToLower(filepath.Ext(bannerHeader.Filename))
-		if ext != ".jpg" && ext != ".jpeg" && ext != ".png" {
-			util.RespondError(w, http.StatusBadRequest, "Invalid banner file type")
-			return
-		}
-
-		bannerURL, err = util.UploadFile(bannerFile, bannerHeader, "store-banners")
+		bannerURL, err = util.UploadStoreBanner(bannerFile, bannerHeader)
 		if err != nil {
-			util.RespondError(w, http.StatusInternalServerError, "Failed to upload banner")
-			return
+			uploadErrors = append(uploadErrors, err)
 		}
 	}
 
+	// Check if any uploads failed
+	if len(uploadErrors) > 0 {
+		// Clean up successfully uploaded files
+		if logoURL != "" {
+			util.DeleteImageFromCloudinary(logoURL)
+		}
+		if bannerURL != "" {
+			util.DeleteImageFromCloudinary(bannerURL)
+		}
+		util.RespondError(w, http.StatusBadRequest, uploadErrors[0].Error())
+		return
+	}
+
+	// Update database
 	response, err := h.service.UpdateBranding(uint(userID), logoURL, bannerURL)
 	if err != nil {
+		// Clean up uploaded files on database error
+		if logoURL != "" {
+			util.DeleteImageFromCloudinary(logoURL)
+		}
+		if bannerURL != "" {
+			util.DeleteImageFromCloudinary(bannerURL)
+		}
 		util.RespondError(w, http.StatusBadRequest, err.Error())
 		return
 	}
 
-	util.RespondJSON(w, http.StatusOK, response, "update seller branding photo")
+	util.RespondJSON(w, http.StatusOK, response, "upload seller logo and banner succesful")
+
 }
