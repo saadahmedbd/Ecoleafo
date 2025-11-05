@@ -1,13 +1,10 @@
 package buyerprofilehandler
 
 import (
-	"encoding/json"
-	"fmt"
 	"net/http"
 	"strconv"
-	"time"
 
-	cloudinarydto "github.com/saadahmedbd/Treestore/Rest/DTO/CloudinaryDTO"
+	util "github.com/saadahmedbd/Treestore/Util"
 )
 
 // ProfilePictureResponse defines the response structure
@@ -21,9 +18,7 @@ type ProfilePictureResponse struct {
 
 // UploadBuyerProfilePicture handles profile picture upload
 func (h *Buyerprofilehandler) UploadBuyerProfilePicture(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-
-	// Extract and validate user ID
+	//  Step 1: Extract and validate user ID
 	userIDStr := r.Header.Get("user_id")
 	if userIDStr == "" {
 		http.Error(w, "Unauthorized", http.StatusUnauthorized)
@@ -36,70 +31,61 @@ func (h *Buyerprofilehandler) UploadBuyerProfilePicture(w http.ResponseWriter, r
 		return
 	}
 
-	// Parse multipart form with size limit (10MB)
+	//  Step 2: Limit upload size to 10MB
 	const maxUploadSize = 10 << 20 // 10MB
+	r.Body = http.MaxBytesReader(w, r.Body, maxUploadSize)
+
+	// Step 3: Parse multipart form safely
 	if err := r.ParseMultipartForm(maxUploadSize); err != nil {
 		http.Error(w, "File too large or invalid form data", http.StatusBadRequest)
 		return
 	}
 
-	// Get the file from form
-	file, handler, err := r.FormFile("profile_picture")
+	//  Step 4: Extract file
+	file, header, err := r.FormFile("profile_picture")
 	if err != nil {
-		http.Error(w, "Could not get file from request", http.StatusBadRequest)
+		http.Error(w, "Failed to read uploaded file", http.StatusBadRequest)
 		return
 	}
 	defer file.Close()
 
-	// Validate file size
-	if handler.Size > maxUploadSize {
-		http.Error(w, "File size exceeds 10MB limit", http.StatusBadRequest)
+	// Step 5: Validate file size
+	if header.Size > maxUploadSize {
+		http.Error(w, "File too large (max 10MB)", http.StatusBadRequest)
 		return
 	}
 
-	// TODO: Delete old profile picture if exists
-	// oldPublicID := h.getOldProfilePicturePublicID(userID)
-	// if oldPublicID != "" {
-	//     h.cloudinaryService.DeleteImage(ctx, oldPublicID)
-	// }
-
-	// Upload to Cloudinary
-	uploadOpts := cloudinarydto.UploadImageOptions{
-		Folder:           "buyer_profiles",
-		PublicID:         fmt.Sprintf("buyer_%d_%d", userID, time.Now().Unix()),
-		AllowedFormats:   []string{".jpg", ".jpeg", ".png", ".webp"},
-		MaxFileSizeBytes: maxUploadSize,
-		Tags:             []string{"buyer", "profile_picture"},
-		// Optional: Add transformation for optimization
-		Transformation: "c_fill,g_face,h_500,w_500,q_auto,f_auto",
+	//  6: Validate file type (security check)
+	buff := make([]byte, 512)
+	if _, err := file.Read(buff); err != nil {
+		http.Error(w, "Failed to read file buffer", http.StatusInternalServerError)
+		return
 	}
+	fileType := http.DetectContentType(buff)
+	if fileType != "image/jpeg" && fileType != "image/png" && fileType != "image/webp" {
+		http.Error(w, "Only JPEG, PNG, or WEBP images are allowed", http.StatusBadRequest)
+		return
+	}
+	file.Seek(0, 0) // reset pointer before upload
 
-	result, err := h.cloudniaryservice.UploadImage(ctx, file, handler.Filename, uploadOpts)
+	//  7: Upload to Cloudinary (or wherever)
+	photoURL, err := util.UploadProfilePhoto(file, header)
 	if err != nil {
-		http.Error(w, fmt.Sprintf("Upload failed: %v", err), http.StatusInternalServerError)
+		util.RespondError(w, http.StatusBadRequest, err.Error())
 		return
 	}
 
-	// TODO: Save the secure URL to your database
-	// err = h.saveProfilePictureURL(userID, result.SecureURL, result.PublicID)
-	// if err != nil {
-	//     // Rollback: delete uploaded image
-	//     h.cloudinaryService.DeleteImage(ctx, result.PublicID)
-	//     h.sendErrorResponse(w, "Failed to save profile picture", http.StatusInternalServerError)
-	//     return
-	// }
-
-	// Send success response
-	response := ProfilePictureResponse{
-		Success:  true,
-		URL:      result.SecureURL, // Always use secure URL (HTTPS)
-		PublicID: result.PublicID,
-		Message:  "Profile picture uploaded successfully",
+	//  Step 8: Update database
+	response, err := h.buyerservice.UpdateProfilePhoto(uint(userID), photoURL)
+	if err != nil {
+		// Rollback uploaded image if DB update fails
+		util.DeleteImageFromCloudinary(photoURL)
+		util.RespondError(w, http.StatusInternalServerError, err.Error())
+		return
 	}
 
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(response)
+	//  Step 9: Send success response
+	util.RespondJSON(w, http.StatusOK, response, "Profile photo uploaded successfully")
 }
 
 // getServerBaseURL returns the base URL of the server from the request

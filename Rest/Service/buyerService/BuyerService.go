@@ -18,6 +18,8 @@ type BuyerService interface {
 	DeleteAddress(userIDFromJWT uint, addressID uint) error
 	GetAddresses(userIDFromJWT uint) ([]buyerprofile.AddressInfo, error)
 	SetDefaultAddress(userIDFromJWT uint, addressID uint) error
+	UpdateProfilePhoto(buyerID uint, photoURL string) (*buyerprofile.UpdateProfilePhotoResponse, error)
+	DeleteBuyerProfilePicture(buyerID uint, imageURL string) error
 }
 
 type buyerService struct {

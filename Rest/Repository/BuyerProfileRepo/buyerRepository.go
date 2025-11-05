@@ -3,6 +3,7 @@ package buyerProfilerepo
 import (
 	"errors"
 	"fmt"
+	"time"
 
 	models "github.com/saadahmedbd/Treestore/Models"
 	buyerprofile "github.com/saadahmedbd/Treestore/Rest/DTO/BuyerProfile"
@@ -27,6 +28,9 @@ type BuyerRepository interface {
 	GetBuyerAddresses(buyerID uint) ([]models.Address, error)
 	SetDefaultAddress(buyerID, addressID uint) error
 	UpdateRegUser(regUser *models.RegUser) error
+	/// create udate reguser for ulpad profile photo\
+	UpdateRegUserForImage(userID uint, updates map[string]interface{}) error
+	ClearProfilePhoto(userID uint) error
 }
 type buyerRepository struct {
 	db *gorm.DB
@@ -36,6 +40,19 @@ func NewBuyerRepository(db *gorm.DB) BuyerRepository {
 	return &buyerRepository{
 		db: db,
 	}
+}
+func (r *buyerRepository) ClearProfilePhoto(userID uint) error {
+	return r.db.Model(&models.User{}).
+		Where("id = ?", userID).
+		Updates(map[string]interface{}{
+			"profile_image": "",
+		}).Error
+}
+
+// cretae update reguser for upload buyer profile image
+func (r *buyerRepository) UpdateRegUserForImage(userID uint, updates map[string]interface{}) error {
+	updates["updated_at"] = time.Now()
+	return r.db.Model(&models.RegUser{}).Where("id = ?", userID).Updates(updates).Error
 }
 
 func (r *buyerRepository) GetBuyerByUserID(userID uint) (*models.Buyer, error) {
@@ -56,7 +73,7 @@ func (r *buyerRepository) GetBuyerByUserID(userID uint) (*models.Buyer, error) {
 
 func (r *buyerRepository) GetBuyerByID(buyerID uint) (*models.Buyer, error) {
 	var buyer models.Buyer
-	err := r.db.Where("id = ?", buyerID).First(&buyer).Error
+	err := r.db.Where("user_id = ?", buyerID).First(&buyer).Error
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, fmt.Errorf("buyer not found")

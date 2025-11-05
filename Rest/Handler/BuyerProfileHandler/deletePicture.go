@@ -2,63 +2,52 @@ package buyerprofilehandler
 
 import (
 	"encoding/json"
-	"fmt"
+
 	"net/http"
+	"strconv"
 )
 
 // DeleteBuyerProfilePicture handles profile picture deletion
-func (h *Buyerprofilehandler) DeleteBuyerProfilePicture(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
 
-	// Validate user authentication
+// ProfilePictureResponse defines the response structure
+
+// DeleteBuyerProfilePicture deletes the buyer’s profile picture (Cloudinary + DB)
+type DeleteProfileRequest struct {
+	ImageURL string `json:"image_url"`
+}
+
+
+func (h *Buyerprofilehandler) DeleteBuyerProfilePicture(w http.ResponseWriter, r *http.Request) {
 	userIDStr := r.Header.Get("user_id")
 	if userIDStr == "" {
 		http.Error(w, "Unauthorized", http.StatusUnauthorized)
 		return
 	}
-	// // Convert userID to uint
-	// userID, err := strconv.ParseUint(userIDStr, 10, 64)
-	// if err != nil {
-	// 	http.Error(w, "Invalid user ID", http.StatusBadRequest)
-	// 	return
-	// }
 
-	// Parse request body
-	var request struct {
-		PublicID string `json:"public_id"`
-	}
-
-	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
-		http.Error(w, "Invalid request body", http.StatusBadRequest)
+	userID, err := strconv.ParseUint(userIDStr, 10, 64)
+	if err != nil {
+		http.Error(w, "Invalid user ID", http.StatusBadRequest)
 		return
 	}
 
-	if request.PublicID == "" {
-		http.Error(w, "Public ID is required", http.StatusBadRequest)
+	var req DeleteProfileRequest
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		http.Error(w, "Invalid JSON body", http.StatusBadRequest)
 		return
 	}
 
-	// Delete from Cloudinary
-	if err := h.cloudniaryservice.DeleteImage(ctx, request.PublicID); err != nil {
-		http.Error(w, fmt.Sprintf("Failed to delete image: %v", err), http.StatusInternalServerError)
+	if req.ImageURL == "" {
+		http.Error(w, "image_url is required", http.StatusBadRequest)
 		return
 	}
 
-	// TODO: Update database to remove profile_picture_url and profile_picture_public_id
-	// userID, _ := strconv.ParseUint(userIDStr, 10, 64)
-	// err := h.clearProfilePicture(userID)
-	// if err != nil {
-	//     h.sendErrorResponse(w, "Failed to update database", http.StatusInternalServerError)
-	//     return
-	// }
-
-	// Send success response
-	response := ProfilePictureResponse{
-		Success: true,
-		Message: "Profile picture deleted successfully",
+	if err := h.buyerservice.DeleteBuyerProfilePicture(uint(userID), req.ImageURL); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
 	}
 
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(response)
+	json.NewEncoder(w).Encode(map[string]interface{}{
+		"success": true,
+		"message": "Profile picture deleted successfully",
+	})
 }
