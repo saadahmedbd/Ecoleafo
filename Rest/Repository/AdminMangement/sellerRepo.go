@@ -109,32 +109,87 @@ func (r *SellerRepository) ApproveReject(sellerID uint, status, reason string, a
 }
 
 func (r *SellerRepository) ApproveSeller(sellerID uint, adminUserID uint) error {
-	var admin models.Admin
+	return r.db.Transaction(func(tx *gorm.DB) error {
+		var admin models.Admin
+		if err := tx.Where("user_id = ?", adminUserID).First(&admin).Error; err != nil {
+			return fmt.Errorf("admin not found for user_id %d: %w", adminUserID, err)
+		}
 
-	//  Fix: find admin by user_id (from JWT), not by admin.id
-	if err := r.db.Where("user_id = ?", adminUserID).First(&admin).Error; err != nil {
-		return fmt.Errorf("admin not found for user_id %d: %w", adminUserID, err)
-	}
+		var seller models.User
+		if err := tx.First(&seller, sellerID).Error; err != nil {
+			return fmt.Errorf("seller with id %d not found: %w", sellerID, err)
+		}
 
-	// Update seller approval fields
-	result := r.db.Model(&models.User{}).
-		Where("id = ?", sellerID).
-		Updates(map[string]interface{}{
-			"approval_status": "approved",
-			"approved_at":     time.Now(),
-			"approved_by":     admin.ID, // store the actual admin.id here
-			"status":          "approved",
-		})
+		now := time.Now()
 
-	if result.Error != nil {
-		return result.Error
-	}
+		//  Ensure basic business info is filled
+		updateData := map[string]interface{}{
+			"approval_status":     "approved",
+			"approved_at":         now,
+			"approved_by":         admin.ID,
+			"status":              "approved",
+			"is_approved":         true,
+			"is_verified":         true,
+			"is_active":           true,
+			"is_profile_complete": true,
+			"has_business_info":   true,
+			"has_address":         true,
+			"has_payment_method":  true,
+			"can_add_products":    true,
+			"missing_fields":      nil,
+			"next_step":           "approved",
+		}
 
-	if result.RowsAffected == 0 {
-		return fmt.Errorf("seller with id %d not found", sellerID)
-	}
+		// 🧠 Auto-fill missing business info if needed
+		if seller.BusinessEmail == "" || seller.BusinessEmail == "N/A" {
+			updateData["business_email"] = fmt.Sprintf("%s@auto-verified.com", seller.StoreSlug)
+		}
+		if seller.Address == "" || seller.Address == "N/A" {
+			updateData["address"] = "Auto Verified Address"
+			updateData["city"] = "Dhaka"
+			updateData["state"] = "Dhaka"
+			updateData["postal_code"] = "1200"
+		}
+		if seller.Phone == "" {
+			updateData["phone"] = "01700000000"
+		}
 
-	return nil
+		// ✅ Update seller record
+		if err := tx.Model(&models.User{}).Where("id = ?", sellerID).Updates(updateData).Error; err != nil {
+			return fmt.Errorf("failed to update seller: %w", err)
+		}
+
+		// ✅ Update linked RegUser as verified
+		if err := tx.Model(&models.RegUser{}).Where("id = ?", seller.UserId).Updates(map[string]interface{}{
+			"is_verified": true,
+			"is_active":   true,
+		}).Error; err != nil {
+			return fmt.Errorf("failed to update RegUser: %w", err)
+		}
+
+		//  Optionally ensure at least one payment method exists
+		var paymentCount int64
+		tx.Model(&models.SellerPaymentMethod{}).Where("seller_id = ?", sellerID).Count(&paymentCount)
+		if paymentCount == 0 {
+			defaultMethod := models.SellerPaymentMethod{
+				SellerID: seller.ID,
+				// Method:    "Bank Transfer",
+				// AccountNo: "000000000",
+				IsActive: true,
+			}
+			if err := tx.Create(&defaultMethod).Error; err != nil {
+				return fmt.Errorf("failed to add default payment method: %w", err)
+			}
+		}
+
+		fmt.Printf(" Seller (UserID=%d, RegUserID=%d) approved and profile completed by AdminID=%d\n",
+			sellerID, seller.UserId, adminUserID)
+
+		return nil
+	})
+}
+func (r *SellerRepository) UpdateSellerFields(id uint, fields map[string]interface{}) error {
+	return r.db.Model(&models.User{}).Where("id = ?", id).Updates(fields).Error
 }
 
 // Search searches sellers by business name or email

@@ -45,12 +45,20 @@ type User struct {
 	Status         string `json:"status" gorm:"size:20;default:'pending'"` // pending, approved, rejected, suspended
 	ApprovalStatus string `json:"approval_status" gorm:"size:20;default:'pending'"`
 
-	IsActive        bool       `json:"is_active" gorm:"default:true"`
-	IsVerified      bool       `json:"is_verified" gorm:"default:false"`  // Seller verification
-	IsApproved      bool       `json:"is_approved" gorm:"default:false"`  //  approval status
-	ApprovedAt      *time.Time `json:"approved_at"`                       //  approval date
-	RejectedAt      *time.Time `json:"rejected_at"`                       //  rejection date
-	RejectionReason string     `json:"rejection_reason" gorm:"type:text"` // rejection reason
+	IsActive          bool       `json:"is_active" gorm:"default:true"`
+	IsVerified        bool       `json:"is_verified" gorm:"default:false"`  // Seller verification
+	IsApproved        bool       `json:"is_approved" gorm:"default:false"`  //  approval status
+	ApprovedAt        *time.Time `json:"approved_at"`                       //  approval date
+	RejectedAt        *time.Time `json:"rejected_at"`                       //  rejection date
+	RejectionReason   string     `json:"rejection_reason" gorm:"type:text"` // rejection reason
+	IsProfileComplete bool       `json:"is_profile_complete" gorm:"default:false"`
+	//after compelete profile
+	HasBusinessInfo  bool    `json:"has_business_info" gorm:"default:false"`
+	HasAddress       bool    `json:"has_address" gorm:"default:false"`
+	HasPaymentMethod bool    `json:"has_payment_method" gorm:"default:false"`
+	CanAddProducts   bool    `json:"can_add_products" gorm:"default:false"`
+	MissingFields    *string `json:"missing_fields" gorm:"type:text"`
+	NextStep         string  `json:"next_step" gorm:"size:50;default:'wait_approval'"`
 
 	ApprovedBy *uint `json:"approved_by"`
 
