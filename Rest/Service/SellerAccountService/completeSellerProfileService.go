@@ -7,7 +7,7 @@ import (
 )
 
 func (s *sellerRegistrationService) CompleteSellerProfile(userID uint, req *selleraccount.CompleteSellerProfileRequest) (*selleraccount.SellerProfileResponse, error) {
-	seller, err := s.sellerRepo.GetSellerByUserId(userID)
+	seller, err := s.sellerRepo.GetSellerByRegUserId(userID)
 	if err != nil {
 		return nil, err
 	}

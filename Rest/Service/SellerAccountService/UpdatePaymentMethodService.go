@@ -3,7 +3,7 @@ package selleraccountservice
 import selleraccount "github.com/saadahmedbd/Treestore/Rest/DTO/sellerAccount"
 
 func (s *sellerRegistrationService) UpdatePaymentMethod(userID uint, paymentMethodID uint, req *selleraccount.UpdatePaymentMethodRequest) error {
-	seller, err := s.sellerRepo.GetSellerByUserId(userID)
+	seller, err := s.sellerRepo.GetSellerByRegUserId(userID)
 	if err != nil {
 		return err
 	}

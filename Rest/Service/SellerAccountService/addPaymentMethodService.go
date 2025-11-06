@@ -6,7 +6,7 @@ import (
 )
 
 func (s *sellerRegistrationService) AddPaymentMethod(userID uint, req *selleraccount.AddPaymentMethodRequest) (*selleraccount.PaymentMethodInfo, error) {
-	seller, err := s.sellerRepo.GetSellerByUserId(userID)
+	seller, err := s.sellerRepo.GetSellerByRegUserId(userID)
 	if err != nil {
 		return nil, err
 	}

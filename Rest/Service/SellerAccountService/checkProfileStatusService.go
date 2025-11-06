@@ -3,7 +3,7 @@ package selleraccountservice
 import selleraccount "github.com/saadahmedbd/Treestore/Rest/DTO/sellerAccount"
 
 func (s *sellerRegistrationService) CheckProfileStatus(userID uint) (*selleraccount.SellerProfileCompletionStatus, error) {
-	seller, err := s.sellerRepo.GetSellerByUserId(userID)
+	seller, err := s.sellerRepo.GetSellerByRegUserId(userID)
 	if err != nil {
 		return nil, err
 	}

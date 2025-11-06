@@ -11,7 +11,7 @@ import (
 // GetSellerStatistics retrieves seller statistics
 func (r *SellerAccountSettingRepository) GetSellerStatisticsStruct(sellerID uint) (*selleraccountsetting.SellerStatisticsResponse, error) {
 	var seller models.User
-	err := r.db.Preload("RegUser").Where("user_id = ?", sellerID).First(&seller).Error
+	err := r.db.Preload("RegUser").Where("id = ?", sellerID).First(&seller).Error
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, errors.New("seller not found")

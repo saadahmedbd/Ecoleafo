@@ -6,7 +6,7 @@ import (
 )
 
 func (s *sellerRegistrationService) UpdateStoreInfo(userID uint, req *selleraccount.UpdateStoreInfoRequest) error {
-	seller, err := s.sellerRepo.GetSellerByUserId(userID)
+	seller, err := s.sellerRepo.GetSellerByRegUserId(userID)
 	if err != nil {
 		return err
 	}

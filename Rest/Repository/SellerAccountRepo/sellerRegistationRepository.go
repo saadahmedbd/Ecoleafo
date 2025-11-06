@@ -10,7 +10,7 @@ type SellerRegistrationRepository interface {
 	CreateRegUser(regUser *models.RegUser) error
 	CreateSeller(seller *models.User) error
 	GetSellerByEmail(email string) (*models.User, error)
-	GetSellerByUserId(userID uint) (*models.User, error)
+	GetSellerByRegUserId(userID uint) (*models.User, error)
 
 	//profile management
 	UpdateSellerProfile(seller *models.User) error
