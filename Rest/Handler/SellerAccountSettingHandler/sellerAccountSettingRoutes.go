@@ -13,11 +13,11 @@ func (h *Selleraccountsettinghandler) RegisterSellerAccountSettingHandler(mux *h
 		middleware.Cors,
 		middleware.AuthenticateJWT,
 	))
-	mux.Handle("GET /api/seller/statistics", middleware.Chain(http.HandlerFunc(h.GetStatistics),
-		middleware.Logger,
-		middleware.Cors,
-		middleware.AuthenticateJWT,
-	))
+	// mux.Handle("GET /api/seller/statistics", middleware.Chain(http.HandlerFunc(h.GetStatistics),
+	// 	middleware.Logger,
+	// 	middleware.Cors,
+	// 	middleware.AuthenticateJWT,
+	// ))
 	//account managment
 	mux.Handle("PUT /api/seller/account", middleware.Chain(http.HandlerFunc(h.UpdateAccount),
 		middleware.Logger,

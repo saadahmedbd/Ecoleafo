@@ -29,6 +29,7 @@ type User struct {
 	// Financial Information
 
 	TotalSales    float64 `json:"total_sales" gorm:"type:decimal(12,2);default:0"`    // Increased precision
+	TotalReviews  int     `json:"total_reviews" gorm:"default:0"`                     // Added reviews
 	TotalEarnings float64 `json:"total_earnings" gorm:"type:decimal(12,2);default:0"` // Added earnings
 	TotalOrders   int     `json:"total_orders" gorm:"default:0"`
 	AverageRating float64 `json:"average_rating" gorm:"type:decimal(3,2);default:0"` // Added rating
