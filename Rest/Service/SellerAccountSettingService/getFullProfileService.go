@@ -6,9 +6,9 @@ import (
 )
 
 // GetFullProfile retrieves complete seller profile
-func (s *SellerAccountSettingService) GetFullProfile(sellerID uint) (*selleraccountsetting.SellerProfileResponse, error) {
-	// Get seller data
-	seller, err := s.repo.GetSellerByID(sellerID)
+func (s *SellerAccountSettingService) GetFullProfile(userID uint) (*selleraccountsetting.SellerProfileResponse, error) {
+	// Get seller data by RegUser ID (from JWT)
+	seller, err := s.repo.GetSellerByUserID(userID)
 	if err != nil {
 		return nil, err
 	}
@@ -19,8 +19,8 @@ func (s *SellerAccountSettingService) GetFullProfile(sellerID uint) (*selleracco
 		return nil, err
 	}
 
-	// Get policies
-	policies, err := s.repo.GetSellerPolicies(sellerID)
+	// Get policies using actual seller ID
+	policies, err := s.repo.GetSellerPolicies(seller.ID)
 	if err != nil {
 		// Don't fail if policies not found, just continue
 		policies = &models.SellerPolicy{}

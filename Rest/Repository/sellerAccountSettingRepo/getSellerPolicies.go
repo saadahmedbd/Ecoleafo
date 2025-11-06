@@ -8,12 +8,13 @@ import (
 )
 
 // GetSellerPolicies retrieves seller policies
+
 func (r *SellerAccountSettingRepository) GetSellerPolicies(sellerID uint) (*models.SellerPolicy, error) {
 	var policy models.SellerPolicy
-	err := r.db.Where("user_id = ?", sellerID).First(&policy).Error
+
+	err := r.db.Where("seller_id = ?", sellerID).First(&policy).Error
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			// Create default policies if not found
 			policy = models.SellerPolicy{SellerID: sellerID}
 			if err := r.db.Create(&policy).Error; err != nil {
 				return nil, err
@@ -22,5 +23,6 @@ func (r *SellerAccountSettingRepository) GetSellerPolicies(sellerID uint) (*mode
 			return nil, err
 		}
 	}
+
 	return &policy, nil
 }

@@ -7,7 +7,13 @@ import (
 )
 
 // UpdateBranding updates store logo and banner
-func (s *SellerAccountSettingService) UpdateBranding(sellerID uint, logoURL, bannerURL string) (*selleraccountsetting.UpdateBrandingResponse, error) {
+func (s *SellerAccountSettingService) UpdateBranding(userID uint, logoURL, bannerURL string) (*selleraccountsetting.UpdateBrandingResponse, error) {
+	// Get seller by RegUser ID (from JWT)
+	seller, err := s.repo.GetSellerByUserID(userID)
+	if err != nil {
+		return nil, err
+	}
+
 	updates := make(map[string]interface{})
 
 	if logoURL != "" {
@@ -22,8 +28,8 @@ func (s *SellerAccountSettingService) UpdateBranding(sellerID uint, logoURL, ban
 		return nil, errors.New("no branding files provided")
 	}
 
-	// Update seller
-	if err := s.repo.UpdateSeller(sellerID, updates); err != nil {
+	// Update seller using actual seller ID
+	if err := s.repo.UpdateSeller(seller.ID, updates); err != nil {
 		return nil, errors.New("failed to update branding")
 	}
 
