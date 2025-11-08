@@ -21,6 +21,11 @@ func (h *OrderHandler) OrderRoute(mux *http.ServeMux) {
 		middleware.AuthenticateJWT,
 		middleware.Logger,
 	))
+	//seller route
+	mux.Handle("GET /api/orders/seller-orders", middleware.Chain(http.HandlerFunc(h.GetSellerOrders),
+		middleware.AuthenticateJWT,
+		middleware.Logger,
+	))
 	//common route buyer seller admin
 	mux.Handle("GET /api/orders/get", middleware.Chain(http.HandlerFunc(h.GetOrderById),
 		middleware.AuthenticateJWT,
