@@ -1,36 +1,46 @@
 package reviewhandler
 
 import (
-	"fmt"
 	"net/http"
 	"strconv"
 
-	"github.com/saadahmedbd/Treestore/Config"
-	models "github.com/saadahmedbd/Treestore/Models"
+	"github.com/gorilla/mux"
+
+	util "github.com/saadahmedbd/Treestore/Util"
+	"github.com/saadahmedbd/Treestore/constants"
 )
 
-func (h *Handler) DeleteReview(w http.ResponseWriter, r *http.Request) {
-	if r.Method != "DELETE" {
-		http.Error(w, "Please provide valid request", http.StatusBadRequest)
+// DeleteReview - Delete a review
+
+// DeleteReview - Delete a review
+func (h *ReviewHandler) DeleteReview(w http.ResponseWriter, r *http.Request) {
+	userIDVal := r.Context().Value(constants.ContextKeyUserID)
+	userRoleVal := r.Context().Value(constants.ContextKeyRole)
+	if userIDVal == nil || userRoleVal == nil {
+		http.Error(w, `{"error":"unauthorized"}`, http.StatusUnauthorized)
 		return
 	}
-	reviewId := r.PathValue("reviewId")
-	id, err := strconv.Atoi(reviewId)
+
+	regUserID, ok := userIDVal.(uint)
+	if !ok {
+		http.Error(w, `{"error":"invalid user_id type"}`, http.StatusInternalServerError)
+		return
+	}
+
+	// Get review ID from URL
+	vars := mux.Vars(r)
+	reviewIDStr := vars["id"]
+	reviewID, err := strconv.ParseUint(reviewIDStr, 10, 32)
 	if err != nil {
-		http.Error(w, "Invalid review id", http.StatusBadRequest)
+		util.RespondError(w, http.StatusBadRequest, "invalid review ID")
 		return
 	}
-	//try to delete
-	var reviews models.Review
-	if err := Config.DB.First(&reviews, id).Error; err != nil {
-		http.Error(w, "order not found", http.StatusBadRequest)
+
+	if err := h.reviewService.DeleteReview(uint(reviewID), regUserID); err != nil {
+		util.RespondError(w, http.StatusBadRequest, err.Error())
 		return
 	}
-	if err := Config.DB.Delete(&reviews).Error; err != nil {
-		http.Error(w, "Failed to delete order", http.StatusInternalServerError)
-		return
-	}
-	// util.SendData(w, seller, 200)
-	w.Write([]byte(fmt.Sprintf("review %d deleted successfully", id)))
+
+	util.RespondJSON(w, http.StatusOK, nil, "review deleted successfully")
 
 }

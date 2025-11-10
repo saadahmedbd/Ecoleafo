@@ -1,7 +1,13 @@
 package reviewhandler
 
-type Handler struct{}
+import reviewservice "github.com/saadahmedbd/Treestore/Rest/Service/ReviewService"
 
-func NewHandler() *Handler {
-	return &Handler{}
+type ReviewHandler struct {
+	reviewService *reviewservice.ReviewService
+}
+
+func NewReviewHandler(reviewService *reviewservice.ReviewService) *ReviewHandler {
+	return &ReviewHandler{
+		reviewService: reviewService,
+	}
 }

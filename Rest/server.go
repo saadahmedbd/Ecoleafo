@@ -40,7 +40,7 @@ type Server struct {
 	orderitemhandler            *orderitemhandler.Handler
 	producthandler              *producthandler.Handler
 	profilehandler              *profilehandler.Handler
-	reviewhandler               *reviewhandler.Handler
+	reviewhandler               *reviewhandler.ReviewHandler
 	rolehandler                 *rolehandler.Handler
 	searchhandler               *searchhandler.Handler
 	userhandler                 *userhandler.Handler
@@ -71,7 +71,7 @@ func NewServer(
 	orderitemHandler *orderitemhandler.Handler,
 	productHandler *producthandler.Handler,
 	profileHandler *profilehandler.Handler,
-	reviewHandler *reviewhandler.Handler,
+	reviewHandler *reviewhandler.ReviewHandler,
 	rolehandler *rolehandler.Handler,
 	searchHandler *searchhandler.Handler,
 	userHandler *userhandler.Handler,

@@ -37,6 +37,7 @@ import (
 	orderrepo "github.com/saadahmedbd/Treestore/Rest/Repository/OrderRepo"
 	productrepo "github.com/saadahmedbd/Treestore/Rest/Repository/ProductRepo"
 	reguserrepo "github.com/saadahmedbd/Treestore/Rest/Repository/RegUserRepo"
+	reviewrepo "github.com/saadahmedbd/Treestore/Rest/Repository/ReviewRepo"
 	selleraccountrepo "github.com/saadahmedbd/Treestore/Rest/Repository/SellerAccountRepo"
 	sellerdashboardrepo "github.com/saadahmedbd/Treestore/Rest/Repository/SellerDashboardRepo"
 	selleraccountsettingrepo "github.com/saadahmedbd/Treestore/Rest/Repository/sellerAccountSettingRepo"
@@ -45,6 +46,7 @@ import (
 	inventoryservice "github.com/saadahmedbd/Treestore/Rest/Service/InventoryService"
 	orderservice "github.com/saadahmedbd/Treestore/Rest/Service/OrderService"
 	productservice "github.com/saadahmedbd/Treestore/Rest/Service/ProductService"
+	reviewservice "github.com/saadahmedbd/Treestore/Rest/Service/ReviewService"
 	selleraccountservice "github.com/saadahmedbd/Treestore/Rest/Service/SellerAccountService"
 	selleraccountsettingservice "github.com/saadahmedbd/Treestore/Rest/Service/SellerAccountSettingService"
 	sellerdashboardservice "github.com/saadahmedbd/Treestore/Rest/Service/SellerDashboardService"
@@ -80,6 +82,7 @@ func Server() {
 
 	sellerdashboardrepo := sellerdashboardrepo.NewDashboardRepository(Config.DB)
 	inventoryrepo := inventoryrepo.NewInventoryRepository(Config.DB)
+	reviewrepo := reviewrepo.NewReviewRepository(Config.DB)
 	//service
 	productservice := productservice.NewProductService(Config.DB)
 	sellerprofileservice := sellerprofileservice.NewSellerService(repository)
@@ -104,14 +107,14 @@ func Server() {
 
 	sellerdashboardservice := sellerdashboardservice.NewDashboardService(sellerdashboardrepo)
 	inventoryservice := inventoryservice.NewInventoryService(inventoryrepo, selleraccountsettingrepo)
-
+	reviewservice := reviewservice.NewReviewService(reviewrepo)
 	//handler
 	buyerhandler := buyerhandler.NewHandler()
 	cartitemhandler := cartitemhandler.NewHandler()
 	orderitemhandler := orderitemhandler.NewHandler()
 	producthandler := producthandler.NewHandler(productservice)
 	profilehandler := profilehandler.NewHandler()
-	reviewhandler := reviewhandler.NewHandler()
+	reviewhandler := reviewhandler.NewReviewHandler(reviewservice)
 	rolehandler := rolehandler.NewHandler()
 	searchhandler := searchhandler.NewHandler()
 	userhandler := userhandler.NewHandler()

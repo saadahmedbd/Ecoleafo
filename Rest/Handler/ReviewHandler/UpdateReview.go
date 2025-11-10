@@ -5,42 +5,55 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/saadahmedbd/Treestore/Config"
-	models "github.com/saadahmedbd/Treestore/Models"
+	"github.com/gorilla/mux"
+
+	reviewdto "github.com/saadahmedbd/Treestore/Rest/DTO/ReviewDTO"
 	util "github.com/saadahmedbd/Treestore/Util"
+	"github.com/saadahmedbd/Treestore/constants"
 )
 
-func (h *Handler) UpdateReview(w http.ResponseWriter, r *http.Request) {
-	if r.Method != "PUT" {
-		http.Error(w, "Please provide valid method", http.StatusBadRequest)
+// UpdateReview - Update a review
+func (h *ReviewHandler) UpdateReview(w http.ResponseWriter, r *http.Request) {
+	userIDVal := r.Context().Value(constants.ContextKeyUserID)
+	userRoleVal := r.Context().Value(constants.ContextKeyRole)
+	if userIDVal == nil || userRoleVal == nil {
+		http.Error(w, `{"error":"unauthorized"}`, http.StatusUnauthorized)
 		return
 	}
-	updateReviewId := r.PathValue("reviewId")
-	id, err := strconv.Atoi(updateReviewId)
 
+	regUserID, ok := userIDVal.(uint)
+	if !ok {
+		http.Error(w, `{"error":"invalid user_id type"}`, http.StatusInternalServerError)
+		return
+	}
+
+	// Get review ID from URL
+	vars := mux.Vars(r)
+	reviewIDStr := vars["id"]
+	reviewID, err := strconv.ParseUint(reviewIDStr, 10, 32)
 	if err != nil {
-		http.Error(w, "Invalid review ID", http.StatusBadRequest)
+		util.RespondError(w, http.StatusBadRequest, "invalid review ID")
 		return
 	}
-	var existingReview models.Review
-	if err := Config.DB.First(&existingReview, id).Error; err != nil {
-		http.Error(w, "review not found", http.StatusNotFound)
-		return
-	}
-	var UpdateReview models.Review
-	if err := json.NewDecoder(r.Body).Decode(&UpdateReview); err != nil {
-		http.Error(w, "Invalid request body", http.StatusBadRequest)
-		return
-	}
-	// Update existing seller with new values
-	existingReview.ProductID = UpdateReview.ProductID
-	existingReview.BuyerID = UpdateReview.BuyerID
-	existingReview.Rating = UpdateReview.Rating
-	existingReview.Comment = UpdateReview.Comment
 
-	if err := Config.DB.Save(&existingReview).Error; err != nil {
-		http.Error(w, "Failed to update category", http.StatusInternalServerError)
+	var req reviewdto.UpdateReviewRequest
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		util.RespondError(w, http.StatusBadRequest, "invalid request data")
 		return
 	}
-	util.SendData(w, UpdateReview, 200)
+
+	// Validate request
+	if err := util.ValidateStruct(req); err != nil {
+		util.RespondError(w, http.StatusBadRequest, "validation failed")
+		return
+	}
+
+	review, err := h.reviewService.UpdateReview(uint(reviewID), regUserID, req)
+	if err != nil {
+		util.RespondError(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	util.RespondJSON(w, http.StatusOK, review, "Review updated successfully")
+
 }
