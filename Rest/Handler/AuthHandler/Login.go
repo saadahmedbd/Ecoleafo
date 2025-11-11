@@ -5,8 +5,8 @@ import (
 	"errors"
 
 	"net/http"
-	"time"
 
+	"github.com/saadahmedbd/Treestore/Config"
 	models "github.com/saadahmedbd/Treestore/Models"
 	util "github.com/saadahmedbd/Treestore/Util"
 	"gorm.io/gorm"
@@ -19,12 +19,14 @@ type LoginRequest struct {
 }
 
 type LoginResponse struct {
-	Token     string   `json:"token"`
-	UserType  string   `json:"user_type"`
-	FirstName string   `json:"first_name"`
-	LastName  string   `json:"last_name"`
-	Email     string   `json:"email"`
-	Roles     []string `json:"roles"`
+	AccessToken  string   `json:"access_token"`
+	RefreshToken string   `json:"refresh_token"`
+	ExpiresIn    int64    `json:"expires_in"`
+	UserType     string   `json:"user_type"`
+	FirstName    string   `json:"first_name"`
+	LastName     string   `json:"last_name"`
+	Email        string   `json:"email"`
+	Roles        []string `json:"roles"`
 }
 
 func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
@@ -65,6 +67,9 @@ func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
 	firstName = regUser.FirstName
 	lastName = regUser.LastName
 
+	// Update RegUser role if empty
+	var needsRoleUpdate bool
+
 	// Try to find in buyers table
 	var buyer models.Buyer
 	buyerErr := h.service.db.Where("user_id = ?", regUser.ID).First(&buyer).Error
@@ -72,6 +77,10 @@ func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
 		// Found in buyers table
 		userType = "buyer"
 		userRoles = []string{"buyer"}
+		if regUser.Role == "" {
+			regUser.Role = "buyer"
+			needsRoleUpdate = true
+		}
 	}
 
 	// Try to find in users table (sellers)
@@ -85,7 +94,10 @@ func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
 		} else {
 			userRoles = []string{"seller"}
 		}
-
+		if regUser.Role == "" {
+			regUser.Role = "seller"
+			needsRoleUpdate = true
+		}
 	}
 
 	// If not found in either table, check if this is an admin
@@ -97,104 +109,43 @@ func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
 			userRoles = []string{"admin"}
 			firstName = admin.FullName
 			lastName = ""
+			if regUser.Role == "" {
+				regUser.Role = "admin"
+				needsRoleUpdate = true
+			}
 		} else {
 			userRoles = []string{"buyer"}
 			userType = "please compete buyer profile"
+			if regUser.Role == "" {
+				regUser.Role = "buyer"
+				needsRoleUpdate = true
+			}
 		}
 	}
 
-	// Generate JWT token with the RegUser.ID (which is referenced by user_id in other tables)
-	token, err := util.CreateJwt(regUser.ID, firstName, lastName, userRoles, 24*time.Hour)
+	// Update RegUser role if needed
+	if needsRoleUpdate {
+		h.service.db.Model(&regUser).Update("role", regUser.Role)
+	}
+
+	// Create token pair have jwt and refresh token
+	tokenPair, err := util.CreateTokenPair(Config.DB, regUser.ID, regUser.FirstName, regUser.LastName, userRoles)
 	if err != nil {
-		http.Error(w, `{"error":"failed to generate token"}`, http.StatusInternalServerError)
+		http.Error(w, "Failed to create tokens", http.StatusInternalServerError)
 		return
 	}
 
 	// Prepare response
 	response := LoginResponse{
-		Token:     token,
-		UserType:  userType,
-		FirstName: firstName,
-		LastName:  lastName,
-		Email:     regUser.Email,
-		Roles:     userRoles,
+		AccessToken:  tokenPair.AccessToken,
+		RefreshToken: tokenPair.RefreshToken,
+		ExpiresIn:    tokenPair.ExpiresIn,
+		UserType:     userType,
+		FirstName:    firstName,
+		LastName:     lastName,
+		Email:        regUser.Email,
+		Roles:        userRoles,
 	}
 
 	util.SendData(w, response, http.StatusOK)
 }
-
-// type Reqlogin struct {
-// 	Email    string `json:"email"`
-// 	Password string `json:"password"`
-// }
-
-// func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
-// 	var req Reqlogin
-// 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-// 		http.Error(w, `{"error":"Invalid request body"}`, http.StatusBadRequest)
-// 		return
-// 	}
-
-// 	if !emailRegex.MatchString(req.Email) {
-// 		http.Error(w, `{"error":"Invalid email format"}`, http.StatusBadRequest)
-// 		return
-// 	}
-
-// 	var user models.RegUser
-// 	if err := Config.DB.Where("email = ?", req.Email).First(&user).Error; err != nil {
-// 		http.Error(w, `{"error":"Invalid credentials"}`, http.StatusUnauthorized)
-// 		return
-// 	}
-
-// 	if err := user.CheckPassword(req.Password); err != nil {
-// 		http.Error(w, `{"error":"Invalid credentials"}`, http.StatusUnauthorized)
-// 		return
-// 	}
-// 	//check roles
-// 	roles := []string{}
-// 	//check user is buyer
-// 	var buyer models.Buyer
-// 	if err := Config.DB.Where("user_id = ?", user.ID).First(&buyer).Error; err == nil {
-// 		roles = append(roles, "buyer")
-// 	}
-// 	//check user is seller
-// 	var seller models.User
-// 	if err := Config.DB.Where("user_id = ?", user.ID).First(&seller).Error; err == nil {
-// 		roles = append(roles, "seller")
-// 	}
-
-// 	// If no specific roles found, use RegUser.Role as fallback
-// 	if len(roles) == 0 && user.Role != "" {
-// 		roles = append(roles, user.Role)
-// 	}
-// 	token, err := util.CreateJwt(user.ID, user.FirstName, user.LastName, roles, 24*time.Hour)
-// 	if err != nil {
-// 		http.Error(w, "Error generating token", http.StatusInternalServerError)
-// 		return
-// 	}
-
-// 	// cnf := Config.GetConfig()
-// 	// token, err := util.CreateJwt(cnf.JwtSecretKey, util.Payload{
-// 	// 	UserId:    user.ID,
-// 	// 	Role:      user.Role,
-// 	// 	FirstName: user.FirstName,
-// 	// 	LastName:  user.LastName,
-// 	// })
-// 	// if err != nil {
-// 	// 	http.Error(w, "Error generating token", http.StatusInternalServerError)
-// 	// 	return
-// 	// }
-
-// 	w.Header().Set("Content-Type", "application/json")
-// 	response := map[string]interface{}{
-// 		"message":    "Login successful",
-// 		"email":      user.Email,
-// 		"user id":    user.ID,
-// 		"token":      token,
-// 		"role":       user.Role,
-// 		"first_name": user.FirstName,
-// 		"last_name":  user.LastName,
-// 	}
-
-// 	json.NewEncoder(w).Encode(response)
-// }

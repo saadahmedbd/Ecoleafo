@@ -27,5 +27,22 @@ func (h *Handler) AuthRouth(mux *http.ServeMux) {
 
 		middleware.Logger,
 		middleware.Cors,
+		middleware.AuthenticateJWT,
+	))
+	mux.Handle("POST /api/auth/refresh", middleware.Chain(http.HandlerFunc(h.RefreshToken),
+
+		middleware.Logger,
+		middleware.Cors,
+	))
+	mux.Handle("GET /api/auth/me", middleware.Chain(http.HandlerFunc(h.Me),
+		middleware.Logger,
+		middleware.Cors,
+		middleware.AuthenticateJWT,
+	))
+	mux.Handle("POST /api/auth/logoutAll", middleware.Chain(http.HandlerFunc(h.LogoutAll),
+
+		middleware.Logger,
+		middleware.Cors,
+		middleware.AuthenticateJWT,
 	))
 }

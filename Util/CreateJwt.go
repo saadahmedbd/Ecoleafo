@@ -61,7 +61,19 @@ import (
 // jwt := headerB64 + "." + PayloadB64 + "." + signatureB64
 // return jwt, nil
 
-// built in jwt
+// built in
+
+const (
+	AccessTokenTTL  = 15 * time.Minute   // Short-lived access token
+	RefreshTokenTTL = 7 * 24 * time.Hour // Long-lived refresh token
+)
+
+type TokenPair struct {
+	AccessToken  string `json:"access_token"`
+	RefreshToken string `json:"refresh_token"`
+	ExpiresIn    int64  `json:"expires_in"` // seconds until access token expires
+}
+
 func CreateJwt(userID uint, firstname, lastname string, roles []string, ttl time.Duration) (string, error) {
 	claims := jwt.MapClaims{
 		"user_id":    userID,
@@ -69,6 +81,8 @@ func CreateJwt(userID uint, firstname, lastname string, roles []string, ttl time
 		"last_name":  lastname,
 		"role":       roles,
 		"exp":        time.Now().Add(ttl).Unix(),
+		"iat":        time.Now().Unix(),
+		"type":       "access", // Distinguish token type
 	}
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	return token.SignedString([]byte(Config.GetConfig().JwtSecretKey))

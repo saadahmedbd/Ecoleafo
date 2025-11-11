@@ -93,21 +93,20 @@ func (h *Handler) Registation(w http.ResponseWriter, r *http.Request) {
 	}
 
 	tx.Commit()
-	// ✅ Generate JWT token
-	token, err := util.CreateJwt(user.ID, req.FirstName, req.LastName, []string{"seller"}, 24*time.Hour)
+	tokenPair, err := util.CreateTokenPair(Config.DB, user.ID, user.FirstName, user.LastName, []string{"buyer"})
 	if err != nil {
-		http.Error(w, "Error generating token: "+err.Error(), http.StatusInternalServerError)
+		http.Error(w, "Failed to create tokens", http.StatusInternalServerError)
 		return
 	}
 
 	util.SendData(w, map[string]interface{}{
-		"token":      token,
-		"user_type":  user.Role,
-		"first_name": user.FirstName,
-		"last_name":  user.LastName,
-		"email":      user.Email,
-		"roles":      []string{user.Role},
-		"user_id":    user.ID,
+		"access_token": tokenPair,
+		"user_type":    user.Role,
+		"first_name":   user.FirstName,
+		"last_name":    user.LastName,
+		"email":        user.Email,
+		"roles":        []string{user.Role},
+		"user_id":      user.ID,
 	}, http.StatusCreated)
 
 }

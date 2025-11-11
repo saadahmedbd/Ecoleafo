@@ -6,6 +6,7 @@ import (
 	"github.com/saadahmedbd/Treestore/CMD"
 	"github.com/saadahmedbd/Treestore/Config"
 	"github.com/saadahmedbd/Treestore/Database"
+	util "github.com/saadahmedbd/Treestore/Util"
 )
 
 func main() {
@@ -19,6 +20,7 @@ func main() {
 	if err := Config.InitCloudinary(); err != nil {
 		log.Fatal("Failed to initialize Cloudinary:", err)
 	}
+	util.RunTokenCleanup(Config.DB)
 	CMD.Server()
 
 }
