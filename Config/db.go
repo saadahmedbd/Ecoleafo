@@ -46,6 +46,7 @@ func Connect() {
 		&models.Category{},
 		&models.Admin{},
 		&models.AdminInvitation{},
+		&models.RefreshToken{},
 	)
 	if err != nil {
 		fmt.Println("Base tables migration failed:", err)
