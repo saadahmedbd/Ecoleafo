@@ -13,6 +13,8 @@ type RegUser struct {
 	LastName         string         `json:"last_name" gorm:"size:100;not null;default:'N/A'"`
 	Email            string         `json:"email" gorm:"uniqueIndex;size:100;not null"`
 	Password         string         `json:"password" gorm:"size:255;not null"`
+	Gender           string         `json:"gender"`
+	DateOfBirth      *time.Time     `json:"date_of_birth"`
 	Role             string         `json:"role" gorm:"size:20;not null"` // buyer, seller, admin
 	Phone            string         `json:"phone" gorm:"size:20;not null;default:'N/A'"`
 	Avatar           string         `json:"avatar" gorm:"size:255"`

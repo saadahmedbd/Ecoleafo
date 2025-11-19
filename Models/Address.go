@@ -12,7 +12,7 @@ type Address struct {
 	AddressLine2 string    `json:"address_line_2" gorm:"size:255"`
 	Street       string    `json:"street" gorm:"size:100"`
 	City         string    `json:"city" gorm:"size:50;not null"`
-	State        string    `json:"state" gorm:"size:50;not null"`
+	State        string    `json:"state" gorm:"size:50;default:null"`
 	District     string    `json:"district" gorm:"size:50;not null"`
 	PostalCode   string    `json:"postal_code" gorm:"size:20;not null"`
 	Country      string    `json:"country" gorm:"size:50;not null;default:'Bangladesh'"`
