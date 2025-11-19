@@ -25,6 +25,7 @@ func (r *OrderRepository) GetAll(page, limit int, status string) ([]models.Order
 		Preload("Buyer.RegUser").
 		Preload("OrderItems").
 		Preload("OrderItems.Product").
+		Preload("OrderItems.Product.Images").
 		Preload("OrderItems.Seller")
 
 	if status != "" {
@@ -48,6 +49,7 @@ func (r *OrderRepository) GetByID(id uint) (*models.Order, error) {
 		Preload("Buyer.RegUser").
 		Preload("OrderItems").
 		Preload("OrderItems.Product").
+		Preload("OrderItems.Product.Images").
 		Preload("OrderItems.Seller").
 		Preload("ShippingAddress").
 		Preload("BillingAddress").
@@ -63,6 +65,7 @@ func (r *OrderRepository) GetByOrderNumber(orderNumber string) (*models.Order, e
 		Preload("Buyer.RegUser").
 		Preload("OrderItems").
 		Preload("OrderItems.Product").
+		Preload("OrderItems.Product.Images").
 		Preload("OrderItems.Seller").
 		Preload("Payment").
 		Where("order_number = ?", orderNumber).
@@ -101,7 +104,8 @@ func (r *OrderRepository) GetByBuyer(buyerID uint, page, limit int) ([]models.Or
 	query := r.db.Model(&models.Order{}).
 		Where("buyer_id = ?", buyerID).
 		Preload("OrderItems").
-		Preload("OrderItems.Product")
+		Preload("OrderItems.Product").
+		Preload("OrderItems.Product.Images")
 
 	if err := query.Count(&total).Error; err != nil {
 		return nil, 0, err
@@ -126,7 +130,9 @@ func (r *OrderRepository) Search(query string, page, limit int) ([]models.Order,
 		Where("orders.order_number ILIKE ? OR reg_users.email ILIKE ?", searchQuery, searchQuery).
 		Preload("Buyer").
 		Preload("Buyer.RegUser").
-		Preload("OrderItems")
+		Preload("OrderItems").
+		Preload("OrderItems.Product").
+		Preload("OrderItems.Product.Images")
 
 	// Count total results (use subquery for accuracy)
 	if err := r.db.Table("(?) as sub", dbQuery.Select("orders.id")).Count(&total).Error; err != nil {
@@ -275,6 +281,8 @@ func (r *OrderRepository) GetRecentOrders(limit int) ([]models.Order, error) {
 	err := r.db.Preload("Buyer").
 		Preload("Buyer.RegUser").
 		Preload("OrderItems").
+		Preload("OrderItems.Product").
+		Preload("OrderItems.Product.Images").
 		Order("created_at DESC").
 		Limit(limit).
 		Find(&orders).Error
