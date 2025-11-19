@@ -9,3 +9,10 @@ func (r *cartRepository) GetCartItemCount(buyerID uint) (int, error) {
 		Count(&count).Error
 	return int(count), err
 }
+func (r *cartRepository) GetWishlistCount(buyerID uint) (int, error) {
+	var count int64
+	err := r.db.Model(&models.Wishlist{}).
+		Where("buyer_id = ?", buyerID).
+		Count(&count).Error
+	return int(count), err
+}

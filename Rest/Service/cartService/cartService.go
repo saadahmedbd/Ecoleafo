@@ -30,6 +30,7 @@ type CartService interface {
 	MoveFromWishlistToCart(buyerID uint, productID uint) error
 	GetWishlist(buyerID uint) (*cartitem.WishlistResponse, error)
 	RemoveFromWishlist(buyerID uint, productID uint) error
+	GetWishlistCount(buyerID uint) (int, error)
 
 	// Utilities
 	ValidateCart(buyerID uint) (*cartitem.CartSummaryResponse, error)

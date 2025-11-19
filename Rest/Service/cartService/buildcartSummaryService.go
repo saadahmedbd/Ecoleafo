@@ -16,9 +16,17 @@ func (s *cartService) buildCartSummary(buyerID uint, items []models.CartItem) (*
 	var unavailableItems []string
 
 	for _, item := range items {
-		imageURL := ""
-		if len(item.Product.Images) > 0 {
-			imageURL = item.Product.Images[0].ImageURL
+		var imageURLs []string
+		// Find the primary image
+		for _, img := range item.Product.Images {
+			if img.IsPrimary {
+				imageURLs = append(imageURLs, img.ImageURL)
+				break // Only include the primary image
+			}
+		}
+		// If no primary image, use the first available image
+		if len(imageURLs) == 0 && len(item.Product.Images) > 0 {
+			imageURLs = append(imageURLs, item.Product.Images[0].ImageURL)
 		}
 
 		sellerName := ""
@@ -29,7 +37,7 @@ func (s *cartService) buildCartSummary(buyerID uint, items []models.CartItem) (*
 		}
 
 		inStock := item.Product.IsActive && item.Product.Quantity >= item.Quantity
-		available := inStock && item.Product.IsApproved
+		available := inStock //this time i can;t check is product approved or not(funture i will implement item.product.approved)
 
 		availMsg := "In Stock"
 		if !available {
@@ -43,20 +51,26 @@ func (s *cartService) buildCartSummary(buyerID uint, items []models.CartItem) (*
 		itemSubtotal := item.Price * float64(item.Quantity)
 		itemDiscount := 0.0
 		if item.Product.DiscountPrice > 0 {
-			itemDiscount = (item.Price - item.Product.DiscountPrice) * float64(item.Quantity)
+			itemDiscount = (item.Product.Price - item.Product.DiscountPrice) * float64(item.Quantity)
 		}
 
 		itemResponse := cartitem.CartItemResponse{
-			ID:              item.ID,
-			ProductID:       item.ProductID,
-			ProductName:     item.Product.Name,
-			ProductSlug:     item.Product.Slug,
-			Price:           item.Price,
-			OriginalPrice:   item.Product.Price,
-			DiscountPercent: item.Product.DiscountPercent,
+			ID:            item.ID,
+			ProductID:     item.ProductID,
+			ProductName:   item.Product.Name,
+			ProductSlug:   item.Product.Slug,
+			Price:         item.Price,
+			OriginalPrice: item.Product.Price,
+			DiscountPrice: float32(item.Product.DiscountPrice),
+			DiscountPercent: func() float64 {
+				if item.Product.DiscountPrice > 0 && item.Product.Price > 0 {
+					return ((item.Product.Price - item.Product.DiscountPrice) / item.Product.Price) * 100
+				}
+				return 0
+			}(),
 			Quantity:        item.Quantity,
 			Subtotal:        itemSubtotal,
-			Image:           imageURL,
+			Image:           imageURLs,
 			SellerName:      sellerName,
 			SellerID:        sellerID,
 			InStock:         inStock,

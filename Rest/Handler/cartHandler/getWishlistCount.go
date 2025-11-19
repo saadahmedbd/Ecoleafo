@@ -1,14 +1,13 @@
 package carthandler
 
 import (
-	"encoding/json"
 	"net/http"
 
 	util "github.com/saadahmedbd/Treestore/Util"
 	"github.com/saadahmedbd/Treestore/constants"
 )
 
-func (h *CartHandler) AddToWishlist(w http.ResponseWriter, r *http.Request) {
+func (h *CartHandler) GetWishlistCount(w http.ResponseWriter, r *http.Request) {
 	ctxUserID := r.Context().Value(constants.ContextKeyUserID)
 	ctxRoles := r.Context().Value(constants.ContextKeyRole)
 
@@ -50,19 +49,12 @@ func (h *CartHandler) AddToWishlist(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, `{"error":"Buyer account not found"}`, http.StatusNotFound)
 		return
 	}
-
-	var req struct {
-		ProductID uint `json:"product_id"`
-	}
-	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		http.Error(w, "Invalid request body", http.StatusBadRequest)
+	count, err := h.service.GetWishlistCount(buyerID)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	if err := h.service.AddToWishlist(buyerID, req.ProductID); err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
-	}
+	util.SendData(w, map[string]int{"count": count}, 200)
 
-	util.SendData(w, map[string]string{"message": "Item added to wishlist"}, 200)
 }

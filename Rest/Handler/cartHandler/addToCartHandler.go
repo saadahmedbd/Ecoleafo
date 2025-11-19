@@ -6,24 +6,49 @@ import (
 
 	cartitem "github.com/saadahmedbd/Treestore/Rest/DTO/CartItem"
 	util "github.com/saadahmedbd/Treestore/Util"
+	"github.com/saadahmedbd/Treestore/constants"
 )
 
 func (h *CartHandler) AddToCart(w http.ResponseWriter, r *http.Request) {
-	userIDStr := r.Header.Get("user_id")
-	userRole := r.Header.Get("user_role")
-	if userIDStr == "" {
-		http.Error(w, "Unauthorized", http.StatusUnauthorized)
+	ctxUserID := r.Context().Value(constants.ContextKeyUserID)
+	ctxRoles := r.Context().Value(constants.ContextKeyRole)
+
+	if ctxUserID == nil || ctxRoles == nil {
+		http.Error(w, `{"error":"unauthorized"}`, http.StatusUnauthorized)
 		return
 	}
 
-	if userRole != "[buyer]" {
-		http.Error(w, "Only buyers can add products to cart", http.StatusForbidden)
+	// Convert to slice of string
+	roles, ok := ctxRoles.([]interface{}) // or []string if you stored it that way
+	if !ok {
+		http.Error(w, "Invalid role type", http.StatusInternalServerError)
 		return
 	}
 
-	buyerID, err := getBuyerID(w, r)
+	// Check if "buyer" is in roles
+	isBuyer := false
+	for _, r := range roles {
+		if roleStr, ok := r.(string); ok && roleStr == "buyer" {
+			isBuyer = true
+			break
+		}
+	}
+
+	if !isBuyer {
+		http.Error(w, "Only buyers can access cart", http.StatusForbidden)
+		return
+	}
+
+	// Convert JWT reguser.id → buyer.id
+	uid, ok := ctxUserID.(uint)
+	if !ok {
+		http.Error(w, `{"error":"Invalid user ID type"}`, http.StatusInternalServerError)
+		return
+	}
+
+	buyerID, err := getBuyerID(uid)
 	if err != nil {
-		http.Error(w, "Buyer not found", http.StatusNotFound)
+		http.Error(w, `{"error":"Buyer account not found"}`, http.StatusNotFound)
 		return
 	}
 

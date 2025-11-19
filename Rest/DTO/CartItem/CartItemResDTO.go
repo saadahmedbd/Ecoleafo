@@ -1,18 +1,19 @@
 package cartitem
 
 type CartItemResponse struct {
-	ID              uint    `json:"id"`
-	ProductID       uint    `json:"product_id"`
-	ProductName     string  `json:"product_name"`
-	ProductSlug     string  `json:"product_slug"`
-	Price           float64 `json:"price"`
-	OriginalPrice   float64 `json:"original_price"`
-	DiscountPercent float64 `json:"discount_percent"`
-	Quantity        int     `json:"quantity"`
-	Subtotal        float64 `json:"subtotal"`
-	Image           string  `json:"image"`
-	SellerName      string  `json:"seller_name"`
-	SellerID        uint    `json:"seller_id"`
+	ID              uint     `json:"id"`
+	ProductID       uint     `json:"product_id"`
+	ProductName     string   `json:"product_name"`
+	ProductSlug     string   `json:"product_slug"`
+	Price           float64  `json:"price"`
+	DiscountPrice   float32  `json:"discount_price"`
+	OriginalPrice   float64  `json:"original_price"`
+	DiscountPercent float64  `json:"discount_percent"`
+	Quantity        int      `json:"quantity"`
+	Subtotal        float64  `json:"subtotal"`
+	Image           []string `json:"image"`
+	SellerName      string   `json:"seller_name"`
+	SellerID        uint     `json:"seller_id"`
 
 	// Stock & Availability
 	InStock         bool   `json:"in_stock"`

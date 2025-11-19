@@ -8,9 +8,7 @@ import (
 func (r *cartRepository) GetCart(buyerID uint, includeSavedForLater bool) ([]models.CartItem, error) {
 	var items []models.CartItem
 	query := r.db.Preload("Product").
-		Preload("Product.Images", func(db *gorm.DB) *gorm.DB {
-			return db.Where("is_primary = ?", true).Limit(1)
-		}).
+		Preload("Product.Images").
 		Preload("Product.Seller", func(db *gorm.DB) *gorm.DB {
 			return db.Select("id, store_name")
 		}).

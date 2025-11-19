@@ -30,6 +30,7 @@ type CartRepository interface {
 	MoveFromWishlistToCart(buyerID, productID uint, quantity int) error
 	GetWishlist(buyerID uint) ([]models.Wishlist, error)
 	RemoveFromWishlist(buyerID, productID uint) error
+	GetWishlistCount(buyerID uint) (int, error)
 
 	// Bulk Operations
 	BulkUpdateQuantities(buyerID uint, updates map[uint]int) error

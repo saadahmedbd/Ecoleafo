@@ -8,45 +8,54 @@ import (
 
 func (h *CartHandler) CartItemRoute(mux *http.ServeMux) {
 	mux.Handle("POST /api/cart", middleware.Chain(http.HandlerFunc(h.AddToCart),
-		middleware.AuthenticateJWT,
+
 		middleware.Cors,
 		middleware.Logger,
+		middleware.AuthenticateJWT,
 	))
 
 	mux.Handle("GET /api/cart", middleware.Chain(http.HandlerFunc(h.GetCart),
-		middleware.AuthenticateJWT,
+
 		middleware.Cors,
 		middleware.Logger,
+		middleware.AuthenticateJWT,
 	))
 	mux.Handle("GET /api/cart/summary", middleware.Chain(http.HandlerFunc(h.GetCartSummary),
-		middleware.AuthenticateJWT,
-		middleware.Cors,
+
 		middleware.Logger,
+
+		middleware.Cors,
+		middleware.AuthenticateJWT,
 	))
 	mux.Handle("PUT /api/cart/{productId}", middleware.Chain(http.HandlerFunc(h.UpdateCartItem),
-		middleware.AuthenticateJWT,
+
 		middleware.Cors,
 		middleware.Logger,
+		middleware.AuthenticateJWT,
 	))
 	mux.Handle("DELETE /api/cart/{productId}", middleware.Chain(http.HandlerFunc(h.RemoveFromCart),
-		middleware.AuthenticateJWT,
+
 		middleware.Cors,
 		middleware.Logger,
+		middleware.AuthenticateJWT,
 	))
 	mux.Handle("DELETE /api/cart", middleware.Chain(http.HandlerFunc(h.ClearCart),
-		middleware.AuthenticateJWT,
+
 		middleware.Cors,
 		middleware.Logger,
+		middleware.AuthenticateJWT,
 	))
 	mux.Handle("POST /api/cart/{productId}/increment", middleware.Chain(http.HandlerFunc(h.IncrementQuantity),
-		middleware.AuthenticateJWT,
-		middleware.Cors,
 		middleware.Logger,
+		middleware.Cors,
+
+		middleware.AuthenticateJWT,
 	))
 	mux.Handle("POST /api/cart/{productId}/decrement", middleware.Chain(http.HandlerFunc(h.DecrementQuantity),
-		middleware.AuthenticateJWT,
-		middleware.Cors,
+
 		middleware.Logger,
+		middleware.Cors,
+		middleware.AuthenticateJWT,
 	))
 	mux.Handle("POST /api/cart/bulk-update", middleware.Chain(http.HandlerFunc(h.BulkUpdateCart),
 		middleware.AuthenticateJWT,
@@ -105,5 +114,12 @@ func (h *CartHandler) CartItemRoute(mux *http.ServeMux) {
 		middleware.AuthenticateJWT,
 		middleware.Cors,
 		middleware.Logger,
+	))
+	mux.Handle("GET /api/wishlist/count", middleware.Chain(http.HandlerFunc(h.GetWishlistCount),
+
+		middleware.Logger,
+
+		middleware.Cors,
+		middleware.AuthenticateJWT,
 	))
 }

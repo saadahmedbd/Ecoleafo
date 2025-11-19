@@ -11,7 +11,7 @@ ROLE: Buyer only (except where noted)
 ================================================================================
 
 1. ADD TO CART
-   POST /api/get/cart
+   POST /api/cart
    
    Request Body:
    {
