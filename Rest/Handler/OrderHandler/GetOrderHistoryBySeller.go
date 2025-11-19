@@ -8,8 +8,8 @@ import (
 	"github.com/saadahmedbd/Treestore/constants"
 )
 
-func (h *OrderHandler) GetOrderById(w http.ResponseWriter, r *http.Request) {
-	//Get user data from context
+func (h *OrderHandler) GetOrderHistoryBySeller(w http.ResponseWriter, r *http.Request) {
+	// Get user data from context
 	ctxUserID := r.Context().Value(constants.ContextKeyUserID)
 	ctxRoles := r.Context().Value(constants.ContextKeyRole)
 
@@ -28,14 +28,14 @@ func (h *OrderHandler) GetOrderById(w http.ResponseWriter, r *http.Request) {
 	// Check if buyer
 	isBuyer := false
 	for _, raw := range roleList {
-		if roleStr, ok := raw.(string); ok && roleStr == "buyer" {
+		if r, ok := raw.(string); ok && r == "seller" {
 			isBuyer = true
 			break
 		}
 	}
 
 	if !isBuyer {
-		http.Error(w, "Only buyers can access this", http.StatusForbidden)
+		http.Error(w, "Only seller can access this", http.StatusForbidden)
 		return
 	}
 
@@ -47,27 +47,26 @@ func (h *OrderHandler) GetOrderById(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Convert reguser.id → buyer.id
-	buyerID, err := getBuyerID(uid)
+	sellerID, err := getSellerID(uid)
 	if err != nil {
-		http.Error(w, `{"error":"Buyer account not found"}`, http.StatusNotFound)
+		http.Error(w, `{"error":"seller account not found"}`, http.StatusNotFound)
 		return
 	}
 
 	orderId := r.URL.Query().Get("id")
 	if orderId == "" {
-		http.Error(w, "order id is required", http.StatusBadRequest)
+		http.Error(w, "order id is empty", http.StatusBadRequest)
 		return
 	}
 	sId, err := strconv.Atoi(orderId)
 	if err != nil {
-		http.Error(w, "id not convert", http.StatusNoContent)
+		http.Error(w, "invalid order id", http.StatusNoContent)
 		return
 	}
-	order, err := h.orderService.GetOrderByID(uint(sId), uint(buyerID), "buyer")
+	history, err := h.orderService.GetOrderHistory(uint(sId), uint(sellerID), "seller")
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusNotFound)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
 	}
-	// not return password
-
-	util.SendData(w, order, 200)
+	util.SendData(w, history, 200)
 }

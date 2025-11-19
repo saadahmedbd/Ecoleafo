@@ -14,6 +14,7 @@ func (r *orderRepository) FindByBuyerID(buyerID uint, page, limit int) ([]models
 	}
 	err := r.db.Where("buyer_id = ?", buyerID).
 		Preload("OrderItems.Product").
+		Preload("OrderItems.Product.Images").
 		Preload("OrderItems.Seller").
 		Order("created_at DESC").
 		Offset(offset).Limit(limit).

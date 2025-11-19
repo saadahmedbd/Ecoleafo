@@ -17,7 +17,7 @@ func (s *orderService) GetBuyerOrders(buyerID uint, page, limit int) ([]order.Or
 
 	responses := make([]order.OrderResponse, len(orders))
 	for i, order := range orders {
-		resp, _ := s.mapToOrderResponse(&order)
+		resp, _ := s.mapToOrderResponse(&order,"buyer")
 		responses[i] = *resp
 	}
 

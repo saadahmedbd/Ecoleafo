@@ -6,24 +6,56 @@ import (
 
 	order "github.com/saadahmedbd/Treestore/Rest/DTO/Order"
 	util "github.com/saadahmedbd/Treestore/Util"
+	"github.com/saadahmedbd/Treestore/constants"
 )
 
 func (h *OrderHandler) GetMyOrders(w http.ResponseWriter, r *http.Request) {
-	userIDStr := r.Header.Get("user_id")
-	userIDType := r.Header.Get("user_role")
 
-	if userIDStr == "" || userIDType == "" {
-		http.Error(w, "user_id or user_role is empty", http.StatusBadRequest)
+	// Get user data from context
+	ctxUserID := r.Context().Value(constants.ContextKeyUserID)
+	ctxRoles := r.Context().Value(constants.ContextKeyRole)
+
+	if ctxUserID == nil || ctxRoles == nil {
+		http.Error(w, `{"error":"unauthorized"}`, http.StatusUnauthorized)
 		return
 	}
 
-	//convert user id to uint
-	userID, err := strconv.ParseInt(userIDStr, 10, 32)
+	// Convert roles
+	roleList, ok := ctxRoles.([]interface{})
+	if !ok {
+		http.Error(w, "Invalid role type", http.StatusInternalServerError)
+		return
+	}
+
+	// Check if buyer
+	isBuyer := false
+	for _, raw := range roleList {
+		if r, ok := raw.(string); ok && r == "buyer" {
+			isBuyer = true
+			break
+		}
+	}
+
+	if !isBuyer {
+		http.Error(w, "Only buyers can access this", http.StatusForbidden)
+		return
+	}
+
+	// Convert user id
+	uid, ok := ctxUserID.(uint)
+	if !ok {
+		http.Error(w, `{"error":"Invalid user ID type"}`, http.StatusInternalServerError)
+		return
+	}
+
+	// Convert reguser.id → buyer.id
+	buyerID, err := getBuyerID(uid)
 	if err != nil {
-		http.Error(w, "invalid user id", http.StatusBadRequest)
+		http.Error(w, `{"error":"Buyer account not found"}`, http.StatusNotFound)
 		return
-
 	}
+
+	// Pagination
 	page, _ := strconv.Atoi(r.URL.Query().Get("page"))
 	limit, _ := strconv.Atoi(r.URL.Query().Get("limit"))
 	if page < 1 {
@@ -32,31 +64,24 @@ func (h *OrderHandler) GetMyOrders(w http.ResponseWriter, r *http.Request) {
 	if limit < 1 {
 		limit = 10
 	}
+
+	// Fetch orders
 	var orders []order.OrderResponse
 	var total int64
 
-	if userIDType == "[buyer]" {
-		buyerID, err := getBuyerID(w, r)
-		if err != nil {
-			http.Error(w, "Buyer not found", http.StatusNotFound)
-			return
-		}
-		orders, total, err = h.orderService.GetBuyerOrders(buyerID, page, limit)
-	} else if userIDType == "[seller]" {
-		orders, total, err = h.orderService.GetSellerOrders(uint(userID), page, limit)
-	} else {
-		http.Error(w, "invalid user role", http.StatusBadRequest)
-		return
-	}
+	orders, total, err = h.orderService.GetBuyerOrders(buyerID, page, limit)
 	if err != nil {
 		http.Error(w, "failed to get orders", http.StatusInternalServerError)
 		return
 	}
+
+	// Return data
 	response := map[string]interface{}{
 		"orders": orders,
 		"total":  total,
 		"page":   page,
 		"limit":  limit,
 	}
+
 	util.SendData(w, response, 200)
 }

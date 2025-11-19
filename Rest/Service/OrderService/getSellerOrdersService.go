@@ -17,7 +17,7 @@ func (s *orderService) GetSellerOrders(sellerID uint, page, limit int) ([]order.
 
 	responses := make([]order.OrderResponse, len(orders))
 	for i, order := range orders {
-		resp, _ := s.mapToOrderResponse(&order)
+		resp, _ := s.mapToOrderResponse(&order, "seller")
 		responses[i] = *resp
 	}
 

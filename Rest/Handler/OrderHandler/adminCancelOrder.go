@@ -8,8 +8,9 @@ import (
 	"github.com/saadahmedbd/Treestore/constants"
 )
 
-func (h *OrderHandler) GetOrderById(w http.ResponseWriter, r *http.Request) {
-	//Get user data from context
+// for buyer
+func (h *OrderHandler) AdminCancelOrder(w http.ResponseWriter, r *http.Request) {
+	// Get user data from context
 	ctxUserID := r.Context().Value(constants.ContextKeyUserID)
 	ctxRoles := r.Context().Value(constants.ContextKeyRole)
 
@@ -28,14 +29,14 @@ func (h *OrderHandler) GetOrderById(w http.ResponseWriter, r *http.Request) {
 	// Check if buyer
 	isBuyer := false
 	for _, raw := range roleList {
-		if roleStr, ok := raw.(string); ok && roleStr == "buyer" {
+		if r, ok := raw.(string); ok && r == "admin" {
 			isBuyer = true
 			break
 		}
 	}
 
 	if !isBuyer {
-		http.Error(w, "Only buyers can access this", http.StatusForbidden)
+		http.Error(w, "Only admin can access this", http.StatusForbidden)
 		return
 	}
 
@@ -47,27 +48,34 @@ func (h *OrderHandler) GetOrderById(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Convert reguser.id → buyer.id
-	buyerID, err := getBuyerID(uid)
+	buyerID, err := getAdminID(uid)
 	if err != nil {
-		http.Error(w, `{"error":"Buyer account not found"}`, http.StatusNotFound)
+		http.Error(w, `{"error":"admin account not found"}`, http.StatusNotFound)
 		return
 	}
+
+	//take first name last name by jwt token
+	claims, _ := r.Context().Value("claims").(map[string]interface{})
+	firstName, _ := claims["first_name"].(string)
+	lastName, _ := claims["last_name"].(string)
+	username := firstName + " " + lastName
 
 	orderId := r.URL.Query().Get("id")
 	if orderId == "" {
 		http.Error(w, "order id is required", http.StatusBadRequest)
 		return
 	}
-	sId, err := strconv.Atoi(orderId)
+	id, err := strconv.Atoi(orderId)
 	if err != nil {
-		http.Error(w, "id not convert", http.StatusNoContent)
+		http.Error(w, "Invalid order id", http.StatusBadRequest)
 		return
 	}
-	order, err := h.orderService.GetOrderByID(uint(sId), uint(buyerID), "buyer")
+	order, err := h.orderService.CancelOrder(uint(id), uint(buyerID), "admin", username)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusNotFound)
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
 	}
-	// not return password
 
 	util.SendData(w, order, 200)
+
 }

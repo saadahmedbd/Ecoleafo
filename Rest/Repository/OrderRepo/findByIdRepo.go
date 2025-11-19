@@ -11,6 +11,7 @@ func (r *orderRepository) FindByID(id uint) (*models.Order, error) {
 	var order models.Order
 	err := r.db.Preload("Buyer").
 		Preload("OrderItems.Product").
+		Preload("OrderItems.Product.Images").
 		Preload("OrderItems.Seller").
 		First(&order, id).Error
 

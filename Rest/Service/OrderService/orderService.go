@@ -18,7 +18,7 @@ type OrderService interface {
 	UpdatePaymentStatus(orderID, userID uint, userRole, username string, req order.UpdatePaymentStatusRequest) (*order.OrderResponse, error)
 	UpdateOrderItemStatus(userID uint, userRoleole, username string, req order.UpdateOrderItemStatusRequest) error
 	CancelOrder(orderID, userID uint, userRole, username string) (*order.OrderResponse, error)
-	GetAllOrders(filter order.OrderListFilter) ([]order.OrderResponse, int64, error)
+	GetAllOrders(userID uint, filter order.OrderListFilter) ([]order.OrderResponse, int64, error)
 	GetOrderHistory(orderID, userID uint, userRole string) ([]order.OrderHistoryResponse, error)
 }
 type orderService struct {

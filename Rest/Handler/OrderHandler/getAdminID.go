@@ -5,9 +5,9 @@ import (
 	models "github.com/saadahmedbd/Treestore/Models"
 )
 
-func getBuyerID(regUserID uint) (uint, error) {
+func getAdminID(regUserID uint) (uint, error) {
 
-	var buyer models.Buyer
+	var buyer models.Admin
 	if err := Config.DB.Where("user_id = ?", regUserID).First(&buyer).Error; err != nil {
 		return 0, err
 	}

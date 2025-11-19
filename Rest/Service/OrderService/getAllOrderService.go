@@ -2,7 +2,7 @@ package orderservice
 
 import order "github.com/saadahmedbd/Treestore/Rest/DTO/Order"
 
-func (s *orderService) GetAllOrders(filter order.OrderListFilter) ([]order.OrderResponse, int64, error) {
+func (s *orderService) GetAllOrders(userID uint, filter order.OrderListFilter) ([]order.OrderResponse, int64, error) {
 	if filter.Page < 1 {
 		filter.Page = 1
 	}
@@ -28,7 +28,7 @@ func (s *orderService) GetAllOrders(filter order.OrderListFilter) ([]order.Order
 
 	responses := make([]order.OrderResponse, len(orders))
 	for i, order := range orders {
-		resp, _ := s.mapToOrderResponse(&order)
+		resp, _ := s.mapToOrderResponse(&order, "admin")
 		responses[i] = *resp
 	}
 

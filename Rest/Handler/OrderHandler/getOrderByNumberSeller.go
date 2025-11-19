@@ -2,13 +2,12 @@ package orderhandler
 
 import (
 	"net/http"
-	"strconv"
 
 	util "github.com/saadahmedbd/Treestore/Util"
 	"github.com/saadahmedbd/Treestore/constants"
 )
 
-func (h *OrderHandler) GetOrderById(w http.ResponseWriter, r *http.Request) {
+func (h *OrderHandler) GetOrderByNumberSeller(w http.ResponseWriter, r *http.Request) {
 	//Get user data from context
 	ctxUserID := r.Context().Value(constants.ContextKeyUserID)
 	ctxRoles := r.Context().Value(constants.ContextKeyRole)
@@ -28,14 +27,14 @@ func (h *OrderHandler) GetOrderById(w http.ResponseWriter, r *http.Request) {
 	// Check if buyer
 	isBuyer := false
 	for _, raw := range roleList {
-		if roleStr, ok := raw.(string); ok && roleStr == "buyer" {
+		if roleStr, ok := raw.(string); ok && roleStr == "seller" {
 			isBuyer = true
 			break
 		}
 	}
 
 	if !isBuyer {
-		http.Error(w, "Only buyers can access this", http.StatusForbidden)
+		http.Error(w, "Only seller can access this", http.StatusForbidden)
 		return
 	}
 
@@ -47,27 +46,21 @@ func (h *OrderHandler) GetOrderById(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Convert reguser.id → buyer.id
-	buyerID, err := getBuyerID(uid)
+	buyerID, err := getSellerID(uid)
 	if err != nil {
-		http.Error(w, `{"error":"Buyer account not found"}`, http.StatusNotFound)
+		http.Error(w, `{"error":"seller account not found"}`, http.StatusNotFound)
 		return
 	}
-
-	orderId := r.URL.Query().Get("id")
-	if orderId == "" {
-		http.Error(w, "order id is required", http.StatusBadRequest)
-		return
-	}
-	sId, err := strconv.Atoi(orderId)
-	if err != nil {
+	orderNumber := r.URL.Query().Get("order_number")
+	if orderNumber == "" {
 		http.Error(w, "id not convert", http.StatusNoContent)
 		return
 	}
-	order, err := h.orderService.GetOrderByID(uint(sId), uint(buyerID), "buyer")
+	order, err := h.orderService.GetOrderByOrderNumber(orderNumber, uint(buyerID), "seller")
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusNotFound)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
 	}
-	// not return password
-
 	util.SendData(w, order, 200)
+
 }

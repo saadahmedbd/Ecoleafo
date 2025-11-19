@@ -20,6 +20,7 @@ func (r *orderRepository) FindBySellerID(sellerID uint, page, limit int) ([]mode
 		Preload("Buyer").
 		Preload("OrderItems", "seller_id = ?", sellerID).
 		Preload("OrderItems.Product").
+		Preload("OrderItems.Product.Images").
 		Order("created_at DESC").
 		Offset(offset).Limit(limit).
 		Find(&orders).Error

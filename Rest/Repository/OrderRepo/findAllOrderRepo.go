@@ -16,6 +16,7 @@ func (r *orderRepository) FindAll(filter map[string]interface{}, page, limit int
 
 	err := query.Preload("Buyer").
 		Preload("OrderItems.Product").
+		Preload("OrderItems.Product.Images").
 		Preload("OrderItems.Seller").
 		Order("created_at DESC").
 		Offset(offset).Limit(limit).

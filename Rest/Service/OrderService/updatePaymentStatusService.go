@@ -34,5 +34,5 @@ func (s *orderService) UpdatePaymentStatus(orderID, userID uint, userRole, usern
 	}
 	s.orderrepo.CreateOrderHistory(history)
 
-	return s.mapToOrderResponse(order)
+	return s.mapToOrderResponse(order, userRole)
 }

@@ -10,6 +10,7 @@ type OrderItemResponse struct {
 	SellerID      uint       `json:"seller_id"`
 	SellerName    string     `json:"seller_name"`
 	Quantity      int        `json:"quantity"`
+	Image         string     `json:"image"`
 	Price         float64    `json:"price"`
 	Total         float64    `json:"total"`
 	Commission    float64    `json:"commission"`

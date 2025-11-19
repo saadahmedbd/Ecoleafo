@@ -70,5 +70,5 @@ func (s *orderService) UpdateOrderStatus(orderID, userID uint, userRole, usernam
 	}
 	s.orderrepo.CreateOrderHistory(history)
 
-	return s.mapToOrderResponse(order)
+	return s.mapToOrderResponse(order, userRole)
 }

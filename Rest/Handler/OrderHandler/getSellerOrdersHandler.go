@@ -9,23 +9,54 @@ import (
 )
 
 func (h *OrderHandler) GetSellerOrders(w http.ResponseWriter, r *http.Request) {
-	userIDVal := r.Context().Value(constants.ContextKeyUserID)
-	userRoleVal := r.Context().Value(constants.ContextKeyRole)
-	if userIDVal == nil || userRoleVal == nil {
+	// Get user data from context
+	ctxUserID := r.Context().Value(constants.ContextKeyUserID)
+	ctxRoles := r.Context().Value(constants.ContextKeyRole)
+
+	if ctxUserID == nil || ctxRoles == nil {
 		http.Error(w, `{"error":"unauthorized"}`, http.StatusUnauthorized)
 		return
 	}
 
-	userID, ok := userIDVal.(uint)
+	// Convert roles
+	roleList, ok := ctxRoles.([]interface{})
 	if !ok {
-		http.Error(w, `{"error":"invalid user_id type"}`, http.StatusInternalServerError)
+		http.Error(w, "Invalid role type", http.StatusInternalServerError)
+		return
+	}
+
+	// Check if buyer
+	isBuyer := false
+	for _, raw := range roleList {
+		if r, ok := raw.(string); ok && r == "seller" {
+			isBuyer = true
+			break
+		}
+	}
+
+	if !isBuyer {
+		http.Error(w, "Only seller can access this", http.StatusForbidden)
+		return
+	}
+
+	// Convert user id
+	uid, ok := ctxUserID.(uint)
+	if !ok {
+		http.Error(w, `{"error":"Invalid user ID type"}`, http.StatusInternalServerError)
+		return
+	}
+
+	// Convert reguser.id → buyer.id
+	sellerID, err := getSellerID(uid)
+	if err != nil {
+		http.Error(w, `{"error":"seller account not found"}`, http.StatusNotFound)
 		return
 	}
 
 	page, _ := strconv.Atoi(r.URL.Query().Get("page"))
 	limit, _ := strconv.Atoi(r.URL.Query().Get("limit"))
 
-	orders, total, err := h.orderService.GetSellerOrders(uint(userID), page, limit)
+	orders, total, err := h.orderService.GetSellerOrders(uint(sellerID), page, limit)
 	if err != nil {
 		http.Error(w, "failed to get orders", http.StatusInternalServerError)
 		return

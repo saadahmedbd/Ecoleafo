@@ -11,6 +11,7 @@ func (r *orderRepository) FindByOrderNumber(orderNumber string) (*models.Order, 
 	var order models.Order
 	err := r.db.Preload("Buyer").
 		Preload("OrderItems.Product").
+		Preload("OrderItems.Product.Images").
 		Preload("OrderItems.Seller").
 		Where("order_number = ?", orderNumber).
 		First(&order).Error

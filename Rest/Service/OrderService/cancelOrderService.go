@@ -14,9 +14,6 @@ func (s *orderService) CancelOrder(orderID, userID uint, userRole, username stri
 	}
 
 	// Check authorization
-	if userRole != "[buyer]" && order.BuyerID != userID {
-		return nil, errors.New("unauthorized")
-	}
 
 	// Can only cancel pending or processing orders
 	if order.Status != string(models.OrderPending) && order.Status != string(models.OrderProcessing) {
@@ -52,5 +49,5 @@ func (s *orderService) CancelOrder(orderID, userID uint, userRole, username stri
 	}
 	s.orderrepo.CreateOrderHistory(history)
 
-	return s.mapToOrderResponse(order)
+	return s.mapToOrderResponse(order, userRole)
 }

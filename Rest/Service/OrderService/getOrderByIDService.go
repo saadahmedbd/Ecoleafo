@@ -27,5 +27,5 @@ func (s *orderService) GetOrderByID(orderID, userID uint, userRole string) (*ord
 			return nil, errors.New("unauthorized access")
 		}
 	}
-	return s.mapToOrderResponse(order)
+	return s.mapToOrderResponse(order, userRole)
 }
