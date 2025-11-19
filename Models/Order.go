@@ -22,17 +22,28 @@ type Order struct {
 	DiscountAmount float64 `json:"discount_amount" gorm:"type:decimal(10,2);default:0"`
 	Total          float64 `json:"total" gorm:"type:decimal(12,2);not null"` // Renamed from Total to TotalAmount
 
+	//commission
+	CommissionRate   float64 `json:"commission_rate" gorm:"type:decimal(5,2)"`
+	CommissionAmount float64 `json:"commission_amount" gorm:"type:decimal(10,2)"`
+	SellerEarnings   float64 `json:"seller_earnings" gorm:"type:decimal(10,2)"`
+
 	//customer information
-	ShippingAddress    string `json:"shipping_address" gorm:"type:text;not null;default:'n/a"`
-	BillingAddress     string `json:"billing_address" gorm:"type:text"` // Added billing address
-	CustomerEmail      string `json:"customer_email" gorm:"size:100;not null"`
-	CustomerPhone      string `json:"customer_phone" gorm:"size:20"`
-	CancellationReason string `json:"cancellation_reason" gorm:"type:text"`
+	ShippingAddress string `json:"shipping_address" gorm:"type:text;not null;default:'n/a"`
+	BillingAddress  string `json:"billing_address" gorm:"type:text"` // Added billing address
+	CustomerEmail   string `json:"customer_email" gorm:"size:100;not null"`
+	CustomerPhone   string `json:"customer_phone" gorm:"size:20"`
+	//cancelation/refund
+	CancellationReason string  `json:"cancellation_reason" gorm:"type:text"`
+	CancelledBy        string  `json:"cancelled_by" gorm:"size:20"` // buyer, seller, admin
+	RefundAmount       float64 `json:"refund_amount" gorm:"type:decimal(10,2)"`
+	RefundReason       string  `json:"refund_reason" gorm:"type:text"`
 
 	//logistics information
 	TrackingNumber string     `json:"tracking_number" gorm:"size:100"` // Added tracking
 	ShippedAt      *time.Time `json:"shipped_at"`                      // Added shipping date
 	DeliveredAt    *time.Time `json:"delivered_at"`                    // Added delivery date
+	OrderDate      time.Time  `json:"order_date"`
+	ConfirmedAt    *time.Time `json:"confirmed_at"`
 
 	Notes string `json:"notes" gorm:"type:text"`
 
@@ -41,8 +52,9 @@ type Order struct {
 	DeletedAt gorm.DeletedAt `json:"deleted_at" gorm:"index"`
 
 	// Relationships
-	Buyer        Buyer          `json:"buyer" gorm:"foreignKey:BuyerID"`
-	Reviews      []Review       `json:"reviews" gorm:"foreignKey:OrderID"`
-	OrderItems   []OrderItem    `json:"order_items" gorm:"foreignKey:OrderID"`
-	OrderHistory []OrderHistory `json:"order_history" gorm:"foreignKey:OrderID"` // Added order history
+	Buyer        Buyer            `json:"buyer" gorm:"foreignKey:BuyerID"`
+	Reviews      []Review         `json:"reviews" gorm:"foreignKey:OrderID"`
+	OrderItems   []OrderItem      `json:"order_items" gorm:"foreignKey:OrderID"`
+	OrderHistory []OrderHistory   `json:"order_history" gorm:"foreignKey:OrderID"` // Added order
+	Commission   *OrderCommission `json:"commission,omitempty" gorm:"foreignKey:OrderID"`
 }
