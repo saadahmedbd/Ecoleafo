@@ -67,9 +67,8 @@ func (s *ProductService) UpdateProduct(ProductID uint, req UpdateProductRequest,
 
 	// Update basic fields
 	// Update product fields
-	if req.Name != nil {
+	if req.Name != nil && *req.Name != product.Name {
 		product.Name = *req.Name
-		// Regenerate slug if name changed
 		slug := generateSlug(*req.Name)
 		var count int64
 		s.db.Model(&models.Product{}).Where("slug LIKE ? AND id != ?", slug+"%", ProductID).Count(&count)
@@ -77,7 +76,16 @@ func (s *ProductService) UpdateProduct(ProductID uint, req UpdateProductRequest,
 			slug = fmt.Sprintf("%s-%d", slug, count+1)
 		}
 		product.Slug = slug
+	} else if product.Slug == "" {
+		slug := generateSlug(product.Name)
+		var count int64
+		s.db.Model(&models.Product{}).Where("slug LIKE ? AND id != ?", slug+"%", ProductID).Count(&count)
+		if count > 0 {
+			slug = fmt.Sprintf("%s-%d", slug, count+1)
+		}
+		product.Slug = slug
 	}
+
 	if req.Description != nil {
 		product.Description = *req.Description
 	}
