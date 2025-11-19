@@ -90,6 +90,64 @@ func UploadImageToCloudinary(file multipart.File, header *multipart.FileHeader, 
 	return result.SecureURL, nil
 }
 
+// UploadImageToCloudinaryWithPublicID uploads an image to Cloudinary and returns URL and public ID
+func UploadImageToCloudinaryWithPublicID(file multipart.File, header *multipart.FileHeader, cfg FileUploadConfig) (string, string, error) {
+	// Validate file size
+	if header.Size > cfg.MaxSizeBytes {
+		return "", "", fmt.Errorf("file size exceeds maximum allowed size of %d bytes", cfg.MaxSizeBytes)
+	}
+
+	// Validate file extension
+	ext := strings.ToLower(filepath.Ext(header.Filename))
+	if !isAllowedFormat(ext, cfg.AllowedFormats) {
+		return "", "", fmt.Errorf("file format %s not allowed. Allowed formats: %v", ext, cfg.AllowedFormats)
+	}
+
+	// Get Cloudinary client
+	cld := Config.GetCloudinaryClient()
+
+	// Create context with timeout
+	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	defer cancel()
+
+	// Generate unique public ID
+	publicID := generatePublicID(header.Filename)
+
+	// Prepare upload parameters
+	uploadParams := uploader.UploadParams{
+		PublicID:       publicID,
+		Folder:         cfg.Folder,
+		ResourceType:   "image",
+		Overwrite:      boolPtr(false),
+		UniqueFilename: boolPtr(true),
+		UseFilename:    boolPtr(true),
+	}
+
+	// Add transformation parameters if specified
+	if cfg.Width > 0 || cfg.Height > 0 || cfg.Quality != "" || cfg.Format != "" {
+		transformation := buildTransformation(cfg)
+		uploadParams.Transformation = transformation
+	}
+
+	// Upload file to Cloudinary
+	result, err := cld.Upload.Upload(ctx, file, uploadParams)
+	if err != nil {
+		fmt.Println("cloudinary upload error:", err)
+		return "", "", fmt.Errorf("failed to upload file to cloudinary: %w", err)
+	}
+	fmt.Printf("✅ Cloudinary upload result: %+v\n", result)
+
+	if result.SecureURL == "" {
+		return "", "", fmt.Errorf("cloudinary returned empty secure URL (check API credentials or upload params)")
+	}
+
+	// Construct full public ID including folder
+	fullPublicID := cfg.Folder + "/" + publicID
+
+	// Return the secure URL and public ID
+	return result.SecureURL, fullPublicID, nil
+}
+
 // UploadProfilePhoto uploads a profile photo with optimizations
 func UploadProfilePhoto(file multipart.File, header *multipart.FileHeader) (string, error) {
 	cfg := FileUploadConfig{
@@ -102,6 +160,19 @@ func UploadProfilePhoto(file multipart.File, header *multipart.FileHeader) (stri
 		Format:         "jpg",
 	}
 	return UploadImageToCloudinary(file, header, cfg)
+}
+
+// UploadBuyerProfilePhoto uploads a buyer profile photo with optimizations
+func UploadBuyerProfilePhoto(file multipart.File, header *multipart.FileHeader) (string, string, error) {
+	cfg := FileUploadConfig{
+		Folder:         "buyer-profiles",
+		AllowedFormats: []string{".jpg", ".jpeg", ".png", ".webp"},
+		MaxSizeBytes:   5 * 1024 * 1024, // 5MB
+		Height:         400,
+		Quality:        "auto:good",
+		Format:         "jpg",
+	}
+	return UploadImageToCloudinaryWithPublicID(file, header, cfg)
 }
 
 // UploadStoreLogo uploads a store logo

@@ -2,6 +2,7 @@ package buyerservice
 
 import (
 	"fmt"
+	"time"
 
 	buyerprofile "github.com/saadahmedbd/Treestore/Rest/DTO/BuyerProfile"
 )
@@ -21,11 +22,15 @@ func (s *buyerService) UpdateBuyerProfile(userIDFromJWT uint, req buyerprofile.U
 	if req.LastName != "" {
 		buyer.RegUser.LastName = req.LastName
 	}
-	if req.Email != "" {
-		buyer.RegUser.Email = req.Email
+	if req.Gender != "" {
+		buyer.RegUser.Gender = req.Gender
 	}
-	if req.ProfilePicture != "" {
-		buyer.ProfilePicture = req.ProfilePicture
+	if req.DateOfBirth != "" {
+		parsedDate, err := time.Parse("2006-01-02T15:04:05.000Z", req.DateOfBirth)
+		if err != nil {
+			return nil, fmt.Errorf("invalid date format: %v", err)
+		}
+		buyer.RegUser.DateOfBirth = &parsedDate
 	}
 
 	if err := s.buyerRepo.UpdateBuyerProfile(buyer); err != nil {

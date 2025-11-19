@@ -2,9 +2,9 @@ package buyerprofilehandler
 
 import (
 	"net/http"
-	"strconv"
 
 	util "github.com/saadahmedbd/Treestore/Util"
+	"github.com/saadahmedbd/Treestore/constants"
 )
 
 // ProfilePictureResponse defines the response structure
@@ -18,16 +18,47 @@ type ProfilePictureResponse struct {
 
 // UploadBuyerProfilePicture handles profile picture upload
 func (h *Buyerprofilehandler) UploadBuyerProfilePicture(w http.ResponseWriter, r *http.Request) {
-	//  Step 1: Extract and validate user ID
-	userIDStr := r.Header.Get("user_id")
-	if userIDStr == "" {
-		http.Error(w, "Unauthorized", http.StatusUnauthorized)
+	//Get user data from context
+	ctxUserID := r.Context().Value(constants.ContextKeyUserID)
+	ctxRoles := r.Context().Value(constants.ContextKeyRole)
+
+	if ctxUserID == nil || ctxRoles == nil {
+		http.Error(w, `{"error":"unauthorized"}`, http.StatusUnauthorized)
 		return
 	}
 
-	userID, err := strconv.ParseUint(userIDStr, 10, 64)
+	// Convert roles
+	roleList, ok := ctxRoles.([]interface{})
+	if !ok {
+		http.Error(w, "Invalid role type", http.StatusInternalServerError)
+		return
+	}
+
+	// Check if buyer
+	isBuyer := false
+	for _, raw := range roleList {
+		if roleStr, ok := raw.(string); ok && roleStr == "buyer" {
+			isBuyer = true
+			break
+		}
+	}
+
+	if !isBuyer {
+		http.Error(w, "Only buyer can access this", http.StatusForbidden)
+		return
+	}
+
+	// Convert user id
+	uid, ok := ctxUserID.(uint)
+	if !ok {
+		http.Error(w, `{"error":"Invalid user ID type"}`, http.StatusInternalServerError)
+		return
+	}
+
+	// Convert reguser.id → buyer.id
+	buyerID, err := getBuyerID(uid)
 	if err != nil {
-		http.Error(w, "Invalid user ID", http.StatusBadRequest)
+		http.Error(w, `{"error":"seller account not found"}`, http.StatusNotFound)
 		return
 	}
 
@@ -42,7 +73,7 @@ func (h *Buyerprofilehandler) UploadBuyerProfilePicture(w http.ResponseWriter, r
 	}
 
 	//  Step 4: Extract file
-	file, header, err := r.FormFile("profile_picture")
+	file, header, err := r.FormFile("photo")
 	if err != nil {
 		http.Error(w, "Failed to read uploaded file", http.StatusBadRequest)
 		return
@@ -69,14 +100,14 @@ func (h *Buyerprofilehandler) UploadBuyerProfilePicture(w http.ResponseWriter, r
 	file.Seek(0, 0) // reset pointer before upload
 
 	//  7: Upload to Cloudinary (or wherever)
-	photoURL, err := util.UploadProfilePhoto(file, header)
+	photoURL, publicID, err := util.UploadBuyerProfilePhoto(file, header)
 	if err != nil {
 		util.RespondError(w, http.StatusBadRequest, err.Error())
 		return
 	}
 
 	//  Step 8: Update database
-	response, err := h.buyerservice.UpdateProfilePhoto(uint(userID), photoURL)
+	response, err := h.buyerservice.UpdateProfilePhoto(uint(buyerID), photoURL, publicID)
 	if err != nil {
 		// Rollback uploaded image if DB update fails
 		util.DeleteImageFromCloudinary(photoURL)
