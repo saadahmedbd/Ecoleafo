@@ -21,6 +21,12 @@ func (h *Handler) RefreshToken(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Check if refresh token is provided and not 'undefined'
+	if req.RefreshToken == "" || req.RefreshToken == "undefined" {
+		http.Error(w, "Refresh token is required and must be valid", http.StatusBadRequest)
+		return
+	}
+
 	// Validate refresh token
 	refreshToken, err := util.ValidateRefreshToken(Config.DB, req.RefreshToken)
 	if err != nil {
