@@ -54,7 +54,7 @@ func (h *Handler) ProductRoute(mux *http.ServeMux) {
 		middleware.Cors,
 		middleware.AuthenticateJWT,
 	))
-	mux.Handle("POST /api/product/{productId}/images/{imageId}", middleware.Chain(http.HandlerFunc(h.DeleteProductImage),
+	mux.Handle("DELETE /api/products/{productId}/images/{imageId}", middleware.Chain(http.HandlerFunc(h.DeleteProductImage),
 
 		middleware.Logger,
 		middleware.Cors,

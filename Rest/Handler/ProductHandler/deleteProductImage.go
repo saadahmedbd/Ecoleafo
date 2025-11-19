@@ -6,16 +6,14 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/gorilla/mux"
 	util "github.com/saadahmedbd/Treestore/Util"
 )
 
 // ============= DELETE PRODUCT IMAGE =============
 func (h *Handler) DeleteProductImage(w http.ResponseWriter, r *http.Request) {
 	// Extract IDs from URL
-	vars := mux.Vars(r)
-	productIDStr := vars["productId"]
-	imageIDStr := vars["imageId"]
+	productIDStr := r.PathValue("productId")
+	imageIDStr := r.PathValue("imageId")
 
 	if productIDStr == "" || imageIDStr == "" {
 		http.Error(w, `{"error":"product ID and image ID are required"}`, http.StatusBadRequest)

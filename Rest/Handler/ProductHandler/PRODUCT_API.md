@@ -22,7 +22,7 @@ Seller endpoints require JWT authentication with seller role.
 ### 1. Create Product
 Create a new product listing.
 
-**Endpoint:** `POST /api/product/create`
+**Endpoint:** `POST /api/addproducts`
 
 **Headers:**
 ```http
@@ -78,7 +78,7 @@ Content-Type: application/json
 ### 2. Get Product by ID
 Retrieve detailed product information.
 
-**Endpoint:** `GET /api/product/{id}`
+**Endpoint:** `GET /api/products/{productId}`
 
 **Response:** `200 OK`
 ```json
@@ -122,7 +122,7 @@ Retrieve detailed product information.
 ### 3. Get Seller Products
 Get all products for authenticated seller.
 
-**Endpoint:** `GET /api/product/seller`
+**Endpoint:** `GET /api/seller/products`
 
 **Headers:**
 ```http
@@ -159,7 +159,7 @@ Authorization: Bearer <token>
 ### 4. Update Product
 Update existing product details.
 
-**Endpoint:** `PUT /api/product/update/{id}`
+**Endpoint:** `PUT /api/updateproducts/{productId}`
 
 **Headers:**
 ```http
@@ -196,7 +196,7 @@ Content-Type: application/json
 ### 5. Delete Product
 Soft delete a product.
 
-**Endpoint:** `DELETE /api/product/delete/{id}`
+**Endpoint:** `DELETE /api/deleteproducts/{produtcsId}`
 
 **Headers:**
 ```http
@@ -216,7 +216,7 @@ Authorization: Bearer <token>
 ### 6. Upload Product Images
 Upload multiple images for a product.
 
-**Endpoint:** `POST /api/product/{id}/images`
+**Endpoint:** `POST /api/products/{ImagesId}/images/multiple`
 
 **Headers:**
 ```http
@@ -256,7 +256,7 @@ Content-Type: multipart/form-data
 ### 7. Delete Product Image
 Remove a specific product image.
 
-**Endpoint:** `DELETE /api/product/image/{imageId}`
+**Endpoint:** `DELETE /api/products/{produtcId}/images/{imageId}`
 
 **Headers:**
 ```http
@@ -292,16 +292,265 @@ Get paginated list of approved products.
   "success": true,
   "data": [
     {
-      "id": 1,
-      "name": "Mango Tree",
-      "slug": "mango-tree-premium",
-      "price": 299.99,
-      "discount_price": 249.99,
-      "image_url": "https://cloudinary.com/...",
-      "average_rating": 4.5,
-      "review_count": 12,
-      "seller": {
-        "store_name": "Green Garden Nursery"
+      "id": 41,
+            "seller_id": 62,
+            "name": "sundori",
+            "slug": "sundori",
+            "description": "where you change i say add discount product with original product into the sellerproduct page and prouct detail page",
+            "sku": "SUNDORI-7721",
+            "category_id": 7,
+            "price": 600,
+            "discount price": 400,
+            "discount_percent": 33.33,
+            "height": "6",
+            "age": "5",
+            "tree_type": "",
+            "pot_size": "10",
+            "scientific_name": "",
+            "common_names": "",
+            "quantity": 19,
+            "min_quantity": 2,
+            "weight": 10,
+            "is_active": true,
+            "is_approved": false,
+            "is_featured": false,
+            "approved_by": null,
+            "approved_at": null,
+            "approval_status": "pending",
+            "rejection_reason": "",
+            "created_at": "2025-11-13T23:14:48.076002+06:00",
+            "updated_at": "2025-11-14T10:56:41.024118+06:00",
+            "deleted_at": null,
+            "meta_title": "",
+            "meta_description": "",
+            "view_count": 7,
+            "sale_count": 0,
+            "average_rating": 0,
+            "review_count": 0,
+            "seller": {
+                "id": 0,
+                "role_id": 0,
+                "user_id": 0,
+                "business_email": "",
+                "phone": "",
+                "store_name": "",
+                "store_slug": "",
+                "store_description": "",
+                "store_logo": "",
+                "store_banner": "",
+                "website": "",
+                "business_type": "",
+                "tax_number": "",
+                "business_license": "",
+                "total_sales": 0,
+                "total_reviews": 0,
+                "total_earnings": 0,
+                "total_orders": 0,
+                "average_rating": 0,
+                "commission": 0,
+                "address": "",
+                "city": "",
+                "state": "",
+                "country": "",
+                "postal_code": "",
+                "status": "",
+                "approval_status": "",
+                "is_active": false,
+                "is_verified": false,
+                "is_approved": false,
+                "approved_at": null,
+                "rejected_at": null,
+                "rejection_reason": "",
+                "is_profile_complete": false,
+                "has_business_info": false,
+                "has_address": false,
+                "has_payment_method": false,
+                "can_add_products": false,
+                "missing_fields": null,
+                "next_step": "",
+                "approved_by": null,
+                "created_at": "0001-01-01T00:00:00Z",
+                "updated_at": "0001-01-01T00:00:00Z",
+                "deleted_at": null,
+                "role": {
+                    "id": 0,
+                    "name": "",
+                    "description": "",
+                    "is_active": false,
+                    "created_at": "0001-01-01T00:00:00Z",
+                    "updated_at": "0001-01-01T00:00:00Z",
+                    "deleted_at": null,
+                    "users": null,
+                    "buyers": null
+                },
+                "products": null,
+                "reg_user": null,
+                "payment_methods": null,
+                "seller_categories": null
+            },
+            "category": {
+                "id": 0,
+                "name": "",
+                "slug": "",
+                "description": "",
+                "image": "",
+                "icon": "",
+                "parent_id": null,
+                "sort_order": 0,
+                "is_featured": false,
+                "is_active": false,
+                "meta_title": "",
+                "meta_description": "",
+                "meta_keywords": "",
+                "created_at": "0001-01-01T00:00:00Z",
+                "updated_at": "0001-01-01T00:00:00Z",
+                "deleted_at": null,
+                "children": null,
+                "products": null
+            },
+            "images": [
+                {
+                    "id": 56,
+                    "product_id": 41,
+                    "image_url": "https://res.cloudinary.com/ddylnmsou/image/upload/v1763054090/products/pexels-ansel-lee-1635554-3192175_1763054088.webp",
+                    "alt_text": "Product image 1",
+                    "is_primary": true,
+                    "sort_order": 1,
+                    "type": "gallery",
+                    "created_at": "2025-11-13T23:14:54.864605+06:00",
+                    "updated_at": "2025-11-13T23:14:54.864605+06:00",
+                    "product": {
+                        "id": 0,
+                        "seller_id": 0,
+                        "name": "",
+                        "slug": "",
+                        "description": "",
+                        "sku": "",
+                        "category_id": 0,
+                        "price": 0,
+                        "discount price": 0,
+                        "discount_percent": 0,
+                        "height": "",
+                        "age": "",
+                        "tree_type": "",
+                        "pot_size": "",
+                        "scientific_name": "",
+                        "common_names": "",
+                        "quantity": 0,
+                        "min_quantity": 0,
+                        "weight": 0,
+                        "is_active": false,
+                        "is_approved": false,
+                        "is_featured": false,
+                        "approved_by": null,
+                        "approved_at": null,
+                        "approval_status": "",
+                        "rejection_reason": "",
+                        "created_at": "0001-01-01T00:00:00Z",
+                        "updated_at": "0001-01-01T00:00:00Z",
+                        "deleted_at": null,
+                        "meta_title": "",
+                        "meta_description": "",
+                        "view_count": 0,
+                        "sale_count": 0,
+                        "average_rating": 0,
+                        "review_count": 0,
+                        "seller": {
+                            "id": 0,
+                            "role_id": 0,
+                            "user_id": 0,
+                            "business_email": "",
+                            "phone": "",
+                            "store_name": "",
+                            "store_slug": "",
+                            "store_description": "",
+                            "store_logo": "",
+                            "store_banner": "",
+                            "website": "",
+                            "business_type": "",
+                            "tax_number": "",
+                            "business_license": "",
+                            "total_sales": 0,
+                            "total_reviews": 0,
+                            "total_earnings": 0,
+                            "total_orders": 0,
+                            "average_rating": 0,
+                            "commission": 0,
+                            "address": "",
+                            "city": "",
+                            "state": "",
+                            "country": "",
+                            "postal_code": "",
+                            "status": "",
+                            "approval_status": "",
+                            "is_active": false,
+                            "is_verified": false,
+                            "is_approved": false,
+                            "approved_at": null,
+                            "rejected_at": null,
+                            "rejection_reason": "",
+                            "is_profile_complete": false,
+                            "has_business_info": false,
+                            "has_address": false,
+                            "has_payment_method": false,
+                            "can_add_products": false,
+                            "missing_fields": null,
+                            "next_step": "",
+                            "approved_by": null,
+                            "created_at": "0001-01-01T00:00:00Z",
+                            "updated_at": "0001-01-01T00:00:00Z",
+                            "deleted_at": null,
+                            "role": {
+                                "id": 0,
+                                "name": "",
+                                "description": "",
+                                "is_active": false,
+                                "created_at": "0001-01-01T00:00:00Z",
+                                "updated_at": "0001-01-01T00:00:00Z",
+                                "deleted_at": null,
+                                "users": null,
+                                "buyers": null
+                            },
+                            "products": null,
+                            "reg_user": null,
+                            "payment_methods": null,
+                            "seller_categories": null
+                        },
+                        "category": {
+                            "id": 0,
+                            "name": "",
+                            "slug": "",
+                            "description": "",
+                            "image": "",
+                            "icon": "",
+                            "parent_id": null,
+                            "sort_order": 0,
+                            "is_featured": false,
+                            "is_active": false,
+                            "meta_title": "",
+                            "meta_description": "",
+                            "meta_keywords": "",
+                            "created_at": "0001-01-01T00:00:00Z",
+                            "updated_at": "0001-01-01T00:00:00Z",
+                            "deleted_at": null,
+                            "children": null,
+                            "products": null
+                        },
+                        "images": null,
+                        "attributes": null,
+                        "cart_items": null,
+                        "order_items": null,
+                        "reviews": null,
+                        "wishlist_items": null
+                    }
+                }
+            ],
+            "attributes": null,
+            "cart_items": null,
+            "order_items": null,
+            "reviews": null,
+            "wishlist_items": null
+        },
       }
     }
   ],

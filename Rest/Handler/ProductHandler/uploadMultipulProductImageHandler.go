@@ -38,10 +38,16 @@ func (h *Handler) UploadMultipleProductImages(w http.ResponseWriter, r *http.Req
 		return
 	}
 
-	// Parse multipart form (50MB max for multiple files)
-	err = r.ParseMultipartForm(50 << 20)
+	// Parse multipart form (100MB max for multiple files)
+	err = r.ParseMultipartForm(100 << 20)
 	if err != nil {
-		http.Error(w, `{"error":"failed to parse form data"}`, http.StatusBadRequest)
+		http.Error(w, fmt.Sprintf(`{"error":"failed to parse form data: %s"}`, err.Error()), http.StatusBadRequest)
+		return
+	}
+
+	// Check if MultipartForm was parsed
+	if r.MultipartForm == nil {
+		http.Error(w, `{"error":"no multipart form data found"}`, http.StatusBadRequest)
 		return
 	}
 

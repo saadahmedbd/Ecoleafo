@@ -43,13 +43,13 @@ func (s *ProductService) GetProducts(page, limit int, filters map[string]interfa
 		}
 	}
 	query.Count(&total)
-	// add preload if requested
+	// Always preload images
+	query = query.Preload("Images", func(db *gorm.DB) *gorm.DB {
+		return db.Order("sort_order ASC")
+	})
+	// add other preloads if requested
 	if includeRelations {
-		query = query.Preload("Seller").
-			Preload("Category").
-			Preload("Images", func(db *gorm.DB) *gorm.DB {
-				return db.Order("sort_order ASC")
-			})
+		query = query.Preload("Seller").Preload("Category")
 	}
 	// apply pagitation
 	offset := (page - 1) * limit

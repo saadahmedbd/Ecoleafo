@@ -2,12 +2,10 @@ package productservice
 
 import (
 	"fmt"
-	"io"
 	"mime/multipart"
-	"os"
-	"path/filepath"
 
 	models "github.com/saadahmedbd/Treestore/Models"
+	util "github.com/saadahmedbd/Treestore/Util"
 )
 
 func (s *ProductService) UploadProductImage(productID, userIdFromJWT uint, file multipart.File, fileHeader *multipart.FileHeader, altText string, isPrimary bool, sortOrder int) (*models.ProductImage, error) {
@@ -21,27 +19,10 @@ func (s *ProductService) UploadProductImage(productID, userIdFromJWT uint, file 
 		return nil, err
 	}
 
-	// Generate unique filename
-	fileName := s.generateImageFileName(fileHeader.Filename)
-
-	// Create upload directory if it doesn't exist
-	uploadDir := "uploads/products"
-	if err := os.MkdirAll(uploadDir, 0755); err != nil {
-		return nil, fmt.Errorf("failed to create upload directory: %v", err)
-	}
-
-	// Save file to disk
-	filePath := filepath.Join(uploadDir, fileName)
-	destFile, err := os.Create(filePath)
+	// Upload to Cloudinary
+	imageURL, err := util.UploadProductImage(file, fileHeader)
 	if err != nil {
-		return nil, fmt.Errorf("failed to create file: %v", err)
-	}
-	defer destFile.Close()
-
-	// Copy file content
-	_, err = io.Copy(destFile, file)
-	if err != nil {
-		return nil, fmt.Errorf("failed to save file: %v", err)
+		return nil, fmt.Errorf("failed to upload image: %v", err)
 	}
 
 	// If this is set as primary, unset other primary images
@@ -52,7 +33,6 @@ func (s *ProductService) UploadProductImage(productID, userIdFromJWT uint, file 
 	}
 
 	// Create image record in database
-	imageURL := fmt.Sprintf("/uploads/products/%s", fileName) // Adjust based on your URL structure
 	productImage := models.ProductImage{
 		ProductID: productID,
 		ImageURL:  imageURL,
@@ -62,8 +42,6 @@ func (s *ProductService) UploadProductImage(productID, userIdFromJWT uint, file 
 	}
 
 	if err := s.db.Create(&productImage).Error; err != nil {
-		// Delete uploaded file if database insert fails
-		os.Remove(filePath)
 		return nil, fmt.Errorf("failed to save image record: %v", err)
 	}
 
