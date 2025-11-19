@@ -73,7 +73,7 @@ func (r *buyerRepository) GetBuyerByUserID(userID uint) (*models.Buyer, error) {
 
 func (r *buyerRepository) GetBuyerByID(buyerID uint) (*models.Buyer, error) {
 	var buyer models.Buyer
-	err := r.db.Where("user_id = ?", buyerID).First(&buyer).Error
+	err := r.db.Where("id = ?", buyerID).First(&buyer).Error
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, fmt.Errorf("buyer not found")
@@ -136,6 +136,12 @@ func (r *buyerRepository) UpdateBuyerProfile(buyer *models.Buyer) error {
 		}
 		if buyer.RegUser.Email != "" {
 			userUpdate["email"] = buyer.RegUser.Email
+		}
+		if buyer.RegUser.Gender != "" {
+			userUpdate["gender"] = buyer.RegUser.Gender
+		}
+		if buyer.RegUser.DateOfBirth != nil {
+			userUpdate["date_of_birth"] = buyer.RegUser.DateOfBirth
 		}
 
 		if len(userUpdate) > 0 {

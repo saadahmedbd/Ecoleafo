@@ -36,22 +36,97 @@ Authorization: Bearer <token>
 **Response:** `200 OK`
 ```json
 {
-  "success": true,
-  "message": "Profile retrieved successfully",
-  "data": {
-    "id": 1,
-    "user_id": 5,
-    "first_name": "John",
-    "last_name": "Doe",
-    "email": "john.doe@example.com",
-    "phone": "+1234567890",
-    "profile_photo": "https://cloudinary.com/...",
-    "date_of_birth": "1990-01-15",
-    "gender": "male",
-    "status": "active",
-    "created_at": "2024-01-01T00:00:00Z",
-    "updated_at": "2024-01-15T00:00:00Z"
-  }
+    "id": 61,
+    "user_id": 134,
+    "phone": "01819240089",
+    "profile_picture": "",
+    "default_address": "",
+    "is_active": true,
+    "email_verified": false,
+    "last_order_at": null,
+    "total_orders_count": 0,
+    "total_spent": 0,
+    "created_at": "2025-11-14T22:15:53.964959+06:00",
+    "updated_at": "2025-11-16T22:19:57.055216+06:00",
+    "reg_user": {
+        "first_name": "nasir ",
+        "last_name": "sheikh",
+        "email": "nasirsheikh@gmail.com"
+    },
+    "default_addr": {
+        "id": 42,
+        "full_name": "",
+        "address_line_1": "janpur bankpara",
+        "address_line_2": "",
+        "street": "",
+        "city": "sirajganj",
+        "state": "",
+        "district": "",
+        "country": "Bangladesh",
+        "postal_code": "5700",
+        "phone": "",
+        "is_default": true
+    },
+    "addresses": [
+        {
+            "id": 42,
+            "full_name": "saad ahmed",
+            "address_line_1": "janpur bankpara",
+            "address_line_2": "",
+            "street": "",
+            "city": "sirajganj",
+            "state": "",
+            "district": "",
+            "country": "Bangladesh",
+            "postal_code": "5700",
+            "phone": "01999999999",
+            "is_default": true
+        },
+        {
+            "id": 41,
+            "full_name": "saad ahmed",
+            "address_line_1": "janpur bankpara",
+            "address_line_2": "sirajganj",
+            "street": "",
+            "city": "sirajganj",
+            "state": "rajshahi Division",
+            "district": "",
+            "country": "Bangladesh",
+            "postal_code": "5700",
+            "phone": "01892444",
+            "is_default": false
+        },
+        {
+            "id": 40,
+            "full_name": "saad ahmed",
+            "address_line_1": "janpur bankpara",
+            "address_line_2": "sirajganj",
+            "street": "",
+            "city": "sirajganj",
+            "state": "rajshahi Division",
+            "district": "",
+            "country": "Bangladesh",
+            "postal_code": "5700",
+            "phone": "01892444",
+            "is_default": false
+        },
+        {
+            "id": 39,
+            "full_name": "",
+            "address_line_1": "",
+            "address_line_2": "",
+            "street": "",
+            "city": "sirajagnj",
+            "state": "rajshahi",
+            "district": "",
+            "country": "Bangladesh",
+            "postal_code": "5700",
+            "phone": "",
+            "is_default": false
+        }
+    ],
+    "wishlist_count": 0,
+    "cart_item_count": 0
 }
 ```
 
@@ -77,11 +152,11 @@ Content-Type: application/json
 **Request Body:**
 ```json
 {
-  "first_name": "John",
-  "last_name": "Doe",
-  "phone": "+1234567890",
-  "date_of_birth": "1990-01-15",
-  "gender": "male"
+  "phone": "01819240089",
+  "first_name": "nasir",
+  "last_name": "Ahmed",
+  "gender": "male",
+  "date_of_birth": "2002-05-14T00:00:00.000Z"
 }
 ```
 
@@ -198,9 +273,9 @@ Content-Type: application/json
 **Request Body:**
 ```json
 {
-  "current_password": "OldPassword123",
-  "new_password": "NewPassword123",
-  "confirm_password": "NewPassword123"
+    "current_password":"password123",
+    "new_password":"password1234",
+    "confirm_password":"password1234"
 }
 ```
 
@@ -246,36 +321,23 @@ Authorization: Bearer <token>
 
 **Response:** `200 OK`
 ```json
-{
-  "success": true,
-  "message": "Addresses retrieved successfully",
-  "data": [
+
+ [
     {
-      "id": 1,
-      "buyer_id": 1,
-      "address_type": "home",
-      "street_address": "123 Main St",
-      "city": "New York",
-      "state": "NY",
-      "postal_code": "10001",
-      "country": "USA",
-      "is_default": true,
-      "created_at": "2024-01-01T00:00:00Z"
+        "id": 43,
+        "full_name": "saad ahmed",
+        "address_line_1": "janpur bankpara",
+        "address_line_2": "sirajganj",
+        "street": "janpur bankpara",
+        "city": "sirajganj",
+        "state": "rajshahi Division",
+        "district": "rajshahi",
+        "country": "Bangladesh",
+        "postal_code": "5700",
+        "phone": "01892444",
+        "is_default": true
     },
-    {
-      "id": 2,
-      "buyer_id": 1,
-      "address_type": "work",
-      "street_address": "456 Office Blvd",
-      "city": "New York",
-      "state": "NY",
-      "postal_code": "10002",
-      "country": "USA",
-      "is_default": false,
-      "created_at": "2024-01-05T00:00:00Z"
-    }
-  ]
-}
+ ]
 ```
 
 **cURL Example:**
@@ -300,12 +362,15 @@ Content-Type: application/json
 **Request Body:**
 ```json
 {
-  "address_type": "home",
-  "street_address": "123 Main St",
-  "city": "New York",
-  "state": "NY",
-  "postal_code": "10001",
-  "country": "USA",
+"full_name":"saad ahmed",
+"address_line_1": "janpur bankpara",
+  "address_line_2": "sirajganj",
+  "street": "janpur bankpara",
+  "city": "sirajganj",
+  "district":"rajshahi",
+  "country": "Bangladesh",
+  "postal_code": "5700",
+  "phone":"01892444",
   "is_default": true
 }
 ```
@@ -313,20 +378,18 @@ Content-Type: application/json
 **Response:** `201 Created`
 ```json
 {
-  "success": true,
-  "message": "Address created successfully",
-  "data": {
-    "id": 1,
-    "buyer_id": 1,
-    "address_type": "home",
-    "street_address": "123 Main St",
-    "city": "New York",
-    "state": "NY",
-    "postal_code": "10001",
-    "country": "USA",
-    "is_default": true,
-    "created_at": "2024-01-01T00:00:00Z"
-  }
+    "id": 43,
+    "full_name": "saad ahmed",
+    "address_line_1": "janpur bankpara",
+    "address_line_2": "sirajganj",
+    "street": "janpur bankpara",
+    "city": "sirajganj",
+    "state": "rajshahi Division",
+    "district": "rajshahi",
+    "country": "Bangladesh",
+    "postal_code": "5700",
+    "phone": "01892444",
+    "is_default": true
 }
 ```
 
@@ -362,43 +425,36 @@ Content-Type: application/json
 **Request Body:**
 ```json
 {
-  "address_type": "home",
-  "street_address": "789 New St",
-  "city": "Boston",
-  "state": "MA",
-  "postal_code": "02101",
-  "country": "USA",
-  "is_default": false
+        "address_line1": "ss road",
+        "address_line2": "sirajganj sadar",
+        "street": "janpur bankpara",
+        "city": "sirajganj",
+        "state": "rajshahi Division",
+        "district":"rajshahi",
+        "country": "Bangladesh",
+        "postal_code": "5700",
+        "is_default": false
 }
 ```
 
 **Response:** `200 OK`
 ```json
 {
-  "success": true,
-  "message": "Address updated successfully",
-  "data": {
-    "id": 1,
-    "street_address": "789 New St",
-    "city": "Boston",
-    "state": "MA",
-    "postal_code": "02101",
-    "country": "USA"
-  }
+    "id": 43,
+    "full_name": "saad ahmed",
+    "address_line_1": "janpur bankpara",
+    "address_line_2": "sirajganj",
+    "street": "janpur bankpara",
+    "city": "sirajganj",
+    "state": "rajshahi Division",
+    "district": "rajshahi",
+    "country": "Bangladesh",
+    "postal_code": "5700",
+    "phone": "",
+    "is_default": true
 }
 ```
 
-**cURL Example:**
-```bash
-curl -X PUT "http://localhost:3000/api/buyer/addresses/1" \
-  -H "Authorization: Bearer YOUR_JWT_TOKEN" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "street_address": "789 New St",
-    "city": "Boston",
-    "state": "MA",
-    "postal_code": "02101"
-  }'
 ```
 
 ---
@@ -416,9 +472,9 @@ Authorization: Bearer <token>
 **Response:** `200 OK`
 ```json
 {
-  "success": true,
+  
   "message": "Address deleted successfully",
-  "data": null
+  
 }
 ```
 
@@ -450,27 +506,35 @@ Authorization: Bearer <token>
 **Response:** `200 OK`
 ```json
 {
-  "success": true,
-  "data": [
-    {
-      "id": 1,
-      "order_number": "ORD-20240101-001",
-      "total_amount": 299.99,
-      "status": "delivered",
-      "payment_status": "paid",
-      "created_at": "2024-01-01T00:00:00Z",
-      "items": [
+  {
+    "orders": [
         {
-          "product_name": "Oak Tree",
-          "quantity": 2,
-          "price": 149.99
-        }
-      ]
+            "id": 20,
+            "order_number": "ORD-1763360676-61",
+            "total_amount": 419.98,
+            "status": "pending",
+            "item_count": 1,
+            "sub_total": 0,
+            "order_date": "2025-11-17T12:24:36.87553+06:00",
+            "items": [
+                {
+                    "product_id": 40,
+                    "product_name": "Bonsai",
+                    "quantity": 1,
+                    "price": 500,
+                    "subtotal": 0
+                }
+            ]
+        },
+  }
+   "pagination": {
+        "page": 1,
+        "limit": 10,
+        "total": 11,
+        "total_pages": 2,
+        "has_next": true,
+        "has_prev": false
     }
-  ],
-  "page": 1,
-  "limit": 10,
-  "total": 25
 }
 ```
 
@@ -500,17 +564,57 @@ Authorization: Bearer <token>
 **Response:** `200 OK`
 ```json
 {
-  "success": true,
-  "message": "Statistics retrieved successfully",
-  "data": {
-    "total_orders": 25,
-    "pending_orders": 2,
-    "completed_orders": 20,
-    "cancelled_orders": 3,
-    "total_spent": 2499.75,
-    "saved_addresses": 3,
-    "wishlist_items": 5
-  }
+  "total_orders": 0,
+    "pending_orders": 6,
+    "completed_orders": 0,
+    "cancelled_orders": 5,
+    "total_spent": 0,
+    "wishlist_count": 4,
+    "cart_item_count": 0,
+    "review_count": 0,
+    "last_order_date": null,
+    "recent_orders": [
+        {
+            "order_id": 20,
+            "order_number": "ORD-1763360676-61",
+            "total_amount": 419.98,
+            "status": "pending",
+            "item_count": 1,
+            "order_date": "2025-11-17T12:24:36.87553+06:00"
+        },
+        {
+            "order_id": 19,
+            "order_number": "ORD-1763360352-61",
+            "total_amount": 520,
+            "status": "pending",
+            "item_count": 1,
+            "order_date": "2025-11-17T12:19:12.991869+06:00"
+        },
+        {
+            "order_id": 18,
+            "order_number": "ORD-1763359562-61",
+            "total_amount": 520,
+            "status": "cancelled",
+            "item_count": 1,
+            "order_date": "2025-11-17T12:06:02.514207+06:00"
+        },
+        {
+            "order_id": 17,
+            "order_number": "ORD-1763359124-61",
+            "total_amount": 675,
+            "status": "pending",
+            "item_count": 1,
+            "order_date": "2025-11-17T11:58:44.918772+06:00"
+        },
+        {
+            "order_id": 16,
+            "order_number": "ORD-1763358864-61",
+            "total_amount": 520,
+            "status": "pending",
+            "item_count": 1,
+            "order_date": "2025-11-17T11:54:24.996392+06:00"
+        }
+    ]
 }
 ```
 
