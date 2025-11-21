@@ -95,14 +95,16 @@ func Server() {
 	guestcartservice := guestcartservice.NewGuestCartService(guestcartrepo, buyercompleterepo, buyerProfilerepo)
 	selleracoubtService := selleraccountservice.NewSellerRegistrationService(selleraccountrepo)
 	cartservice := cartservice.NewCartService(cartitemrepo)
-	orderservice := orderservice.NewOrderService(orderrepo, cartitemrepo, buyerProfilerepo, *productservice)
+	categoryService := categoryservice.NewCategoryService(categoryrepo, productrepo)
+	selleraccountsettingservice := selleraccountsettingservice.NewSellerAccountSettingService(selleraccountsettingrepo)
+	commissionService := commissionpayoutearningservice.NewCommissionService(commissionrepo, orderrepo, *selleraccountsettingrepo)
+	orderservice := orderservice.NewOrderService(orderrepo, cartitemrepo, buyerProfilerepo, *productservice, commissionService)
+
 	adminservice := adminservice.NewAdminService(adminrepo, reguserrepo)
 	// cloudniaryservice := Config.InitializeCloudinary()
 	// if cloudniaryservice == nil {
 	// 	log.Fatalf("Failed to initialize Cloudinary service. Check your credentials.")
 	// }
-	categoryService := categoryservice.NewCategoryService(categoryrepo, productrepo)
-	selleraccountsettingservice := selleraccountsettingservice.NewSellerAccountSettingService(selleraccountsettingrepo)
 	//admin management service
 	adminbuyerservice := adminmangementservice.NewBuyerService(adminbuyerrepo, adminauditlogrepo)
 	adminsellerservice := adminmangementservice.NewSellerService(adminsellerrepo, adminauditlogrepo)
@@ -113,7 +115,6 @@ func Server() {
 	sellerdashboardservice := sellerdashboardservice.NewDashboardService(sellerdashboardrepo)
 	inventoryservice := inventoryservice.NewInventoryService(inventoryrepo, selleraccountsettingrepo)
 	reviewservice := reviewservice.NewReviewService(reviewrepo)
-	commissionService := commissionpayoutearningservice.NewCommissionService(commissionrepo, orderrepo, *selleraccountsettingrepo)
 	//handler
 	buyerhandler := buyerhandler.NewHandler()
 	cartitemhandler := cartitemhandler.NewHandler()

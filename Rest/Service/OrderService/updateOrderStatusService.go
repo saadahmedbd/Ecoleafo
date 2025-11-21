@@ -70,5 +70,13 @@ func (s *orderService) UpdateOrderStatus(orderID, userID uint, userRole, usernam
 	}
 	s.orderrepo.CreateOrderHistory(history)
 
+	// COMMISSION LOGIC
+	// ---------------------------------------------------------
+	if req.Status == string(models.OrderDelivered) {
+		err := s.commissionService.CalculateAndCreateCommission(order)
+		if err != nil {
+			return nil, fmt.Errorf("commission calculation failed: %v", err)
+		}
+	}
 	return s.mapToOrderResponse(order, userRole)
 }
