@@ -79,6 +79,12 @@ func Connect() {
 		&models.SellerVerificationDocument{},
 		&models.StockHistory{},
 		&models.InventoryThreshold{},
+		&models.CommissionSetting{},
+		&models.SellerEarningsSummary{},
+		&models.SellerPayout{},
+		&models.ReviewReport{},
+		&models.OrderCommission{},
+		&models.PlatformRevenueSummary{},
 	)
 	if err != nil {
 		fmt.Println(" Migration failed:", err)
