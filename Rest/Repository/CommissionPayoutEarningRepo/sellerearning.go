@@ -12,7 +12,7 @@ import (
 // ============================================================================
 func (r *commissionRepository) GetSellerEarnings(sellerID uint) (*models.SellerEarningsSummary, error) {
 	var earnings models.SellerEarningsSummary
-	err := r.db.Preload("Seller").Where("seller_id = ?", sellerID).First(&earnings).Error
+	err := r.db.Preload("Seller").Preload("RegUser").Where("seller_id = ?", sellerID).First(&earnings).Error
 	if err == gorm.ErrRecordNotFound {
 		// Create new earnings summary
 		earnings = models.SellerEarningsSummary{
@@ -42,6 +42,7 @@ func (r *commissionRepository) GetAllSellerEarnings(page, limit int) ([]models.S
 	}
 
 	err := r.db.Preload("Seller").
+		Preload("Seller.RegUser").
 		Order("net_earnings DESC").
 		Offset(offset).Limit(limit).
 		Find(&earnings).Error

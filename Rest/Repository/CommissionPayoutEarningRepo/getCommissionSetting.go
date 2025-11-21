@@ -14,6 +14,7 @@ func (r *commissionRepository) GetCommissionSettings() (*models.CommissionSettin
 			DefaultRate: 10.00,
 			Description: "Default platform commission",
 			IsActive:    true,
+			UpdatedBy:   4,
 		}
 		if err := r.db.Create(&settings).Error; err != nil {
 			return nil, err
