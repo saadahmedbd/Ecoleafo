@@ -25,6 +25,16 @@ func SendPaginatedResponse(w http.ResponseWriter, statusCode int, data interface
 		Total:   total,
 	})
 }
+func SendPaginatedresponse(w http.ResponseWriter, statusCode int, message string, data interface{}, page, limit int, total int64) {
+	SendJSON(w, statusCode, PaginatedResponse{
+		Success: true,
+		Message: message,
+		Data:    data,
+		Page:    page,
+		Limit:   limit,
+		Total:   total,
+	})
+}
 
 func SendJSON(w http.ResponseWriter, statusCode int, data interface{}) {
 	w.Header().Set("Content-Type", "application/json")
