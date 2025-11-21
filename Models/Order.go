@@ -8,9 +8,11 @@ import (
 
 // // Order represents buyer orders - MVP
 type Order struct {
-	ID            uint   `json:"id" gorm:"primaryKey"`
-	OrderNumber   string `json:"order_number" gorm:"size:50;uniqueIndex;not null"`
-	BuyerID       uint   `json:"buyer_id" gorm:"not null"`
+	ID          uint   `json:"id" gorm:"primaryKey"`
+	OrderNumber string `json:"order_number" gorm:"size:50;uniqueIndex;not null"`
+	BuyerID     uint   `json:"buyer_id" gorm:"not null"`
+	SellerID    uint   `json:"seller_id" gorm:"null;index"` // Added for multi-seller
+
 	Status        string `json:"status" gorm:"size:20;not null;default:'pending'"`         // pending, confirmed, shipped, delivered, cancelled
 	PaymentStatus string `json:"payment_status" gorm:"size:20;not null;default:'pending'"` // pending, paid, failed
 	PaymentMethod string `json:"payment_method" gorm:"size:50"`                            // cash_on_delivery, bkash, card
