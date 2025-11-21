@@ -14,6 +14,7 @@ import (
 	buyerprofilehandler "github.com/saadahmedbd/Treestore/Rest/Handler/BuyerProfileHandler"
 	cartitemhandler "github.com/saadahmedbd/Treestore/Rest/Handler/CartItemHandler"
 	categoryHandler "github.com/saadahmedbd/Treestore/Rest/Handler/CategoryHandler"
+	commissionpayoutearningshandler "github.com/saadahmedbd/Treestore/Rest/Handler/CommissionPayoutEarningsHandler"
 	guestcarthandler "github.com/saadahmedbd/Treestore/Rest/Handler/GuestcartHandler"
 	inventoryhandler "github.com/saadahmedbd/Treestore/Rest/Handler/InventoryHandler"
 	orderhandler "github.com/saadahmedbd/Treestore/Rest/Handler/OrderHandler"
@@ -63,6 +64,8 @@ type Server struct {
 	admindashboardmanagementhandler *adminmangementhandler.DashboardHandler
 
 	inventoryhandler *inventoryhandler.Inventoryhandler
+
+	commissionpayoutearningshandler *commissionpayoutearningshandler.CommissionHandler
 }
 
 func NewServer(
@@ -94,6 +97,7 @@ func NewServer(
 	//seller dashboard handler
 	sellerDashboardHandler *sellerdashboardhandler.DashboardHandler,
 	inventoryhandler *inventoryhandler.Inventoryhandler,
+	commissionpayoutearningshandler *commissionpayoutearningshandler.CommissionHandler,
 
 ) *Server {
 	return &Server{
@@ -125,7 +129,8 @@ func NewServer(
 		//seller dashboard
 		sellerdashboardHandler: sellerDashboardHandler,
 
-		inventoryhandler: inventoryhandler,
+		inventoryhandler:                inventoryhandler,
+		commissionpayoutearningshandler: commissionpayoutearningshandler,
 	}
 
 }
@@ -162,6 +167,9 @@ func (server *Server) Start(cnf Config.Config) {
 	//seller dashboard
 	server.sellerdashboardHandler.RegisterSellerDashboard(mux)
 	server.inventoryhandler.RegisterInventoryRoute(mux)
+
+	//admin managemnet
+	server.commissionpayoutearningshandler.RegisterCommissionPayoutEarningRoutes(mux)
 
 	// Handle all cors
 	handler := middleware.Cors(mux)

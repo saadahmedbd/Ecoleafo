@@ -10,6 +10,7 @@ import (
 	buyerprofilehandler "github.com/saadahmedbd/Treestore/Rest/Handler/BuyerProfileHandler"
 	cartitemhandler "github.com/saadahmedbd/Treestore/Rest/Handler/CartItemHandler"
 	categoryHandler "github.com/saadahmedbd/Treestore/Rest/Handler/CategoryHandler"
+	commissionpayoutearningshandler "github.com/saadahmedbd/Treestore/Rest/Handler/CommissionPayoutEarningsHandler"
 	guestcarthandler "github.com/saadahmedbd/Treestore/Rest/Handler/GuestcartHandler"
 	inventoryhandler "github.com/saadahmedbd/Treestore/Rest/Handler/InventoryHandler"
 	orderhandler "github.com/saadahmedbd/Treestore/Rest/Handler/OrderHandler"
@@ -32,6 +33,7 @@ import (
 	buyerProfilerepo "github.com/saadahmedbd/Treestore/Rest/Repository/BuyerProfileRepo"
 	cartitemrepo "github.com/saadahmedbd/Treestore/Rest/Repository/CartItemRepo"
 	categoryrepo "github.com/saadahmedbd/Treestore/Rest/Repository/CategoryRepo"
+	commissionpayoutearningrepo "github.com/saadahmedbd/Treestore/Rest/Repository/CommissionPayoutEarningRepo"
 	guestcartrepo "github.com/saadahmedbd/Treestore/Rest/Repository/GuestCartRepo"
 	inventoryrepo "github.com/saadahmedbd/Treestore/Rest/Repository/InventoryRepo"
 	orderrepo "github.com/saadahmedbd/Treestore/Rest/Repository/OrderRepo"
@@ -43,6 +45,7 @@ import (
 	selleraccountsettingrepo "github.com/saadahmedbd/Treestore/Rest/Repository/sellerAccountSettingRepo"
 	adminmangementservice "github.com/saadahmedbd/Treestore/Rest/Service/AdminMangementService"
 	adminservice "github.com/saadahmedbd/Treestore/Rest/Service/AdminService"
+	commissionpayoutearningservice "github.com/saadahmedbd/Treestore/Rest/Service/CommissionPayoutEarningService"
 	inventoryservice "github.com/saadahmedbd/Treestore/Rest/Service/InventoryService"
 	orderservice "github.com/saadahmedbd/Treestore/Rest/Service/OrderService"
 	productservice "github.com/saadahmedbd/Treestore/Rest/Service/ProductService"
@@ -83,6 +86,8 @@ func Server() {
 	sellerdashboardrepo := sellerdashboardrepo.NewDashboardRepository(Config.DB)
 	inventoryrepo := inventoryrepo.NewInventoryRepository(Config.DB)
 	reviewrepo := reviewrepo.NewReviewRepository(Config.DB)
+	commissionrepo := commissionpayoutearningrepo.NewCommissionRepository(Config.DB)
+
 	//service
 	productservice := productservice.NewProductService(Config.DB)
 	sellerprofileservice := sellerprofileservice.NewSellerService(repository)
@@ -108,6 +113,7 @@ func Server() {
 	sellerdashboardservice := sellerdashboardservice.NewDashboardService(sellerdashboardrepo)
 	inventoryservice := inventoryservice.NewInventoryService(inventoryrepo, selleraccountsettingrepo)
 	reviewservice := reviewservice.NewReviewService(reviewrepo)
+	commissionService := commissionpayoutearningservice.NewCommissionService(commissionrepo, orderrepo, *selleraccountsettingrepo)
 	//handler
 	buyerhandler := buyerhandler.NewHandler()
 	cartitemhandler := cartitemhandler.NewHandler()
@@ -137,6 +143,7 @@ func Server() {
 
 	sellerdashboardhandler := sellerdashboardhandler.NewDashboardService(sellerdashboardservice)
 	inventoryhandler := inventoryhandler.NewInventoryHandler(inventoryservice)
+	commissionHandler := commissionpayoutearningshandler.NewCommissionHandler(commissionService)
 
 	server := rest.NewServer(buyerhandler,
 		cartitemhandler,
@@ -166,6 +173,7 @@ func Server() {
 
 		sellerdashboardhandler,
 		inventoryhandler,
+		commissionHandler,
 	)
 	server.Start(cnf)
 
