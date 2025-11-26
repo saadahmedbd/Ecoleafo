@@ -36,9 +36,10 @@ type Review struct {
 	SellerRespondedAt *time.Time `json:"seller_responded_at"`
 
 	// Relationships
-	Product          Product       `json:"product" gorm:"foreignKey:ProductID"`
-	Buyer            Buyer         `json:"buyer" gorm:"foreignKey:BuyerID"`
-	Order            Order         `json:"order" gorm:"foreignKey:OrderID"`
-	Images           []ReviewImage `json:"images" gorm:"foreignKey:ReviewID"`
-	ModeratedByAdmin *Admin        `json:"moderated_by_admin,omitempty" gorm:"foreignKey:ModeratedBy;references:ID"`
+	Product          Product        `json:"product" gorm:"foreignKey:ProductID"`
+	Buyer            Buyer          `json:"buyer" gorm:"foreignKey:BuyerID"`
+	Order            Order          `json:"order" gorm:"foreignKey:OrderID"`
+	Images           []ReviewImage  `json:"images" gorm:"foreignKey:ReviewID"`
+	ModeratedByAdmin *Admin         `json:"moderated_by_admin,omitempty" gorm:"foreignKey:ModeratedBy;references:ID"`
+	Reports          []ReviewReport `json:"reports" gorm:"foreignKey:ReviewID"`
 }
