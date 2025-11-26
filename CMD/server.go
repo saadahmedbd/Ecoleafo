@@ -4,7 +4,9 @@ import (
 	"github.com/saadahmedbd/Treestore/Config"
 	rest "github.com/saadahmedbd/Treestore/Rest"
 	adminhandler "github.com/saadahmedbd/Treestore/Rest/Handler/AdminHandler"
+	adminreviewhandler "github.com/saadahmedbd/Treestore/Rest/Handler/AdminReviewHandler"
 	adminmangementhandler "github.com/saadahmedbd/Treestore/Rest/Handler/AdminmangementHandler"
+	auditloghandler "github.com/saadahmedbd/Treestore/Rest/Handler/AuditLogHandler"
 	authhandler "github.com/saadahmedbd/Treestore/Rest/Handler/AuthHandler"
 	buyerhandler "github.com/saadahmedbd/Treestore/Rest/Handler/BuyerHandler"
 	buyerprofilehandler "github.com/saadahmedbd/Treestore/Rest/Handler/BuyerProfileHandler"
@@ -29,6 +31,7 @@ import (
 	repository "github.com/saadahmedbd/Treestore/Rest/Repository"
 	adminmangement "github.com/saadahmedbd/Treestore/Rest/Repository/AdminMangement"
 	adminrepo "github.com/saadahmedbd/Treestore/Rest/Repository/AdminRepo"
+	auditlogrepo "github.com/saadahmedbd/Treestore/Rest/Repository/AuditLogRepo"
 	buyercompleterepo "github.com/saadahmedbd/Treestore/Rest/Repository/BuyerCompleteRepo"
 	buyerProfilerepo "github.com/saadahmedbd/Treestore/Rest/Repository/BuyerProfileRepo"
 	cartitemrepo "github.com/saadahmedbd/Treestore/Rest/Repository/CartItemRepo"
@@ -42,9 +45,13 @@ import (
 	reviewrepo "github.com/saadahmedbd/Treestore/Rest/Repository/ReviewRepo"
 	selleraccountrepo "github.com/saadahmedbd/Treestore/Rest/Repository/SellerAccountRepo"
 	sellerdashboardrepo "github.com/saadahmedbd/Treestore/Rest/Repository/SellerDashboardRepo"
+	adminreviewrepo "github.com/saadahmedbd/Treestore/Rest/Repository/adminReviewRepo"
 	selleraccountsettingrepo "github.com/saadahmedbd/Treestore/Rest/Repository/sellerAccountSettingRepo"
 	adminmangementservice "github.com/saadahmedbd/Treestore/Rest/Service/AdminMangementService"
+	adminreviewservice "github.com/saadahmedbd/Treestore/Rest/Service/AdminReviewService"
 	adminservice "github.com/saadahmedbd/Treestore/Rest/Service/AdminService"
+	audithelper "github.com/saadahmedbd/Treestore/Rest/Service/AuditHelper"
+	auditlogservice "github.com/saadahmedbd/Treestore/Rest/Service/AuditLogService"
 	commissionpayoutearningservice "github.com/saadahmedbd/Treestore/Rest/Service/CommissionPayoutEarningService"
 	inventoryservice "github.com/saadahmedbd/Treestore/Rest/Service/InventoryService"
 	orderservice "github.com/saadahmedbd/Treestore/Rest/Service/OrderService"
@@ -87,6 +94,8 @@ func Server() {
 	inventoryrepo := inventoryrepo.NewInventoryRepository(Config.DB)
 	reviewrepo := reviewrepo.NewReviewRepository(Config.DB)
 	commissionrepo := commissionpayoutearningrepo.NewCommissionRepository(Config.DB)
+	adminreviewrepo := adminreviewrepo.NewAdminReviewRepository(Config.DB)
+	auditlogrepo := auditlogrepo.NewAuditLogRepository(Config.DB)
 
 	//service
 	productservice := productservice.NewProductService(Config.DB)
@@ -101,20 +110,24 @@ func Server() {
 	orderservice := orderservice.NewOrderService(orderrepo, cartitemrepo, buyerProfilerepo, *productservice, commissionService)
 
 	adminservice := adminservice.NewAdminService(adminrepo, reguserrepo)
+	auditlogservice := auditlogservice.NewAuditLogService(auditlogrepo)
+
+	audithelper := audithelper.NewAuditHelper(auditlogservice)
 	// cloudniaryservice := Config.InitializeCloudinary()
 	// if cloudniaryservice == nil {
 	// 	log.Fatalf("Failed to initialize Cloudinary service. Check your credentials.")
 	// }
 	//admin management service
 	adminbuyerservice := adminmangementservice.NewBuyerService(adminbuyerrepo, adminauditlogrepo)
-	adminsellerservice := adminmangementservice.NewSellerService(adminsellerrepo, adminauditlogrepo)
+	adminsellerservice := adminmangementservice.NewSellerService(adminsellerrepo, adminauditlogrepo, audithelper)
 	adminproductservice := adminmangementservice.NewProductService(adminproductrepo, adminauditlogrepo)
-	adminorderservice := adminmangementservice.NewOrderService(adminorderrepo, adminauditlogrepo)
+	adminorderservice := adminmangementservice.NewOrderService(adminorderrepo, adminauditlogrepo, audithelper)
 	admindashboardservice := adminmangementservice.NewDashboardService(adminbuyerservice, adminsellerservice, adminproductservice, adminorderservice)
 
 	sellerdashboardservice := sellerdashboardservice.NewDashboardService(sellerdashboardrepo)
 	inventoryservice := inventoryservice.NewInventoryService(inventoryrepo, selleraccountsettingrepo)
 	reviewservice := reviewservice.NewReviewService(reviewrepo)
+	adminreviewservice := adminreviewservice.NewAdminReviewService(adminreviewrepo, productrepo, auditlogrepo)
 	//handler
 	buyerhandler := buyerhandler.NewHandler()
 	cartitemhandler := cartitemhandler.NewHandler()
@@ -145,6 +158,8 @@ func Server() {
 	sellerdashboardhandler := sellerdashboardhandler.NewDashboardService(sellerdashboardservice)
 	inventoryhandler := inventoryhandler.NewInventoryHandler(inventoryservice)
 	commissionHandler := commissionpayoutearningshandler.NewCommissionHandler(commissionService)
+	adminreviewhandler := adminreviewhandler.NewAdminReviewService(adminreviewservice)
+	auditloghandler := auditloghandler.NewAuditLogHandler(auditlogservice)
 
 	server := rest.NewServer(buyerhandler,
 		cartitemhandler,
@@ -175,6 +190,8 @@ func Server() {
 		sellerdashboardhandler,
 		inventoryhandler,
 		commissionHandler,
+		adminreviewhandler,
+		auditloghandler,
 	)
 	server.Start(cnf)
 

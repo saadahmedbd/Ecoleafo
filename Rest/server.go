@@ -8,7 +8,9 @@ import (
 
 	"github.com/saadahmedbd/Treestore/Config"
 	adminhandler "github.com/saadahmedbd/Treestore/Rest/Handler/AdminHandler"
+	adminreviewhandler "github.com/saadahmedbd/Treestore/Rest/Handler/AdminReviewHandler"
 	adminmangementhandler "github.com/saadahmedbd/Treestore/Rest/Handler/AdminmangementHandler"
+	auditloghandler "github.com/saadahmedbd/Treestore/Rest/Handler/AuditLogHandler"
 	authhandler "github.com/saadahmedbd/Treestore/Rest/Handler/AuthHandler"
 	buyerhandler "github.com/saadahmedbd/Treestore/Rest/Handler/BuyerHandler"
 	buyerprofilehandler "github.com/saadahmedbd/Treestore/Rest/Handler/BuyerProfileHandler"
@@ -66,6 +68,8 @@ type Server struct {
 	inventoryhandler *inventoryhandler.Inventoryhandler
 
 	commissionpayoutearningshandler *commissionpayoutearningshandler.CommissionHandler
+	adminreviewhandler              *adminreviewhandler.AdminReviewHandler
+	auditloghandler                 *auditloghandler.AuditLogHandler
 }
 
 func NewServer(
@@ -98,6 +102,8 @@ func NewServer(
 	sellerDashboardHandler *sellerdashboardhandler.DashboardHandler,
 	inventoryhandler *inventoryhandler.Inventoryhandler,
 	commissionpayoutearningshandler *commissionpayoutearningshandler.CommissionHandler,
+	adminreviewhandler *adminreviewhandler.AdminReviewHandler,
+	auditloghandler *auditloghandler.AuditLogHandler,
 
 ) *Server {
 	return &Server{
@@ -131,6 +137,8 @@ func NewServer(
 
 		inventoryhandler:                inventoryhandler,
 		commissionpayoutearningshandler: commissionpayoutearningshandler,
+		adminreviewhandler:              adminreviewhandler,
+		auditloghandler:                 auditloghandler,
 	}
 
 }
@@ -170,6 +178,8 @@ func (server *Server) Start(cnf Config.Config) {
 
 	//admin managemnet
 	server.commissionpayoutearningshandler.RegisterCommissionPayoutEarningRoutes(mux)
+	server.adminreviewhandler.RegisterAdminReview(mux)
+	server.auditloghandler.RegisterAuditLog(mux)
 
 	// Handle all cors
 	handler := middleware.Cors(mux)
