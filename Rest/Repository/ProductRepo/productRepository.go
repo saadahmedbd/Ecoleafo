@@ -15,6 +15,8 @@ type ProductRepository interface {
 
 	// Method to count products in multiple categories at once
 	CountByCategoryIDs(categoryIDs []uint) (int64, error)
+
+	UpdateRating(productID uint, averageRating float64, reviewCount int) error
 }
 
 type productRepository struct {
