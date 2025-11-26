@@ -5,18 +5,24 @@ import (
 
 	models "github.com/saadahmedbd/Treestore/Models"
 	adminmangement "github.com/saadahmedbd/Treestore/Rest/Repository/AdminMangement"
+	audithelper "github.com/saadahmedbd/Treestore/Rest/Service/AuditHelper"
 	"github.com/saadahmedbd/Treestore/constants"
 )
 
 type OrderService struct {
 	orderRepo       *adminmangement.OrderRepository
 	activityLogRepo *adminmangement.AuditLogRepository
+	auditHelper     *audithelper.AuditHelper
 }
 
-func NewOrderService(orderRepo *adminmangement.OrderRepository, activityLogRepo *adminmangement.AuditLogRepository) *OrderService {
+func NewOrderService(orderRepo *adminmangement.OrderRepository,
+	activityLogRepo *adminmangement.AuditLogRepository,
+	auditHelper *audithelper.AuditHelper,
+) *OrderService {
 	return &OrderService{
 		orderRepo:       orderRepo,
 		activityLogRepo: activityLogRepo,
+		auditHelper:     auditHelper,
 	}
 }
 
@@ -80,9 +86,10 @@ func (s *OrderService) UpdateOrderStatus(id uint, status string, adminID uint) e
 	if err != nil {
 		return err
 	}
+	//log order status
 
 	// Log activity
-	s.logOrderActivity(adminID, constants.ActivityUpdate, &id, "Updated order status to "+status)
+	s.logOrderActivity(adminID, constants.ActionUpdate, &id, "Updated order status to "+status)
 
 	return nil
 }
@@ -121,9 +128,10 @@ func (s *OrderService) CancelOrder(id uint, reason string, adminID uint) error {
 	if err != nil {
 		return err
 	}
+	//log order status
 
 	// Log activity
-	s.logOrderActivity(adminID, constants.ActivityUpdate, &id, "Cancelled order: "+reason)
+	s.logOrderActivity(adminID, constants.ActionUpdate, &id, "Cancelled order: "+reason)
 
 	return nil
 }
@@ -144,7 +152,7 @@ func (s *OrderService) GetRecentOrders(limit int) ([]models.Order, error) {
 // Helper function
 func (s *OrderService) logOrderActivity(adminID uint, action string, entityID *uint, description string) {
 	log := &models.AuditLog{
-		AdminID:     &adminID,
+		ActorID:     &adminID,
 		Action:      action,
 		EntityType:  "order",
 		EntityID:    entityID,

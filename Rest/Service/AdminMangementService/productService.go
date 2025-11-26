@@ -66,7 +66,7 @@ func (s *ProductService) ApproveProduct(id uint, adminID uint) error {
 	}
 
 	// Log activity
-	s.logProductActivity(adminID, constants.ActivityApprove, &id, "Approved product listing")
+	s.logProductActivity(adminID, constants.ActionApprove, &id, "Approved product listing")
 
 	return nil
 }
@@ -92,7 +92,7 @@ func (s *ProductService) RejectProduct(id uint, reason string, adminID uint) err
 	}
 
 	// Log activity
-	s.logProductActivity(adminID, constants.ActivityReject, &id, "Rejected product listing: "+reason)
+	s.logProductActivity(adminID, constants.ActionReject, &id, "Rejected product listing: "+reason)
 
 	return nil
 }
@@ -117,7 +117,7 @@ func (s *ProductService) UpdateProduct(product *models.Product, adminID uint) er
 	}
 
 	// Log activity
-	s.logProductActivity(adminID, constants.ActivityUpdate, &product.ID, "Updated product information")
+	s.logProductActivity(adminID, constants.ActionUpdate, &product.ID, "Updated product information")
 
 	return nil
 }
@@ -130,7 +130,7 @@ func (s *ProductService) DeleteProduct(id uint, adminID uint) error {
 	}
 
 	// Log activity
-	s.logProductActivity(adminID, constants.ActivityDelete, &id, "Deleted product")
+	s.logProductActivity(adminID, constants.ActionDelete, &id, "Deleted product")
 
 	return nil
 }
@@ -143,7 +143,7 @@ func (s *ProductService) GetProductStats() (map[string]interface{}, error) {
 // Helper function
 func (s *ProductService) logProductActivity(adminID uint, action string, entityID *uint, description string) {
 	log := &models.AuditLog{
-		AdminID:     &adminID,
+		ActorID:     &adminID,
 		Action:      action,
 		EntityType:  "product",
 		EntityID:    entityID,

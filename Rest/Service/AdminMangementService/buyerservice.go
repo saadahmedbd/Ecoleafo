@@ -67,7 +67,7 @@ func (s *BuyerService) ActivateBuyer(id uint, adminID uint) error {
 	}
 
 	// Log activity
-	s.logActivity(adminID, constants.ActivityActivate, "Buyer", &id, "Activated Buyer account")
+	s.logActivity(adminID, constants.ActionActivate, "Buyer", &id, "Activated Buyer account")
 
 	return nil
 }
@@ -89,7 +89,7 @@ func (s *BuyerService) DeactivateBuyer(id uint, adminID uint) error {
 	}
 
 	// Log activity
-	s.logActivity(adminID, constants.ActivityDeactivate, "Buyer", &id, "Deactivated Buyer account")
+	s.logActivity(adminID, constants.ActionDeactivate, "Buyer", &id, "Deactivated Buyer account")
 
 	return nil
 }
@@ -111,7 +111,7 @@ func (s *BuyerService) SuspendBuyer(id uint, adminID uint) error {
 	}
 
 	// Log activity
-	s.logActivity(adminID, constants.ActivitySuspend, "Buyer", &id, "Suspended Buyer account")
+	s.logActivity(adminID, constants.ActionSuspend, "Buyer", &id, "Suspended Buyer account")
 
 	return nil
 }
@@ -124,7 +124,7 @@ func (s *BuyerService) UpdateBuyer(Buyer *models.Buyer, adminID uint) error {
 	}
 
 	// Log activity
-	s.logActivity(adminID, constants.ActivityUpdate, "Buyer", &Buyer.ID, "Updated Buyer information")
+	s.logActivity(adminID, constants.ActionUpdate, "Buyer", &Buyer.ID, "Updated Buyer information")
 
 	return nil
 }
@@ -137,7 +137,7 @@ func (s *BuyerService) DeleteBuyer(id uint, adminID uint) error {
 	}
 
 	// Log activity
-	s.logActivity(adminID, constants.ActivityDelete, "Buyer", &id, "Deleted Buyer account")
+	s.logActivity(adminID, constants.ActionDelete, "Buyer", &id, "Deleted Buyer account")
 
 	return nil
 }
@@ -150,7 +150,7 @@ func (s *BuyerService) GetBuyerStats() (map[string]int64, error) {
 // Helper function to log activities
 func (s *BuyerService) logActivity(adminID uint, action, entityType string, entityID *uint, description string) {
 	log := &models.AuditLog{
-		AdminID:     &adminID,
+		ActorID:     &adminID,
 		Action:      action,
 		EntityType:  entityType,
 		EntityID:    entityID,

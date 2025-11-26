@@ -5,18 +5,23 @@ import (
 
 	models "github.com/saadahmedbd/Treestore/Models"
 	adminmangement "github.com/saadahmedbd/Treestore/Rest/Repository/AdminMangement"
+	audithelper "github.com/saadahmedbd/Treestore/Rest/Service/AuditHelper"
 	"github.com/saadahmedbd/Treestore/constants"
 )
 
 type SellerService struct {
 	sellerRepo      *adminmangement.SellerRepository
 	activityLogRepo *adminmangement.AuditLogRepository
+	auditHelper     *audithelper.AuditHelper
 }
 
-func NewSellerService(sellerRepo *adminmangement.SellerRepository, activityLogRepo *adminmangement.AuditLogRepository) *SellerService {
+func NewSellerService(sellerRepo *adminmangement.SellerRepository,
+	activityLogRepo *adminmangement.AuditLogRepository,
+	auditHelper *audithelper.AuditHelper) *SellerService {
 	return &SellerService{
 		sellerRepo:      sellerRepo,
 		activityLogRepo: activityLogRepo,
+		auditHelper:     auditHelper,
 	}
 }
 
@@ -64,9 +69,11 @@ func (s *SellerService) ApproveSeller(id uint, adminID uint) error {
 	if err != nil {
 		return err
 	}
+	//log seller approve
+	s.auditHelper.LogSellerApproval(adminID, "admin", seller)
 
 	// Log activity
-	s.logActivity(adminID, constants.ActivityApprove, "seller", &id, "Approved seller registration")
+	s.logActivity(adminID, constants.ActionApprove, "seller", &id, "Approved seller registration")
 
 	return nil
 }
@@ -90,9 +97,11 @@ func (s *SellerService) RejectSeller(id uint, reason string, adminID uint) error
 	if err != nil {
 		return err
 	}
+	//reject seller log
+	s.auditHelper.LogSellerRejection(adminID, "admin", seller, reason)
 
 	// Log activity
-	s.logActivity(adminID, constants.ActivityReject, "seller", &id, "Rejected seller registration: "+reason)
+	s.logActivity(adminID, constants.ActionReject, "seller", &id, "Rejected seller registration: "+reason)
 
 	return nil
 }
@@ -114,7 +123,7 @@ func (s *SellerService) SuspendSeller(id uint, reason string, adminID uint) erro
 	}
 
 	// Log activity
-	s.logActivity(adminID, constants.ActivitySuspend, "seller", &id, "Suspended seller account: "+reason)
+	s.logActivity(adminID, constants.ActionSuspend, "seller", &id, "Suspended seller account: "+reason)
 
 	return nil
 }
@@ -136,7 +145,7 @@ func (s *SellerService) ReactivateSeller(id uint, adminID uint) error {
 	}
 
 	// Log activity
-	s.logActivity(adminID, constants.ActivityActivate, "seller", &id, "Reactivated seller account")
+	s.logActivity(adminID, constants.ActionActivate, "seller", &id, "Reactivated seller account")
 
 	return nil
 }
@@ -161,7 +170,7 @@ func (s *SellerService) UpdateSeller(seller *models.User, adminID uint) error {
 	}
 
 	// Log activity
-	s.logActivity(adminID, constants.ActivityUpdate, "seller", &seller.ID, "Updated seller information")
+	s.logActivity(adminID, constants.ActionUpdate, "seller", &seller.ID, "Updated seller information")
 
 	return nil
 }
@@ -182,7 +191,7 @@ func (s *SellerService) GetTopSellers(limit int) ([]models.User, error) {
 // Helper function to log activities
 func (s *SellerService) logActivity(adminID uint, action, entityType string, entityID *uint, description string) {
 	log := &models.AuditLog{
-		AdminID:     &adminID,
+		ActorID:     &adminID,
 		Action:      action,
 		EntityType:  entityType,
 		EntityID:    entityID,
