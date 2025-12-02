@@ -11,6 +11,10 @@ func (h *Handler) AuthRouth(mux *http.ServeMux) {
 		middleware.Cors,
 		middleware.Logger,
 	))
+	mux.Handle("POST /api/auth/admin/login", middleware.Chain(http.HandlerFunc(h.Login),
+		middleware.Cors,
+		middleware.Logger,
+	))
 	mux.Handle("POST /api/seller/login", middleware.Chain(http.HandlerFunc(h.Login),
 		middleware.Cors,
 		middleware.Logger,
