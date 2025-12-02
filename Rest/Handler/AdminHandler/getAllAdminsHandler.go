@@ -9,12 +9,6 @@ import (
 
 func (h *Adminhandler) GetAllAdmins(w http.ResponseWriter, r *http.Request) {
 
-	userType := r.Header.Get("user_role")
-
-	if userType != "[admin]" {
-		http.Error(w, "Unauthorized", http.StatusUnauthorized)
-		return
-	}
 	page, _ := strconv.Atoi(r.URL.Query().Get("page"))
 	limit, _ := strconv.Atoi(r.URL.Query().Get("limit"))
 

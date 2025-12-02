@@ -7,12 +7,6 @@ import (
 )
 
 func (h *Adminhandler) GetPendingInvitations(w http.ResponseWriter, r *http.Request) {
-	userType := r.Header.Get("user_role")
-
-	if userType != "[admin]" {
-		http.Error(w, "admin access required", http.StatusForbidden)
-		return
-	}
 
 	invitations, err := h.adminService.GetPendingInvitations()
 	if err != nil {

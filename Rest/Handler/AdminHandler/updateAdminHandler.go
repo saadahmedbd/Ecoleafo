@@ -11,15 +11,12 @@ import (
 
 func (h *Adminhandler) UpdateAdmin(w http.ResponseWriter, r *http.Request) {
 	userIDStr := r.Header.Get("user_id")
-	userType := r.Header.Get("user_role")
-	if userIDStr == "" || userType == "" {
+
+	if userIDStr == "" {
 		http.Error(w, "Unauthorized", http.StatusUnauthorized)
 		return
 	}
-	if userType != "[admin]" {
-		http.Error(w, "Unauthorized", http.StatusUnauthorized)
-		return
-	}
+
 	//convert useridstr
 	userID, err := strconv.Atoi(userIDStr)
 	if err != nil {
