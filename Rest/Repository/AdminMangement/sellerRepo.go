@@ -21,7 +21,7 @@ func (r *SellerRepository) GetAll(page, limit int, status string) ([]models.User
 	var sellers []models.User
 	var total int64
 
-	query := r.db.Model(&models.User{}).Preload("RegUser")
+	query := r.db.Model(&models.User{}).Preload("RegUser").Preload("Products").Preload("PaymentMethods")
 
 	if status != "" {
 		query = query.Where("status = ?", status)
@@ -40,7 +40,7 @@ func (r *SellerRepository) GetAll(page, limit int, status string) ([]models.User
 // GetByID retrieves a seller by ID
 func (r *SellerRepository) GetByID(id uint) (*models.User, error) {
 	var seller models.User
-	err := r.db.Preload("RegUser").Preload("ApprovedByAdmin").First(&seller, id).Error
+	err := r.db.Preload("RegUser").Preload("ApprovedByAdmin").Preload("Products").Preload("PaymentMethods").First(&seller, id).Error
 	return &seller, err
 }
 

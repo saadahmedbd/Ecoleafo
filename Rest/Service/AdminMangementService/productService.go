@@ -140,6 +140,14 @@ func (s *ProductService) GetProductStats() (map[string]interface{}, error) {
 	return s.productRepo.GetStats()
 }
 
+// GetTopProducts retrieves top products by sale count
+func (s *ProductService) GetTopProducts(limit int) ([]models.Product, error) {
+	if limit < 1 || limit > 100 {
+		limit = 10
+	}
+	return s.productRepo.GetTopProducts(limit)
+}
+
 // Helper function
 func (s *ProductService) logProductActivity(adminID uint, action string, entityID *uint, description string) {
 	log := &models.AuditLog{

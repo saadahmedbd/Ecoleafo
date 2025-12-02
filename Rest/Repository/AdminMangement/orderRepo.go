@@ -25,8 +25,7 @@ func (r *OrderRepository) GetAll(page, limit int, status string) ([]models.Order
 		Preload("Buyer.RegUser").
 		Preload("OrderItems").
 		Preload("OrderItems.Product").
-		Preload("OrderItems.Product.Images").
-		Preload("OrderItems.Seller")
+		Preload("OrderItems.Product.Images")
 
 	if status != "" {
 		query = query.Where("status = ?", status)
@@ -50,10 +49,6 @@ func (r *OrderRepository) GetByID(id uint) (*models.Order, error) {
 		Preload("OrderItems").
 		Preload("OrderItems.Product").
 		Preload("OrderItems.Product.Images").
-		Preload("OrderItems.Seller").
-		Preload("ShippingAddress").
-		Preload("BillingAddress").
-		Preload("Payment").
 		First(&order, id).Error
 	return &order, err
 }
@@ -66,8 +61,6 @@ func (r *OrderRepository) GetByOrderNumber(orderNumber string) (*models.Order, e
 		Preload("OrderItems").
 		Preload("OrderItems.Product").
 		Preload("OrderItems.Product.Images").
-		Preload("OrderItems.Seller").
-		Preload("Payment").
 		Where("order_number = ?", orderNumber).
 		First(&order).Error
 	return &order, err

@@ -56,4 +56,10 @@ func (h *ProductHandler) RegisterProductRoutes(mux *http.ServeMux) {
 		middleware.AuthenticateJWT,
 		middleware.AdminOnlyMiddleware,
 	))
+	mux.Handle("GET /api/products/top", middleware.Chain(http.HandlerFunc(h.GetTopProducts),
+		middleware.Logger,
+		middleware.Cors,
+		middleware.AuthenticateJWT,
+		middleware.AdminOnlyMiddleware,
+	))
 }

@@ -219,3 +219,17 @@ func (r *ProductRepository) GetStats() (map[string]interface{}, error) {
 
 	return stats, nil
 }
+
+// GetTopProducts retrieves top products by sale count
+func (r *ProductRepository) GetTopProducts(limit int) ([]models.Product, error) {
+	var products []models.Product
+	err := r.db.Where("approval_status = ?", "approved").
+		Preload("Seller").
+		Preload("Seller.RegUser").
+		Preload("Category").
+		Preload("Images").
+		Order("sale_count DESC").
+		Limit(limit).
+		Find(&products).Error
+	return products, err
+}

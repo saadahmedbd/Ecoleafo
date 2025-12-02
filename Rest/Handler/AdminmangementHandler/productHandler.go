@@ -238,3 +238,21 @@ func (h *ProductHandler) DeleteProduct(w http.ResponseWriter, r *http.Request) {
 
 	util.RespondJSON(w, http.StatusOK, nil, "Product deleted successfully")
 }
+
+// GetTopProducts handles GET /api/products/top
+func (h *ProductHandler) GetTopProducts(w http.ResponseWriter, r *http.Request) {
+	limitStr := r.URL.Query().Get("limit")
+	limit, _ := strconv.Atoi(limitStr)
+
+	if limit < 1 {
+		limit = 10
+	}
+
+	products, err := h.productService.GetTopProducts(limit)
+	if err != nil {
+		util.SendError(w, "Failed to fetch top products", http.StatusInternalServerError)
+		return
+	}
+
+	util.RespondJSON(w, http.StatusOK, products, "Top products retrieved successfully")
+}
