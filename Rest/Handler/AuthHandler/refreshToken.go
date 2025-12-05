@@ -17,33 +17,43 @@ type RefreshRequest struct {
 func (h *Handler) RefreshToken(w http.ResponseWriter, r *http.Request) {
 	var req RefreshRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		http.Error(w, "Invalid request", http.StatusBadRequest)
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(w).Encode(map[string]string{"error": "Invalid request"})
 		return
 	}
 
 	// Check if refresh token is provided and not 'undefined'
 	if req.RefreshToken == "" || req.RefreshToken == "undefined" {
-		http.Error(w, "Refresh token is required and must be valid", http.StatusBadRequest)
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(w).Encode(map[string]string{"error": "Refresh token is required"})
 		return
 	}
 
 	// Validate refresh token
 	refreshToken, err := util.ValidateRefreshToken(Config.DB, req.RefreshToken)
 	if err != nil {
-		http.Error(w, "Invalid or expired refresh token", http.StatusUnauthorized)
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusUnauthorized)
+		json.NewEncoder(w).Encode(map[string]string{"error": "Invalid or expired refresh token"})
 		return
 	}
 
 	// Get user details
 	var user models.RegUser
 	if err := Config.DB.First(&user, refreshToken.UserID).Error; err != nil {
-		http.Error(w, "User not found", http.StatusNotFound)
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusNotFound)
+		json.NewEncoder(w).Encode(map[string]string{"error": "User not found"})
 		return
 	}
 
 	// Revoke old refresh token
 	if err := util.RevokeRefreshToken(Config.DB, req.RefreshToken); err != nil {
-		http.Error(w, "Failed to revoke old token", http.StatusInternalServerError)
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusInternalServerError)
+		json.NewEncoder(w).Encode(map[string]string{"error": "Failed to revoke old token"})
 		return
 	}
 
@@ -53,10 +63,13 @@ func (h *Handler) RefreshToken(w http.ResponseWriter, r *http.Request) {
 	// Create new token pair
 	tokenPair, err := util.CreateTokenPair(Config.DB, user.ID, user.FirstName, user.LastName, roles)
 	if err != nil {
-		http.Error(w, "Failed to create tokens", http.StatusInternalServerError)
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusInternalServerError)
+		json.NewEncoder(w).Encode(map[string]string{"error": "Failed to create tokens"})
 		return
 	}
 
 	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(tokenPair)
 }

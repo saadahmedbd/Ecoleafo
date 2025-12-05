@@ -6,7 +6,7 @@ import (
 )
 
 func SendData(w http.ResponseWriter, Data interface{}, statusCode int) {
-
+	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(statusCode)
 	encoder := json.NewEncoder(w)
 	err := encoder.Encode(Data)

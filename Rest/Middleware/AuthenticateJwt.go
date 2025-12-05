@@ -14,6 +14,7 @@ func AuthenticateJWT(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		header := r.Header.Get("Authorization")
 		if header == "" || !strings.HasPrefix(header, "Bearer ") {
+			w.Header().Set("Content-Type", "application/json")
 			http.Error(w, `{"error":"Missing or invalid auth header"}`, http.StatusUnauthorized)
 			return
 		}
@@ -21,7 +22,9 @@ func AuthenticateJWT(next http.Handler) http.Handler {
 		tokenStr := strings.TrimSpace(strings.TrimPrefix(header, "Bearer "))
 		claims, err := util.VerifyJwt(tokenStr)
 		if err != nil {
-			http.Error(w, fmt.Sprintf(`{"error":"Invalid or expired token: %s"}`, err.Error()), http.StatusUnauthorized)
+			w.Header().Set("Content-Type", "application/json")
+			w.Header().Set("X-Token-Expired", "true")
+			http.Error(w, `{"error":"Token expired","code":"TOKEN_EXPIRED"}`, http.StatusUnauthorized)
 			return
 		}
 
