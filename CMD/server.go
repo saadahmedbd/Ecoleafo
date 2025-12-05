@@ -107,7 +107,13 @@ func Server() {
 	categoryService := categoryservice.NewCategoryService(categoryrepo, productrepo)
 	selleraccountsettingservice := selleraccountsettingservice.NewSellerAccountSettingService(selleraccountsettingrepo)
 	commissionService := commissionpayoutearningservice.NewCommissionService(commissionrepo, orderrepo, *selleraccountsettingrepo)
-	orderservice := orderservice.NewOrderService(orderrepo, cartitemrepo, buyerProfilerepo, *productservice, commissionService)
+	
+	// Order service configuration
+	orderConfig := &orderservice.Config{
+		FreeShippingThreshold: 5000.0,  // Free shipping above 5000 Taka
+		CommissionRate:        0.15,     // 15% platform commission
+	}
+	orderservice := orderservice.NewOrderService(orderrepo, cartitemrepo, buyerProfilerepo, *productservice, commissionService, Config.DB, orderConfig)
 
 	adminservice := adminservice.NewAdminService(adminrepo, reguserrepo)
 	auditlogservice := auditlogservice.NewAuditLogService(auditlogrepo)

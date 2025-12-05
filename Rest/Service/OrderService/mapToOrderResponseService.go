@@ -1,6 +1,8 @@
 package orderservice
 
 import (
+	"math"
+
 	models "github.com/saadahmedbd/Treestore/Models"
 	order "github.com/saadahmedbd/Treestore/Rest/DTO/Order"
 )
@@ -52,8 +54,9 @@ func (s *orderService) mapToOrderResponse(orderModel *models.Order, userRole str
 			SellerID:      item.SellerID,
 			SellerName:    sellerName,
 			Quantity:      item.Quantity,
-			Price:         item.Price,
-			Total:         item.Total,
+			Price:         math.Round(item.Price),
+			Total:         math.Round(item.Total),
+			DiscountPrice: math.Round(item.Product.DiscountPrice),
 			Image:         imageURL,
 			Commission:    commission,
 			SellerEarning: sellerEarning,

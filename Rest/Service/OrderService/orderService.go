@@ -7,6 +7,7 @@ import (
 	orderrepo "github.com/saadahmedbd/Treestore/Rest/Repository/OrderRepo"
 	commissionpayoutearningservice "github.com/saadahmedbd/Treestore/Rest/Service/CommissionPayoutEarningService"
 	productservice "github.com/saadahmedbd/Treestore/Rest/Service/ProductService"
+	"gorm.io/gorm"
 )
 
 type OrderService interface {
@@ -22,12 +23,19 @@ type OrderService interface {
 	GetAllOrders(userID uint, filter order.OrderListFilter) ([]order.OrderResponse, int64, error)
 	GetOrderHistory(orderID, userID uint, userRole string) ([]order.OrderHistoryResponse, error)
 }
+type Config struct {
+	FreeShippingThreshold float64
+	CommissionRate        float64
+}
+
 type orderService struct {
 	orderrepo         orderrepo.OrderRepository
 	cartitemrepo      cartitemrepo.CartRepository
 	buyerProfilerepo  buyerProfilerepo.BuyerRepository
 	productservice    productservice.ProductService
 	commissionService commissionpayoutearningservice.CommissionService
+	db                *gorm.DB
+	config            *Config
 }
 
 func NewOrderService(
@@ -36,7 +44,8 @@ func NewOrderService(
 	BuyerRepo buyerProfilerepo.BuyerRepository,
 	ProductService productservice.ProductService,
 	CommissionService commissionpayoutearningservice.CommissionService,
-
+	db *gorm.DB,
+	config *Config,
 ) OrderService {
 	return &orderService{
 		orderrepo:         OrderRepo,
@@ -44,5 +53,7 @@ func NewOrderService(
 		buyerProfilerepo:  BuyerRepo,
 		productservice:    ProductService,
 		commissionService: CommissionService,
+		db:                db,
+		config:            config,
 	}
 }
