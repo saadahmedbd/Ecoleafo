@@ -1,6 +1,7 @@
 package models
 
 import (
+	"fmt"
 	"time"
 
 	"golang.org/x/crypto/bcrypt"
@@ -8,16 +9,21 @@ import (
 )
 
 type RegUser struct {
-	ID               uint           `json:"id" gorm:"primaryKey;autoIncrement"`
-	FirstName        string         `json:"first_name" gorm:"size:100;not null;default:'N/A'"`
-	LastName         string         `json:"last_name" gorm:"size:100;not null;default:'N/A'"`
-	Email            string         `json:"email" gorm:"uniqueIndex;size:100;not null"`
-	Password         string         `json:"password" gorm:"size:255;not null"`
-	Gender           string         `json:"gender"`
-	DateOfBirth      *time.Time     `json:"date_of_birth"`
-	Role             string         `json:"role" gorm:"size:20;not null"` // buyer, seller, admin
-	Phone            string         `json:"phone" gorm:"size:20;not null;default:'N/A'"`
-	Avatar           string         `json:"avatar" gorm:"size:255"`
+	ID          uint       `json:"id" gorm:"primaryKey;autoIncrement"`
+	FirstName   string     `json:"first_name" gorm:"size:100;not null;default:'N/A'"`
+	LastName    string     `json:"last_name" gorm:"size:100;not null;default:'N/A'"`
+	Email       string     `json:"email" gorm:"uniqueIndex;size:100;not null"`
+	Password    string     `json:"password" gorm:"size:255;not null"`
+	Gender      string     `json:"gender"`
+	DateOfBirth *time.Time `json:"date_of_birth"`
+	Role        string     `json:"role" gorm:"size:20;not null"` // buyer, seller, admin
+	Phone       string     `json:"phone" gorm:"size:20;not null;default:'N/A'"`
+	Avatar      string     `json:"avatar" gorm:"size:255"`
+
+	// Google OAuth fields
+	GoogleID     string `json:"google_id" gorm:"size:255;index"`              // Store Google's user ID
+	AuthProvider string `json:"auth_provider" gorm:"size:20;default:'local'"` // local, google
+
 	IsActive         bool           `json:"is_active" gorm:"default:true"`       // status
 	IsVerified       bool           `json:"is_verified" gorm:"default:false"`    //  verification
 	EmailVerified    bool           `json:"email_verified" gorm:"default:false"` //  email verification
@@ -35,5 +41,9 @@ type RegUser struct {
 }
 
 func (u *RegUser) CheckPassword(password string) error {
+	// For Google OAuth users without password
+	if u.Password == "" {
+		return fmt.Errorf("this account uses Google sign-in")
+	}
 	return bcrypt.CompareHashAndPassword([]byte(u.Password), []byte(password))
 }

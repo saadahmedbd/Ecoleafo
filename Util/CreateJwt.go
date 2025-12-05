@@ -64,7 +64,7 @@ import (
 // built in
 
 const (
-	AccessTokenTTL  = 15 * time.Minute   // Short-lived access token
+	AccessTokenTTL  = 15 * time.Minute    // Short-lived access token
 	RefreshTokenTTL = 7 * 24 * time.Hour // Long-lived refresh token
 )
 

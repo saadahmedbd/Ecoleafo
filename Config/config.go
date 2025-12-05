@@ -11,11 +11,15 @@ import (
 var configaration Config
 
 type Config struct {
-	Version              string
-	ServiceName          string
-	HttpPort             int64
-	JwtSecretKey         string
-	AllowedOrigins       string
+	Version            string
+	ServiceName        string
+	HttpPort           int64
+	JwtSecretKey       string
+	AllowedOrigins     string
+	GoogleClientID     string
+	GoogleClientSecret string
+	GoogleRedirectURL  string
+	FrontendURL        string
 }
 
 func loadConfig() {
@@ -54,16 +58,39 @@ func loadConfig() {
 	if allowedOrigins == "" {
 		allowedOrigins = "*"
 	}
+	//OAUTH GOOGLE CONFIG
+	googleClientID := os.Getenv("GOOGLE_CLIENT_ID")
+	if googleClientID == "" {
+		fmt.Println("required Google Client ID")
+		os.Exit(1)
+	}
 
+	googleClientSecret := os.Getenv("GOOGLE_CLIENT_SECRET")
+	if googleClientSecret == "" {
+		fmt.Println("required Google Client Secret")
+		os.Exit(1)
+	}
 
+	googleRedirectURL := os.Getenv("GOOGLE_REDIRECT_URL")
+	if googleRedirectURL == "" {
+		googleRedirectURL = "http://localhost:3000/auth/google/callback"
+	}
+
+	frontendURL := os.Getenv("FRONTEND_URL")
+	if frontendURL == "" {
+		frontendURL = "http://localhost:5173"
+	}
 
 	configaration = Config{
-		Version:              version,
-		ServiceName:          serviceName,
-		HttpPort:             Port,
-		JwtSecretKey:         jwtSecretKey,
-		AllowedOrigins:       allowedOrigins,
-		
+		Version:            version,
+		ServiceName:        serviceName,
+		HttpPort:           Port,
+		JwtSecretKey:       jwtSecretKey,
+		AllowedOrigins:     allowedOrigins,
+		GoogleClientID:     googleClientID,
+		GoogleClientSecret: googleClientSecret,
+		GoogleRedirectURL:  googleRedirectURL,
+		FrontendURL:        frontendURL,
 	}
 }
 func GetConfig() Config {
