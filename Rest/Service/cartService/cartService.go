@@ -10,6 +10,7 @@ type CartService interface {
 	//cart management
 	AddToCart(buyerID uint, req cartitem.AddToCartRequest) (*cartitem.CartSummaryResponse, error)
 	GetCart(buyerID uint) (*cartitem.CartSummaryResponse, error)
+	GetCartWithAddress(buyerID uint, address string) (*cartitem.CartSummaryResponse, error)
 	UpdateCartItem(buyerID uint, productID uint, req cartitem.UpdateCartItemRequest) error
 	RemoveFromCart(buyerID uint, productID uint) error
 	ClearCart(buyerID uint) error
@@ -34,10 +35,16 @@ type CartService interface {
 
 	// Utilities
 	ValidateCart(buyerID uint) (*cartitem.CartSummaryResponse, error)
+	ValidateCartWithAddress(buyerID uint, address string) (*cartitem.CartSummaryResponse, error)
 	RemoveUnavailableItems(buyerID uint) error
 	GetCartSummary(buyerID uint) (*cartitem.CartSummaryResponse, error)
 	GetCartItemCount(buyerID uint) (int, error)
 	GetCartTotal(buyerID uint) (float64, error)
+
+	// Selection
+	SelectCartItem(buyerID uint, productID uint, isSelected bool) error
+	SelectCartItemByID(buyerID uint, cartItemID uint, isSelected bool) error
+	SelectAllCartItems(buyerID uint, isSelected bool) error
 }
 
 type cartService struct {

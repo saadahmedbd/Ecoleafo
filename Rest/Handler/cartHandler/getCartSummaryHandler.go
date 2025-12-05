@@ -50,7 +50,15 @@ func (h *CartHandler) GetCartSummary(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	summary, err := h.service.GetCartSummary(buyerID)
+	// Get address from query parameter or buyer profile
+	address := r.URL.Query().Get("address")
+	if address == "" {
+		address = getBuyerAddress(buyerID)
+	}
+
+	// Always use GetCartWithAddress (empty address will use default 100 Taka)
+	summary, err := h.service.GetCartWithAddress(buyerID, address)
+	
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return

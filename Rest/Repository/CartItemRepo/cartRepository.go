@@ -40,6 +40,12 @@ type CartRepository interface {
 	ValidateCartStock(buyerID uint) ([]uint, error) // Returns product IDs with stock issues
 	GetCartItemCount(buyerID uint) (int, error)
 	GetCartTotal(buyerID uint) (float64, error)
+
+	// Selection
+	GetSelectedCartItems(buyerID uint) ([]models.CartItem, error)
+	UpdateCartItemSelection(buyerID uint, productID uint, isSelected bool) error
+	UpdateCartItemSelectionByID(buyerID uint, cartItemID uint, isSelected bool) error
+	UpdateAllCartItemsSelection(buyerID uint, isSelected bool) error
 }
 
 type cartRepository struct {

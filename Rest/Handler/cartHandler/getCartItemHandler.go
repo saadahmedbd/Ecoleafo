@@ -50,7 +50,9 @@ func (h *CartHandler) GetCart(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	cart, err := h.service.GetCart(buyerID)
+	// Get buyer's address for shipping calculation
+	address := getBuyerAddress(buyerID)
+	cart, err := h.service.GetCartWithAddress(buyerID, address)
 	if err != nil {
 		http.Error(w, `{"error":"Internal server error"}`, http.StatusInternalServerError)
 		return

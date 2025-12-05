@@ -12,6 +12,7 @@ type CartItem struct {
 
 	// Additional useful fields
 	IsSavedForLater bool   `json:"is_saved_for_later" gorm:"default:false"` // Save for later feature
+	IsSelected      bool   `json:"is_selected" gorm:"default:true"`         // Selected for checkout
 	IsGift          bool   `json:"is_gift" gorm:"default:false"`            // Gift wrapping option
 	GiftMessage     string `json:"gift_message" gorm:"size:500"`
 	AddedFrom       string `json:"added_from" gorm:"size:50"` // web, mobile, wishlist

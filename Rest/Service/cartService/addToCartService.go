@@ -39,5 +39,5 @@ func (s *cartService) AddToCart(buyerID uint, req cartitem.AddToCartRequest) (*c
 		return nil, err
 	}
 
-	return s.GetCart(buyerID)
+	return s.getCartWithBuyerAddress(buyerID)
 }

@@ -122,4 +122,16 @@ func (h *CartHandler) CartItemRoute(mux *http.ServeMux) {
 		middleware.Cors,
 		middleware.AuthenticateJWT,
 	))
+
+	mux.Handle("POST /api/cart/{productId}/select", middleware.Chain(http.HandlerFunc(h.SelectCartItem),
+		middleware.AuthenticateJWT,
+		middleware.Cors,
+		middleware.Logger,
+	))
+
+	mux.Handle("POST /api/cart/select-all", middleware.Chain(http.HandlerFunc(h.SelectAllCartItems),
+		middleware.AuthenticateJWT,
+		middleware.Cors,
+		middleware.Logger,
+	))
 }

@@ -25,6 +25,7 @@ type CartItemResponse struct {
 	IsGift          bool   `json:"is_gift"`
 	GiftMessage     string `json:"gift_message"`
 	IsSavedForLater bool   `json:"is_saved_for_later"`
+	IsSelected      bool   `json:"is_selected"`
 
 	// Recommendations
 	CanIncreaseQty bool `json:"can_increase_qty"`

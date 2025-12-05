@@ -2,16 +2,18 @@ package cartservice
 
 import (
 	"fmt"
+	"math"
 
 	models "github.com/saadahmedbd/Treestore/Models"
 	cartitem "github.com/saadahmedbd/Treestore/Rest/DTO/CartItem"
 )
 
-func (s *cartService) buildCartSummary(buyerID uint, items []models.CartItem) (*cartitem.CartSummaryResponse, error) {
+func (s *cartService) buildCartSummary(buyerID uint, items []models.CartItem, address string) (*cartitem.CartSummaryResponse, error) {
 	var cartItems []cartitem.CartItemResponse
 	var savedItems []cartitem.CartItemResponse
 
-	var subtotal, discount, totalSavings float64
+	var subtotal, discount, totalSavings, shipping_cost float64
+
 	hasUnavailable := false
 	var unavailableItems []string
 
@@ -48,10 +50,11 @@ func (s *cartService) buildCartSummary(buyerID uint, items []models.CartItem) (*
 			availMsg = fmt.Sprintf("Only %d available", item.Product.Quantity)
 		}
 
-		itemSubtotal := item.Price * float64(item.Quantity)
+		originalPrice := item.Product.Price
+		itemSubtotal := originalPrice * float64(item.Quantity)
 		itemDiscount := 0.0
 		if item.Product.DiscountPrice > 0 {
-			itemDiscount = (item.Product.Price - item.Product.DiscountPrice) * float64(item.Quantity)
+			itemDiscount = (originalPrice - item.Product.DiscountPrice) * float64(item.Quantity)
 		}
 
 		itemResponse := cartitem.CartItemResponse{
@@ -59,17 +62,18 @@ func (s *cartService) buildCartSummary(buyerID uint, items []models.CartItem) (*
 			ProductID:     item.ProductID,
 			ProductName:   item.Product.Name,
 			ProductSlug:   item.Product.Slug,
-			Price:         item.Price,
-			OriginalPrice: item.Product.Price,
-			DiscountPrice: float32(item.Product.DiscountPrice),
+			Price:         item.Product.DiscountPrice,
+			OriginalPrice: math.Round(originalPrice),
+			DiscountPrice: (float32(item.Product.DiscountPrice)),
 			DiscountPercent: func() float64 {
-				if item.Product.DiscountPrice > 0 && item.Product.Price > 0 {
-					return ((item.Product.Price - item.Product.DiscountPrice) / item.Product.Price) * 100
+				if item.Product.DiscountPrice > 0 && originalPrice > 0 {
+					return ((originalPrice - item.Product.DiscountPrice) / originalPrice) * 100
 				}
 				return 0
 			}(),
+
 			Quantity:        item.Quantity,
-			Subtotal:        itemSubtotal,
+			Subtotal:        math.Round(itemSubtotal - itemDiscount),
 			Image:           imageURLs,
 			SellerName:      sellerName,
 			SellerID:        sellerID,
@@ -80,6 +84,7 @@ func (s *cartService) buildCartSummary(buyerID uint, items []models.CartItem) (*
 			IsGift:          item.IsGift,
 			GiftMessage:     item.GiftMessage,
 			IsSavedForLater: item.IsSavedForLater,
+			IsSelected:      item.IsSelected,
 			CanIncreaseQty:  item.Quantity < item.Product.Quantity,
 		}
 
@@ -89,19 +94,24 @@ func (s *cartService) buildCartSummary(buyerID uint, items []models.CartItem) (*
 			cartItems = append(cartItems, itemResponse)
 			subtotal += itemSubtotal
 			discount += itemDiscount
+
 		}
 	}
 
 	totalSavings = discount
 	total := subtotal - discount
 
+	// Calculate shipping cost based on address
+	shipping_cost = s.calculateShipping(address, total)
+
 	return &cartitem.CartSummaryResponse{
 		Items:               cartItems,
 		SavedForLater:       savedItems,
-		Subtotal:            subtotal,
-		Discount:            discount,
-		TotalAmount:         total,
-		TotalSavings:        totalSavings,
+		Subtotal:            math.Round(subtotal),
+		Discount:            math.Round(discount),
+		ShippingCost:        shipping_cost,
+		TotalAmount:         math.Round(shipping_cost + total),
+		TotalSavings:        math.Round(totalSavings),
 		ItemCount:           len(cartItems),
 		SavedItemCount:      len(savedItems),
 		HasUnavailableItems: hasUnavailable,
