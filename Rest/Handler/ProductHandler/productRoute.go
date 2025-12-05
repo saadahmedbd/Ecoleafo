@@ -7,7 +7,7 @@ import (
 )
 
 func (h *Handler) ProductRoute(mux *http.ServeMux) {
-	mux.Handle("GET /api/products", middleware.Chain(http.HandlerFunc(h.GetProduct),
+	mux.Handle("GET /api/products", middleware.Chain(http.HandlerFunc(h.GetProductsLoadMore),
 		middleware.Logger,
 	))
 	mux.Handle("GET /api/products/{productId}", middleware.Chain(http.HandlerFunc(h.GetProductById),
