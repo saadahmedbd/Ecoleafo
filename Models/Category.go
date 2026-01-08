@@ -12,7 +12,7 @@ type Category struct {
 	Slug        string `json:"slug" gorm:"size:100;uniqueIndex;not null"`
 	Description string `json:"description" gorm:"type:text"`
 	Image       string `json:"image" gorm:"size:500"` // Category image
-	Icon        string `json:"icon" gorm:"size:100"`  // Category icon
+	Icon        string `json:"icon" gorm:"size:500"`  // Category icon
 	ParentID    *uint  `json:"parent_id"`             // For nested categories
 	SortOrder   int    `json:"sort_order" gorm:"default:0"`
 	IsFeatured  bool   `json:"is_featured" gorm:"default:false"` // Featured categories
@@ -29,6 +29,6 @@ type Category struct {
 
 	// Relationships
 	Parent   *Category  `json:"parent,omitempty" gorm:"foreignKey:ParentID"`
-	Children []Category `json:"children" gorm:"foreignKey:ParentID"`
-	Products []Product  `json:"products" gorm:"foreignKey:CategoryID"`
+	Children []Category `json:"children,omitempty" gorm:"foreignKey:ParentID"`
+	Products []Product  `json:"-" gorm:"foreignKey:CategoryID"`
 }
