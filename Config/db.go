@@ -22,7 +22,7 @@ func Connect() {
 		log.Fatal("Error loading .env file")
 	}
 	dsn := fmt.Sprintf(
-		"host=%s user=%s password=%s dbname=%s port=%s sslmode=%s",
+		"host=%s user=%s password=%s dbname=%s port=%s sslmode=%s client_encoding=UTF8",
 		os.Getenv("DB_HOST"),
 		os.Getenv("DB_USER"),
 		os.Getenv("DB_PASSWORD"),
@@ -85,6 +85,9 @@ func Connect() {
 		&models.ReviewReport{},
 		&models.OrderCommission{},
 		&models.PlatformRevenueSummary{},
+		&models.Message{},
+		&models.Conversation{},
+		&models.MessageAttachment{},
 	)
 	if err != nil {
 		fmt.Println(" Migration failed:", err)

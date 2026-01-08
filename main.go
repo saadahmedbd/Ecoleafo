@@ -21,6 +21,7 @@ func main() {
 		log.Fatal("Failed to initialize Cloudinary:", err)
 	}
 	util.RunTokenCleanup(Config.DB)
+	database.InitializeMessaging(Config.DB)
 	CMD.Server()
 
 }

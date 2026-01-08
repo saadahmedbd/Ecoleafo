@@ -15,6 +15,7 @@ import (
 	commissionpayoutearningshandler "github.com/saadahmedbd/Treestore/Rest/Handler/CommissionPayoutEarningsHandler"
 	guestcarthandler "github.com/saadahmedbd/Treestore/Rest/Handler/GuestcartHandler"
 	inventoryhandler "github.com/saadahmedbd/Treestore/Rest/Handler/InventoryHandler"
+	messaginghandler "github.com/saadahmedbd/Treestore/Rest/Handler/MessagingHandler"
 	orderhandler "github.com/saadahmedbd/Treestore/Rest/Handler/OrderHandler"
 	orderitemhandler "github.com/saadahmedbd/Treestore/Rest/Handler/OrderItemHandler"
 	producthandler "github.com/saadahmedbd/Treestore/Rest/Handler/ProductHandler"
@@ -39,6 +40,7 @@ import (
 	commissionpayoutearningrepo "github.com/saadahmedbd/Treestore/Rest/Repository/CommissionPayoutEarningRepo"
 	guestcartrepo "github.com/saadahmedbd/Treestore/Rest/Repository/GuestCartRepo"
 	inventoryrepo "github.com/saadahmedbd/Treestore/Rest/Repository/InventoryRepo"
+	messagingrepo "github.com/saadahmedbd/Treestore/Rest/Repository/MessagingRepo"
 	orderrepo "github.com/saadahmedbd/Treestore/Rest/Repository/OrderRepo"
 	productrepo "github.com/saadahmedbd/Treestore/Rest/Repository/ProductRepo"
 	reguserrepo "github.com/saadahmedbd/Treestore/Rest/Repository/RegUserRepo"
@@ -54,6 +56,7 @@ import (
 	auditlogservice "github.com/saadahmedbd/Treestore/Rest/Service/AuditLogService"
 	commissionpayoutearningservice "github.com/saadahmedbd/Treestore/Rest/Service/CommissionPayoutEarningService"
 	inventoryservice "github.com/saadahmedbd/Treestore/Rest/Service/InventoryService"
+	messagingservice "github.com/saadahmedbd/Treestore/Rest/Service/MessagingService"
 	orderservice "github.com/saadahmedbd/Treestore/Rest/Service/OrderService"
 	productservice "github.com/saadahmedbd/Treestore/Rest/Service/ProductService"
 	reviewservice "github.com/saadahmedbd/Treestore/Rest/Service/ReviewService"
@@ -96,7 +99,7 @@ func Server() {
 	commissionrepo := commissionpayoutearningrepo.NewCommissionRepository(Config.DB)
 	adminreviewrepo := adminreviewrepo.NewAdminReviewRepository(Config.DB)
 	auditlogrepo := auditlogrepo.NewAuditLogRepository(Config.DB)
-
+	messagerepo := messagingrepo.NewMessagingRepository(Config.DB)
 	//service
 	productservice := productservice.NewProductService(Config.DB)
 	sellerprofileservice := sellerprofileservice.NewSellerService(repository)
@@ -107,11 +110,11 @@ func Server() {
 	categoryService := categoryservice.NewCategoryService(categoryrepo, productrepo)
 	selleraccountsettingservice := selleraccountsettingservice.NewSellerAccountSettingService(selleraccountsettingrepo)
 	commissionService := commissionpayoutearningservice.NewCommissionService(commissionrepo, orderrepo, *selleraccountsettingrepo)
-	
+
 	// Order service configuration
 	orderConfig := &orderservice.Config{
-		FreeShippingThreshold: 5000.0,  // Free shipping above 5000 Taka
-		CommissionRate:        0.15,     // 15% platform commission
+		FreeShippingThreshold: 5000.0, // Free shipping above 5000 Taka
+		CommissionRate:        0.15,   // 15% platform commission it's select seller how much commission he will give
 	}
 	orderservice := orderservice.NewOrderService(orderrepo, cartitemrepo, buyerProfilerepo, *productservice, commissionService, Config.DB, orderConfig)
 
@@ -134,6 +137,7 @@ func Server() {
 	inventoryservice := inventoryservice.NewInventoryService(inventoryrepo, selleraccountsettingrepo)
 	reviewservice := reviewservice.NewReviewService(reviewrepo)
 	adminreviewservice := adminreviewservice.NewAdminReviewService(adminreviewrepo, productrepo, auditlogrepo)
+	messagservice := messagingservice.NewMessagingService(messagerepo)
 	//handler
 	buyerhandler := buyerhandler.NewHandler()
 	cartitemhandler := cartitemhandler.NewHandler()
@@ -166,7 +170,8 @@ func Server() {
 	commissionHandler := commissionpayoutearningshandler.NewCommissionHandler(commissionService)
 	adminreviewhandler := adminreviewhandler.NewAdminReviewService(adminreviewservice)
 	auditloghandler := auditloghandler.NewAuditLogHandler(auditlogservice)
-
+	messageHandler := messaginghandler.NewMessagingHandler(messagservice)
+	// earningsHandler := adminmangementhandler.NewAdminManagementHandler(commissionService)
 	server := rest.NewServer(buyerhandler,
 		cartitemhandler,
 		orderitemhandler,
@@ -198,6 +203,9 @@ func Server() {
 		commissionHandler,
 		adminreviewhandler,
 		auditloghandler,
+		messageHandler,
+		// earningsHandler,
+
 	)
 	server.Start(cnf)
 

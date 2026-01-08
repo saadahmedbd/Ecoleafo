@@ -19,6 +19,7 @@ import (
 	commissionpayoutearningshandler "github.com/saadahmedbd/Treestore/Rest/Handler/CommissionPayoutEarningsHandler"
 	guestcarthandler "github.com/saadahmedbd/Treestore/Rest/Handler/GuestcartHandler"
 	inventoryhandler "github.com/saadahmedbd/Treestore/Rest/Handler/InventoryHandler"
+	messaginghandler "github.com/saadahmedbd/Treestore/Rest/Handler/MessagingHandler"
 	orderhandler "github.com/saadahmedbd/Treestore/Rest/Handler/OrderHandler"
 	orderitemhandler "github.com/saadahmedbd/Treestore/Rest/Handler/OrderItemHandler"
 	producthandler "github.com/saadahmedbd/Treestore/Rest/Handler/ProductHandler"
@@ -70,6 +71,8 @@ type Server struct {
 	commissionpayoutearningshandler *commissionpayoutearningshandler.CommissionHandler
 	adminreviewhandler              *adminreviewhandler.AdminReviewHandler
 	auditloghandler                 *auditloghandler.AuditLogHandler
+	messageHandler                  *messaginghandler.MessagingHandler
+	// earningsHandler                 *adminmangementhandler.AdminManagementHandler // for earnings
 }
 
 func NewServer(
@@ -104,6 +107,8 @@ func NewServer(
 	commissionpayoutearningshandler *commissionpayoutearningshandler.CommissionHandler,
 	adminreviewhandler *adminreviewhandler.AdminReviewHandler,
 	auditloghandler *auditloghandler.AuditLogHandler,
+	messageHandler *messaginghandler.MessagingHandler,
+	// earningsHandler *adminmangementhandler.AdminManagementHandler,
 
 ) *Server {
 	return &Server{
@@ -139,6 +144,8 @@ func NewServer(
 		commissionpayoutearningshandler: commissionpayoutearningshandler,
 		adminreviewhandler:              adminreviewhandler,
 		auditloghandler:                 auditloghandler,
+		messageHandler:                  messageHandler,
+		// earningsHandler:                 earningsHandler,
 	}
 
 }
@@ -180,6 +187,8 @@ func (server *Server) Start(cnf Config.Config) {
 	server.commissionpayoutearningshandler.RegisterCommissionPayoutEarningRoutes(mux)
 	server.adminreviewhandler.RegisterAdminReview(mux)
 	server.auditloghandler.RegisterAuditLog(mux)
+	server.messageHandler.RegisterMessageRoute(mux)
+	// server.earningsHandler.RegisterEarningsRoutes(mux)
 
 	// Handle all cors
 	handler := middleware.Cors(mux)
