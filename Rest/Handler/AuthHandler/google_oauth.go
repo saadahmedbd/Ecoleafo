@@ -219,7 +219,7 @@ func (h *Handler) processGoogleUser(googleUser *util.GoogleUserInfo, role string
 	}
 
 	// Generate tokens
-	tokenPair, err := util.CreateTokenPair(h.service.db, regUser.ID, regUser.FirstName, regUser.LastName, []string{regUser.Role})
+	tokenPair, err := util.CreateTokenPair(h.service.db, regUser.ID, regUser.FirstName, regUser.LastName, []string{regUser.Role}, regUser.ID)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create tokens: %w", err)
 	}

@@ -93,7 +93,7 @@ func (h *Handler) Registation(w http.ResponseWriter, r *http.Request) {
 	}
 
 	tx.Commit()
-	tokenPair, err := util.CreateTokenPair(Config.DB, user.ID, user.FirstName, user.LastName, []string{"buyer"})
+	tokenPair, err := util.CreateTokenPair(Config.DB, user.ID, user.FirstName, user.LastName, []string{"buyer"}, buyer.ID)
 	if err != nil {
 		http.Error(w, "Failed to create tokens", http.StatusInternalServerError)
 		return

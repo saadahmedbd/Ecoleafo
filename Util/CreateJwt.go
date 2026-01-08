@@ -64,7 +64,7 @@ import (
 // built in
 
 const (
-	AccessTokenTTL  = 15 * time.Minute    // Short-lived access token
+	AccessTokenTTL  = 15 * time.Minute   // Short-lived for security
 	RefreshTokenTTL = 7 * 24 * time.Hour // Long-lived refresh token
 )
 
@@ -74,12 +74,13 @@ type TokenPair struct {
 	ExpiresIn    int64  `json:"expires_in"` // seconds until access token expires
 }
 
-func CreateJwt(userID uint, firstname, lastname string, roles []string, ttl time.Duration) (string, error) {
+func CreateJwt(userID uint, firstname, lastname string, roles []string, roleID uint, ttl time.Duration) (string, error) {
 	claims := jwt.MapClaims{
 		"user_id":    userID,
 		"first_name": firstname,
 		"last_name":  lastname,
 		"role":       roles,
+		"role_id":    roleID,
 		"exp":        time.Now().Add(ttl).Unix(),
 		"iat":        time.Now().Unix(),
 		"type":       "access", // Distinguish token type

@@ -61,7 +61,7 @@ func (h *Handler) RefreshToken(w http.ResponseWriter, r *http.Request) {
 	roles := []string{user.Role}
 
 	// Create new token pair
-	tokenPair, err := util.CreateTokenPair(Config.DB, user.ID, user.FirstName, user.LastName, roles)
+	tokenPair, err := util.CreateTokenPair(Config.DB, user.ID, user.FirstName, user.LastName, roles, user.ID)
 	if err != nil {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusInternalServerError)

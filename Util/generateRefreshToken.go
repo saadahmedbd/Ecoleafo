@@ -21,9 +21,9 @@ func GenerateRefreshToken() (string, error) {
 }
 
 // CreateTokenPair generates both access and refresh tokens
-func CreateTokenPair(db *gorm.DB, userID uint, firstname, lastname string, roles []string) (*TokenPair, error) {
+func CreateTokenPair(db *gorm.DB, userID uint, firstname, lastname string, roles []string, roleID uint) (*TokenPair, error) {
 	// Create access token
-	accessToken, err := CreateJwt(userID, firstname, lastname, roles, AccessTokenTTL)
+	accessToken, err := CreateJwt(userID, firstname, lastname, roles, roleID, AccessTokenTTL)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create access token: %w", err)
 	}

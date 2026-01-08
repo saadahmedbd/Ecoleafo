@@ -27,6 +27,7 @@ type LoginResponse struct {
 	LastName     string   `json:"last_name"`
 	Email        string   `json:"email"`
 	Roles        []string `json:"roles"`
+	RoleID       uint     `json:"role_id"`
 }
 
 func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
@@ -128,8 +129,16 @@ func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
 		h.service.db.Model(&regUser).Update("role", regUser.Role)
 	}
 
+	// Determine role_id based on user type
+	roleID := regUser.ID // Default to regUser.ID
+	if userType == "seller" && sellerErr == nil {
+		roleID = seller.ID // Use seller's users.id
+	} else if userType == "buyer" && buyerErr == nil {
+		roleID = buyer.ID // Use buyer's buyers.id
+	}
+
 	// Create token pair have jwt and refresh token
-	tokenPair, err := util.CreateTokenPair(Config.DB, regUser.ID, regUser.FirstName, regUser.LastName, userRoles)
+	tokenPair, err := util.CreateTokenPair(Config.DB, regUser.ID, regUser.FirstName, regUser.LastName, userRoles, roleID)
 	if err != nil {
 		http.Error(w, "Failed to create tokens", http.StatusInternalServerError)
 		return
@@ -145,6 +154,7 @@ func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
 		LastName:     lastName,
 		Email:        regUser.Email,
 		Roles:        userRoles,
+		RoleID:       roleID,
 	}
 
 	util.SendData(w, response, http.StatusOK)
