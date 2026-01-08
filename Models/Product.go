@@ -60,11 +60,11 @@ type Product struct {
 	// Relationships
 	Seller          User               `json:"seller" gorm:"foreignKey:SellerID;references:ID"`
 	Category        Category           `json:"category" gorm:"foreignKey:CategoryID"`
-	Images          []ProductImage     `json:"images" gorm:"foreignKey:ProductID"`     // Multiple images
-	Attributes      []ProductAttribute `json:"attributes" gorm:"foreignKey:ProductID"` // Flexible attributes
-	CartItems       []CartItem         `json:"cart_items" gorm:"foreignKey:ProductID"`
-	OrderItems      []OrderItem        `json:"order_items" gorm:"foreignKey:ProductID"`
-	Reviews         []Review           `json:"reviews" gorm:"foreignKey:ProductID"`
-	WishlistItems   []Wishlist         `json:"wishlist_items" gorm:"foreignKey:ProductID"`
+	Images          []ProductImage     `json:"images,omitempty" gorm:"foreignKey:ProductID"`     // Multiple images
+	Attributes      []ProductAttribute `json:"attributes,omitempty" gorm:"foreignKey:ProductID"` // Flexible attributes
+	CartItems       []CartItem         `json:"-" gorm:"foreignKey:ProductID"`
+	OrderItems      []OrderItem        `json:"-" gorm:"foreignKey:ProductID"`
+	Reviews         []Review           `json:"-" gorm:"foreignKey:ProductID"`
+	WishlistItems   []Wishlist         `json:"-" gorm:"foreignKey:ProductID"`
 	ApprovedByAdmin *Admin             `json:"approved_by_admin,omitempty" gorm:"foreignKey:ApprovedBy;references:ID"`
 }
