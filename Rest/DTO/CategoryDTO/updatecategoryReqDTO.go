@@ -4,8 +4,6 @@ package categorydto
 type UpdateCategoryRequest struct {
 	Name            *string `json:"name" validate:"omitempty,min=2,max=100"`
 	Description     *string `json:"description"`
-	Image           *string `json:"image" validate:"omitempty,url"`
-	Icon            *string `json:"icon"`
 	ParentID        *uint   `json:"parent_id"`
 	SortOrder       *int    `json:"sort_order"`
 	IsFeatured      *bool   `json:"is_featured"`
