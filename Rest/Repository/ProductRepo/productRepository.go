@@ -5,6 +5,7 @@ package productrepo
 // ============================================================================
 
 import (
+	models "github.com/saadahmedbd/Treestore/Models"
 	"gorm.io/gorm"
 )
 
@@ -17,6 +18,9 @@ type ProductRepository interface {
 	CountByCategoryIDs(categoryIDs []uint) (int64, error)
 
 	UpdateRating(productID uint, averageRating float64, reviewCount int) error
+
+	// Get products by category
+	GetProductsByCategory(categoryID uint, page, limit int) ([]models.Product, int64, error)
 }
 
 type productRepository struct {
