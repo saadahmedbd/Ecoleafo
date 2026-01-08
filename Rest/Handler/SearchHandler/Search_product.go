@@ -58,9 +58,10 @@ func (h *Handler) Search_Product(w http.ResponseWriter, r *http.Request) {
 
 	// Full-text search
 	if query != "" {
-		sqlQuery.WriteString(" AND search_vector @@ plainto_tsquery(?)")
-		countQuery.WriteString(" AND search_vector @@ plainto_tsquery(?)")
-		args = append(args, query)
+		sqlQuery.WriteString(" AND (LOWER(name) LIKE ? OR LOWER(description) LIKE ?)")
+		countQuery.WriteString(" AND (LOWER(name) LIKE ? OR LOWER(description) LIKE ?)")
+		searchPattern := "%" + strings.ToLower(query) + "%"
+		args = append(args, searchPattern, searchPattern)
 
 	}
 
@@ -114,11 +115,25 @@ func (h *Handler) Search_Product(w http.ResponseWriter, r *http.Request) {
 	sqlQuery.WriteString(fmt.Sprintf(" LIMIT %d OFFSET %d", perpage, offset))
 
 	//execute product query
-	var products []models.Product
-	result := Config.DB.Debug().Raw(sqlQuery.String(), args...).Scan(&products)
-	if result.Error != nil {
-		http.Error(w, fmt.Sprintf("Search failed: %v", result.Error), http.StatusInternalServerError)
+	type IDResult struct {
+		ID uint
+	}
+	var idResults []IDResult
+	if err := Config.DB.Raw(sqlQuery.String(), args...).Scan(&idResults).Error; err != nil {
+		http.Error(w, fmt.Sprintf("Search failed: %v", err), http.StatusInternalServerError)
 		return
+	}
+
+	var products []models.Product
+	if len(idResults) > 0 {
+		var productIDs []uint
+		for _, r := range idResults {
+			productIDs = append(productIDs, r.ID)
+		}
+		if err := Config.DB.Preload("Images").Where("id IN ?", productIDs).Find(&products).Error; err != nil {
+			http.Error(w, fmt.Sprintf("Failed to load products: %v", err), http.StatusInternalServerError)
+			return
+		}
 	}
 
 	// Calculate total pages
