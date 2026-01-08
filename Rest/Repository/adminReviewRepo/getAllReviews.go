@@ -36,8 +36,8 @@ func (r *adminReviewRepository) GetAllReviews(query adminreviewdto.ReviewListQue
 
 	// Get paginated results
 	offset := (query.Page - 1) * query.Limit
-	err := db.Preload("Product").
-		Preload("Buyer").
+	err := db.Preload("Product.Images").
+		Preload("Product.Seller").
 		Preload("Buyer.RegUser").
 		Preload("Images").
 		Preload("ModeratedByAdmin").

@@ -11,7 +11,8 @@ func (r *adminReviewRepository) GetReportedReviews(page, limit int) ([]models.Re
 	if err := r.db.Model(&models.Review{}).Where("is_reported = ?", true).Count(&total).Error; err != nil {
 		return nil, 0, err
 	}
-	err := r.db.Preload("Product").
+	err := r.db.Preload("Product.Images").
+		Preload("Product.Seller").
 		Preload("Buyer.RegUser").
 		Preload("Images").
 		Preload("Reports").

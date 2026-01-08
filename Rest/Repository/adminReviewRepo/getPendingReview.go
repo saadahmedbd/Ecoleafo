@@ -10,7 +10,8 @@ func (r *adminReviewRepository) GetPendingReviews(page, limit int) ([]models.Rev
 	if err := r.db.Model(&models.Review{}).Where("status = ?", "pending").Count(&total).Error; err != nil {
 		return nil, 0, err
 	}
-	err := r.db.Preload("Product").
+	err := r.db.Preload("Product.Images").
+		Preload("Product.Seller").
 		Preload("Buyer.RegUser").
 		Preload("Images").
 		Where("status = ?", "pending").
