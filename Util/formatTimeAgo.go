@@ -1,6 +1,9 @@
 package util
 
-import "time"
+import (
+	"fmt"
+	"time"
+)
 
 // Helper function to format time ago
 func FormatTimeAgo(t time.Time) string {
@@ -13,18 +16,18 @@ func FormatTimeAgo(t time.Time) string {
 		if hours == 1 {
 			return "1 hour ago"
 		}
-		return string(rune(hours)) + " hours ago"
+		return fmt.Sprintf("%d hours ago", hours)
 	} else if duration.Hours() < 168 { // 7 days
 		days := int(duration.Hours() / 24)
 		if days == 1 {
 			return "1 day ago"
 		}
-		return string(rune(days)) + " days ago"
+		return fmt.Sprintf("%d days ago", days)
 	} else {
 		weeks := int(duration.Hours() / 168)
 		if weeks == 1 {
 			return "1 week ago"
 		}
-		return string(rune(weeks)) + " weeks ago"
+		return fmt.Sprintf("%d weeks ago", weeks)
 	}
 }
