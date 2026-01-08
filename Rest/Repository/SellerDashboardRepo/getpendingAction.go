@@ -6,7 +6,16 @@ import (
 )
 
 // GetPendingActions - Get items needing attention
-func (r *DashboardRepository) GetPendingActions(sellerID uint) (*sellerdashboard.PendingActionsResponse, error) {
+func (r *DashboardRepository) GetPendingActions(regUserID uint) (*sellerdashboard.PendingActionsResponse, error) {
+	// Convert reguser ID to seller ID
+	var seller struct {
+		ID uint
+	}
+	if err := r.db.Table("users").Select("id").Where("user_id = ?", regUserID).First(&seller).Error; err != nil {
+		return nil, err
+	}
+	sellerID := seller.ID
+
 	var actions sellerdashboard.PendingActionsResponse
 
 	// Pending orders (orders with pending status containing seller's products)

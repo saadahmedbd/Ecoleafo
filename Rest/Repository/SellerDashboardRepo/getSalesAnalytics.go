@@ -7,7 +7,16 @@ import (
 )
 
 // GetSalesAnalytics - Get sales data for charts
-func (r *DashboardRepository) GetSalesAnalytics(sellerID uint, period string) (*sellerdashboard.SalesAnalyticsResponse, error) {
+func (r *DashboardRepository) GetSalesAnalytics(regUserID uint, period string) (*sellerdashboard.SalesAnalyticsResponse, error) {
+	// Convert reguser ID to seller ID
+	var seller struct {
+		ID uint
+	}
+	if err := r.db.Table("users").Select("id").Where("user_id = ?", regUserID).First(&seller).Error; err != nil {
+		return nil, err
+	}
+	sellerID := seller.ID
+
 	var dataPoints []sellerdashboard.SalesDataPoint
 	var startDate time.Time
 	var groupBy string

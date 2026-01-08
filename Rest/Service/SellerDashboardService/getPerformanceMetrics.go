@@ -7,12 +7,12 @@ import (
 )
 
 // GetPerformanceMetrics - Get seller performance metrics
-func (s *DashboardService) GetPerformanceMetrics(sellerID uint) (*sellerdashboard.PerformanceMetrics, error) {
-	if sellerID == 0 {
+func (s *DashboardService) GetPerformanceMetrics(regUserID uint) (*sellerdashboard.PerformanceMetrics, error) {
+	if regUserID == 0 {
 		return nil, errors.New("invalid seller ID")
 	}
 
-	metrics, err := s.DashboardRepository.GetPerformanceMetrics(sellerID)
+	metrics, err := s.DashboardRepository.GetPerformanceMetrics(regUserID)
 	if err != nil {
 		return nil, errors.New("failed to fetch performance metrics")
 	}

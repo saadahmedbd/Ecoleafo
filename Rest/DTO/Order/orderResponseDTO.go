@@ -21,6 +21,9 @@ type OrderResponse struct {
 	TrackingNumber  string              `json:"tracking_number"`
 	ShippedAt       *time.Time          `json:"shipped_at"`
 	DeliveredAt     *time.Time          `json:"delivered_at"`
+	IsGift          bool                `json:"is_gift"`
+	GiftMessage     string              `json:"gift_message,omitempty"`
+	GiftCharge      float64             `json:"gift_charge"`
 	Notes           string              `json:"notes"`
 	CreatedAt       time.Time           `json:"created_at"`
 	UpdatedAt       time.Time           `json:"updated_at"`

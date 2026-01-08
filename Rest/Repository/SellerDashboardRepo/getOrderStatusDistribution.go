@@ -3,7 +3,16 @@ package sellerdashboardrepo
 import sellerdashboard "github.com/saadahmedbd/Treestore/Rest/DTO/Seller_Dashboard"
 
 // GetOrderStatusDistribution - Get order counts by status
-func (r *DashboardRepository) GetOrderStatusDistribution(sellerID uint) ([]sellerdashboard.OrderStatusDistribution, error) {
+func (r *DashboardRepository) GetOrderStatusDistribution(regUserID uint) ([]sellerdashboard.OrderStatusDistribution, error) {
+	// Convert reguser ID to seller ID
+	var seller struct {
+		ID uint
+	}
+	if err := r.db.Table("users").Select("id").Where("user_id = ?", regUserID).First(&seller).Error; err != nil {
+		return nil, err
+	}
+	sellerID := seller.ID
+
 	var distribution []sellerdashboard.OrderStatusDistribution
 
 	type StatusCount struct {

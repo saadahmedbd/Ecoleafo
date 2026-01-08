@@ -17,7 +17,7 @@ func (h *DashboardHandler) GetLowStockProducts(w http.ResponseWriter, r *http.Re
 		return
 	}
 
-	sellerID, ok := userIDVal.(uint)
+	regUserID, ok := userIDVal.(uint)
 	if !ok {
 		http.Error(w, `{"error":"invalid user_id type"}`, http.StatusInternalServerError)
 		return
@@ -32,7 +32,7 @@ func (h *DashboardHandler) GetLowStockProducts(w http.ResponseWriter, r *http.Re
 		}
 	}
 
-	products, err := h.DashboardService.GetLowStockProducts(sellerID, threshold)
+	products, err := h.DashboardService.GetLowStockProducts(regUserID, threshold)
 	if err != nil {
 		util.RespondError(w, http.StatusInternalServerError, err.Error())
 		return

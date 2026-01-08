@@ -6,7 +6,16 @@ import (
 )
 
 // GetLowStockProducts - Get products with low stock
-func (r *DashboardRepository) GetLowStockProducts(sellerID uint, threshold int) ([]sellerdashboard.LowStockProductResponse, error) {
+func (r *DashboardRepository) GetLowStockProducts(regUserID uint, threshold int) ([]sellerdashboard.LowStockProductResponse, error) {
+	// Convert reguser ID to seller ID
+	var seller struct {
+		ID uint
+	}
+	if err := r.db.Table("users").Select("id").Where("user_id = ?", regUserID).First(&seller).Error; err != nil {
+		return nil, err
+	}
+	sellerID := seller.ID
+
 	var products []sellerdashboard.LowStockProductResponse
 
 	err := r.db.Model(&models.Product{}).

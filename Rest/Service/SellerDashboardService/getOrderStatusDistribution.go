@@ -7,12 +7,12 @@ import (
 )
 
 // GetOrderStatusDistribution - Get order distribution by status
-func (s *DashboardService) GetOrderStatusDistribution(sellerID uint) ([]sellerdashboard.OrderStatusDistribution, error) {
-	if sellerID == 0 {
+func (s *DashboardService) GetOrderStatusDistribution(regUserID uint) ([]sellerdashboard.OrderStatusDistribution, error) {
+	if regUserID == 0 {
 		return nil, errors.New("invalid seller ID")
 	}
 
-	distribution, err := s.DashboardRepository.GetOrderStatusDistribution(sellerID)
+	distribution, err := s.DashboardRepository.GetOrderStatusDistribution(regUserID)
 	if err != nil {
 		return nil, errors.New("failed to fetch order distribution")
 	}

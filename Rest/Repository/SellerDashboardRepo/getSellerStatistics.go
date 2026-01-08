@@ -1,6 +1,7 @@
 package sellerdashboardrepo
 
 import (
+	"fmt"
 	"time"
 
 	models "github.com/saadahmedbd/Treestore/Models"
@@ -8,20 +9,35 @@ import (
 )
 
 // GetSellerStatistics - Get comprehensive seller statistics
-func (r *DashboardRepository) GetSellerStatistics(sellerID uint) (*sellerdashboard.DashboardStatsResponse, error) {
+func (r *DashboardRepository) GetSellerStatistics(regUserID uint) (*sellerdashboard.DashboardStatsResponse, error) {
 	var stats sellerdashboard.DashboardStatsResponse
 
-	// Get seller info for averageRating and totalReviews
+	// Convert reguser ID to seller ID
 	var seller models.User
-	if err := r.db.Where("user_id = ?", sellerID).First(&seller).Error; err != nil {
-		return nil, err
+	if err := r.db.Where("user_id = ?", regUserID).First(&seller).Error; err != nil {
+		return nil, fmt.Errorf("seller not found for reguser_id %d", regUserID)
 	}
 
+	sellerID := seller.ID
 	stats.AverageRating = seller.AverageRating
 	stats.TotalReviews = seller.TotalReviews
-	stats.TotalSales = seller.TotalSales
-	stats.TotalEarnings = seller.TotalEarnings
-	stats.TotalOrders = seller.TotalOrders
+
+	// Calculate total sales and earnings from order_items (real-time)
+	var totals struct {
+		TotalSales      float64
+		TotalEarnings   float64
+		TotalCommission float64
+		TotalOrders     int64
+	}
+	r.db.Table("order_items").
+		Select("COALESCE(SUM(total), 0) as total_sales, COALESCE(SUM(seller_earning), 0) as total_earnings, COALESCE(SUM(commission), 0) as total_commission, COUNT(DISTINCT order_id) as total_orders").
+		Where("seller_id = ?", sellerID).
+		Scan(&totals)
+
+	stats.TotalSales = totals.TotalSales
+	stats.TotalEarnings = totals.TotalEarnings
+	stats.TotalCommission = totals.TotalCommission
+	stats.TotalOrders = int(totals.TotalOrders)
 
 	// Get order statistics from OrderItems (since orders are split by seller)
 	var orderStats []struct {
@@ -52,9 +68,10 @@ func (r *DashboardRepository) GetSellerStatistics(sellerID uint) (*sellerdashboa
 
 	// Get product statistics
 	var activeProducts int64
-	r.db.Model(&models.Product{}).
+	result := r.db.Model(&models.Product{}).
 		Where("seller_id = ? AND is_active = ? AND is_approved = ?", sellerID, true, true).
 		Count(&activeProducts)
+	fmt.Printf("[DEBUG] Active products query - SellerID: %d, Count: %d, Error: %v\n", sellerID, activeProducts, result.Error)
 	stats.ActiveProducts = int(activeProducts)
 
 	var inactiveProducts int64
@@ -81,11 +98,12 @@ func (r *DashboardRepository) GetSellerStatistics(sellerID uint) (*sellerdashboa
 		Sales  float64
 		Orders int64
 	}
-	r.db.Table("order_items").
+	result2 := r.db.Table("order_items").
 		Select("COALESCE(SUM(seller_earning), 0) as sales, COUNT(DISTINCT order_id) as orders").
 		Joins("JOIN orders ON order_items.order_id = orders.id").
 		Where("order_items.seller_id = ? AND DATE(orders.created_at) = ?", sellerID, today).
 		Scan(&todayStats)
+	fmt.Printf("[DEBUG] Today stats - SellerID: %d, Sales: %.2f, Orders: %d, Error: %v\n", sellerID, todayStats.Sales, todayStats.Orders, result2.Error)
 	stats.TodaySales = todayStats.Sales
 	stats.TodayOrders = int(todayStats.Orders)
 

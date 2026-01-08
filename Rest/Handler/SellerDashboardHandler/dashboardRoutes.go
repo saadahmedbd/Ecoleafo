@@ -55,6 +55,22 @@ func (h *DashboardHandler) RegisterSellerDashboard(mux *http.ServeMux) {
 		middleware.AuthenticateJWT,
 	))
 
+	// Order details by ID
+	mux.Handle("GET /api/seller/dashboard/orders/{id}", middleware.Chain(
+		http.HandlerFunc(h.GetOrderDetails),
+		middleware.Logger,
+		middleware.Cors,
+		middleware.AuthenticateJWT,
+	))
+
+	// Update order status
+	mux.Handle("PUT /api/seller/orders/{id}/status", middleware.Chain(
+		http.HandlerFunc(h.UpdateOrderStatus),
+		middleware.Logger,
+		middleware.Cors,
+		middleware.AuthenticateJWT,
+	))
+
 	// Top products
 	mux.Handle("GET /api/seller/products/top", middleware.Chain(
 		http.HandlerFunc(h.GetTopProducts),

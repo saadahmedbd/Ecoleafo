@@ -6,7 +6,16 @@ import (
 )
 
 // GetTopProducts - Get best selling products
-func (r *DashboardRepository) GetTopProducts(sellerID uint, limit int) ([]sellerdashboard.TopProductResponse, error) {
+func (r *DashboardRepository) GetTopProducts(regUserID uint, limit int) ([]sellerdashboard.TopProductResponse, error) {
+	// Convert reguser ID to seller ID
+	var seller struct {
+		ID uint
+	}
+	if err := r.db.Table("users").Select("id").Where("user_id = ?", regUserID).First(&seller).Error; err != nil {
+		return nil, err
+	}
+	sellerID := seller.ID
+
 	var products []sellerdashboard.TopProductResponse
 
 	err := r.db.Table("products").

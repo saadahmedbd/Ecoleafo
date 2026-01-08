@@ -16,13 +16,13 @@ func (h *DashboardHandler) GetPerformanceMetrics(w http.ResponseWriter, r *http.
 		return
 	}
 
-	sellerID, ok := userIDVal.(uint)
+	regUserID, ok := userIDVal.(uint)
 	if !ok {
 		http.Error(w, `{"error":"invalid user_id type"}`, http.StatusInternalServerError)
 		return
 	}
 
-	metrics, err := h.DashboardService.GetPerformanceMetrics(sellerID)
+	metrics, err := h.DashboardService.GetPerformanceMetrics(regUserID)
 	if err != nil {
 		util.RespondError(w, http.StatusInternalServerError, err.Error())
 		return

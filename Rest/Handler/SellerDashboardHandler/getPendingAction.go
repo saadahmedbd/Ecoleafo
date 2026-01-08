@@ -16,13 +16,13 @@ func (h *DashboardHandler) GetPendingActions(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
-	sellerID, ok := userIDVal.(uint)
+	regUserID, ok := userIDVal.(uint)
 	if !ok {
 		http.Error(w, `{"error":"invalid user_id type"}`, http.StatusInternalServerError)
 		return
 	}
 
-	actions, err := h.DashboardService.GetPendingActions(sellerID)
+	actions, err := h.DashboardService.GetPendingActions(regUserID)
 	if err != nil {
 		util.RespondError(w, http.StatusInternalServerError, err.Error())
 		return

@@ -9,4 +9,6 @@ type CreateOrderRequest struct {
 	Notes            string `json:"notes"`
 	ShippingMethodID uint   `json:"shipping_method_id"`
 	CouponCode       string `json:"coupon_code"`
+	IsGift           bool   `json:"is_gift"`
+	GiftMessage      string `json:"gift_message"`
 }

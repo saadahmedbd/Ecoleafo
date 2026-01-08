@@ -7,8 +7,8 @@ import (
 )
 
 // GetTopProducts - Get best selling products
-func (s *DashboardService) GetTopProducts(sellerID uint, limit int) ([]sellerdashboard.TopProductResponse, error) {
-	if sellerID == 0 {
+func (s *DashboardService) GetTopProducts(regUserID uint, limit int) ([]sellerdashboard.TopProductResponse, error) {
+	if regUserID == 0 {
 		return nil, errors.New("invalid seller ID")
 	}
 
@@ -16,7 +16,7 @@ func (s *DashboardService) GetTopProducts(sellerID uint, limit int) ([]sellerdas
 		limit = 5 // Default limit
 	}
 
-	products, err := s.DashboardRepository.GetTopProducts(sellerID, limit)
+	products, err := s.DashboardRepository.GetTopProducts(regUserID, limit)
 	if err != nil {
 		return nil, errors.New("failed to fetch top products")
 	}

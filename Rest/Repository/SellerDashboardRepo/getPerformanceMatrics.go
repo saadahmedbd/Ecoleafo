@@ -6,7 +6,14 @@ import (
 )
 
 // GetPerformanceMetrics - Get performance indicators
-func (r *DashboardRepository) GetPerformanceMetrics(sellerID uint) (*sellerdashboard.PerformanceMetrics, error) {
+func (r *DashboardRepository) GetPerformanceMetrics(regUserID uint) (*sellerdashboard.PerformanceMetrics, error) {
+	// Convert reguser ID to seller ID
+	var seller models.User
+	if err := r.db.Where("user_id = ?", regUserID).First(&seller).Error; err != nil {
+		return nil, err
+	}
+	sellerID := seller.ID
+
 	var metrics sellerdashboard.PerformanceMetrics
 
 	// Get total orders for this seller
@@ -29,9 +36,7 @@ func (r *DashboardRepository) GetPerformanceMetrics(sellerID uint) (*sellerdashb
 		metrics.SuccessRate = (float64(completedOrders) / float64(totalOrders)) * 100
 	}
 
-	// Get average rating (from seller table)
-	var seller models.User
-	r.db.Select("average_rating").Where("user_id = ?", sellerID).First(&seller)
+	// Get average rating (from seller table already fetched)
 	metrics.CustomerSatisfaction = seller.AverageRating
 
 	// Calculate average order value (seller earnings)

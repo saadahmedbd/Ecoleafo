@@ -7,13 +7,13 @@ import (
 )
 
 // GetRevenueAnalytics - Get revenue breakdown
-func (s *DashboardService) GetRevenueAnalytics(sellerID uint, period string) (*sellerdashboard.RevenueAnalyticsResponse, error) {
-	if sellerID == 0 {
+func (s *DashboardService) GetRevenueAnalytics(regUserID uint, period string) (*sellerdashboard.RevenueAnalyticsResponse, error) {
+	if regUserID == 0 {
 		return nil, errors.New("invalid seller ID")
 	}
 
 	// Get sales analytics first
-	salesAnalytics, err := s.GetSalesAnalytics(sellerID, period)
+	salesAnalytics, err := s.GetSalesAnalytics(regUserID, period)
 	if err != nil {
 		return nil, err
 	}

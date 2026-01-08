@@ -6,14 +6,23 @@ import (
 )
 
 // GetRecentOrders - Get recent orders for dashboard
-func (r *DashboardRepository) GetRecentOrders(sellerID uint, limit int) ([]sellerdashboard.RecentOrderResponse, error) {
+func (r *DashboardRepository) GetRecentOrders(regUserID uint, limit int) ([]sellerdashboard.RecentOrderResponse, error) {
+	// Convert reguser ID to seller ID
+	var seller struct {
+		ID uint
+	}
+	if err := r.db.Table("users").Select("id").Where("user_id = ?", regUserID).First(&seller).Error; err != nil {
+		return nil, err
+	}
+	sellerID := seller.ID
+
 	var orders []sellerdashboard.RecentOrderResponse
 
 	err := r.db.Table("orders").
 		Select(`DISTINCT orders.id, orders.order_number, 
 			CONCAT(reg_users.first_name, ' ', reg_users.last_name) as customer_name,
 			order_items.product_name, 
-			order_items.seller_earning as total, 
+			(order_items.seller_earning + order_items.commission) as total, 
 			orders.status, 
 			orders.created_at`).
 		Joins("JOIN buyers ON orders.buyer_id = buyers.id").

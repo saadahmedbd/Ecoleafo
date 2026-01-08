@@ -17,6 +17,7 @@ type OrderItemResponse struct {
 	Commission    float64    `json:"commission"`
 	SellerEarning float64    `json:"seller_earning"`
 	Status        string     `json:"status"`
+	IsGift        bool       `json:"is_gift"`
 	ShippedAt     *time.Time `json:"shipped_at"`
 	DeliveredAt   *time.Time `json:"delivered_at"`
 }

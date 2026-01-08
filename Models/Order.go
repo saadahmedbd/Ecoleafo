@@ -47,6 +47,11 @@ type Order struct {
 	OrderDate      time.Time  `json:"order_date"`
 	ConfirmedAt    *time.Time `json:"confirmed_at"`
 
+	//gift information
+	IsGift      bool   `json:"is_gift" gorm:"default:false"`
+	GiftMessage string `json:"gift_message" gorm:"type:text"`
+	GiftCharge  float64 `json:"gift_charge" gorm:"type:decimal(10,2);default:0"`
+
 	Notes string `json:"notes" gorm:"type:text"`
 
 	CreatedAt time.Time      `json:"created_at"`

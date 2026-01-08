@@ -16,7 +16,7 @@ func (h *DashboardHandler) GetRevenueAnalytics(w http.ResponseWriter, r *http.Re
 		return
 	}
 
-	sellerID, ok := userIDVal.(uint)
+	regUserID, ok := userIDVal.(uint)
 	if !ok {
 		http.Error(w, `{"error":"invalid user_id type"}`, http.StatusInternalServerError)
 		return
@@ -27,7 +27,7 @@ func (h *DashboardHandler) GetRevenueAnalytics(w http.ResponseWriter, r *http.Re
 		period = "month"
 	}
 
-	analytics, err := h.DashboardService.GetRevenueAnalytics(sellerID, period)
+	analytics, err := h.DashboardService.GetRevenueAnalytics(regUserID, period)
 	if err != nil {
 		util.RespondError(w, http.StatusInternalServerError, err.Error())
 		return

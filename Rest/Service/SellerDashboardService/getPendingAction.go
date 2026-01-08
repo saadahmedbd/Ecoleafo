@@ -7,12 +7,12 @@ import (
 )
 
 // GetPendingActions - Get items requiring attention
-func (s *DashboardService) GetPendingActions(sellerID uint) (*sellerdashboard.PendingActionsResponse, error) {
-	if sellerID == 0 {
+func (s *DashboardService) GetPendingActions(regUserID uint) (*sellerdashboard.PendingActionsResponse, error) {
+	if regUserID == 0 {
 		return nil, errors.New("invalid seller ID")
 	}
 
-	actions, err := s.DashboardRepository.GetPendingActions(sellerID)
+	actions, err := s.DashboardRepository.GetPendingActions(regUserID)
 	if err != nil {
 		return nil, errors.New("failed to fetch pending actions")
 	}

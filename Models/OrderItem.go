@@ -19,6 +19,7 @@ type OrderItem struct {
 	DiscountAmount float64 `json:"discount_amount"`
 	// Item-specific status
 	Status      string     `json:"status" gorm:"size:20;default:'pending'"` // Can be different from order status
+	IsGift      bool       `json:"is_gift" gorm:"default:false"`
 	ShippedAt   *time.Time `json:"shipped_at"`
 	DeliveredAt *time.Time `json:"delivered_at"`
 	CreatedAt   time.Time  `json:"created_at"`

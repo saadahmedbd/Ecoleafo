@@ -2,9 +2,11 @@ package sellerdashboard
 
 // DashboardStatsResponse - Main dashboard statistics
 type DashboardStatsResponse struct {
+	CommissionRate   float64 `json:"commission_rate"`
 	TotalSales       float64 `json:"total_sales"`
 	TotalOrders      int     `json:"total_orders"`
 	TotalEarnings    float64 `json:"total_earnings"`
+	TotalCommission  float64 `json:"total_commission"`
 	AverageRating    float64 `json:"average_rating"`
 	TotalReviews     int     `json:"total_reviews"`
 	PendingOrders    int     `json:"pending_orders"`

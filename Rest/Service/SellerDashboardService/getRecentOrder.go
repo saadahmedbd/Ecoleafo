@@ -7,8 +7,8 @@ import (
 )
 
 // GetRecentOrders - Get recent orders with limit
-func (s *DashboardService) GetRecentOrders(sellerID uint, limit int) ([]sellerdashboard.RecentOrderResponse, error) {
-	if sellerID == 0 {
+func (s *DashboardService) GetRecentOrders(regUserID uint, limit int) ([]sellerdashboard.RecentOrderResponse, error) {
+	if regUserID == 0 {
 		return nil, errors.New("invalid seller ID")
 	}
 
@@ -16,7 +16,7 @@ func (s *DashboardService) GetRecentOrders(sellerID uint, limit int) ([]sellerda
 		limit = 5 // Default limit
 	}
 
-	orders, err := s.DashboardRepository.GetRecentOrders(sellerID, limit)
+	orders, err := s.DashboardRepository.GetRecentOrders(regUserID, limit)
 	if err != nil {
 		return nil, errors.New("failed to fetch recent orders")
 	}
