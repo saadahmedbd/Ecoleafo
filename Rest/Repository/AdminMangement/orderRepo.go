@@ -25,7 +25,11 @@ func (r *OrderRepository) GetAll(page, limit int, status string) ([]models.Order
 		Preload("Buyer.RegUser").
 		Preload("OrderItems").
 		Preload("OrderItems.Product").
-		Preload("OrderItems.Product.Images")
+		Preload("OrderItems.Product.Images").
+		Preload("OrderItems.Product.Seller").
+		Preload("OrderItems.Product.Seller.RegUser").
+		Preload("OrderItems.Product.Category").
+		Preload("OrderItems.Seller")
 
 	if status != "" {
 		query = query.Where("status = ?", status)
@@ -49,6 +53,10 @@ func (r *OrderRepository) GetByID(id uint) (*models.Order, error) {
 		Preload("OrderItems").
 		Preload("OrderItems.Product").
 		Preload("OrderItems.Product.Images").
+		Preload("OrderItems.Product.Seller").
+		Preload("OrderItems.Product.Seller.RegUser").
+		Preload("OrderItems.Product.Category").
+		Preload("OrderItems.Seller").
 		First(&order, id).Error
 	return &order, err
 }
@@ -61,6 +69,10 @@ func (r *OrderRepository) GetByOrderNumber(orderNumber string) (*models.Order, e
 		Preload("OrderItems").
 		Preload("OrderItems.Product").
 		Preload("OrderItems.Product.Images").
+		Preload("OrderItems.Product.Seller").
+		Preload("OrderItems.Product.Seller.RegUser").
+		Preload("OrderItems.Product.Category").
+		Preload("OrderItems.Seller").
 		Where("order_number = ?", orderNumber).
 		First(&order).Error
 	return &order, err
@@ -98,7 +110,11 @@ func (r *OrderRepository) GetByBuyer(buyerID uint, page, limit int) ([]models.Or
 		Where("buyer_id = ?", buyerID).
 		Preload("OrderItems").
 		Preload("OrderItems.Product").
-		Preload("OrderItems.Product.Images")
+		Preload("OrderItems.Product.Images").
+		Preload("OrderItems.Product.Seller").
+		Preload("OrderItems.Product.Seller.RegUser").
+		Preload("OrderItems.Product.Category").
+		Preload("OrderItems.Seller")
 
 	if err := query.Count(&total).Error; err != nil {
 		return nil, 0, err
@@ -125,7 +141,11 @@ func (r *OrderRepository) Search(query string, page, limit int) ([]models.Order,
 		Preload("Buyer.RegUser").
 		Preload("OrderItems").
 		Preload("OrderItems.Product").
-		Preload("OrderItems.Product.Images")
+		Preload("OrderItems.Product.Images").
+		Preload("OrderItems.Product.Seller").
+		Preload("OrderItems.Product.Seller.RegUser").
+		Preload("OrderItems.Product.Category").
+		Preload("OrderItems.Seller")
 
 	// Count total results (use subquery for accuracy)
 	if err := r.db.Table("(?) as sub", dbQuery.Select("orders.id")).Count(&total).Error; err != nil {
@@ -276,6 +296,10 @@ func (r *OrderRepository) GetRecentOrders(limit int) ([]models.Order, error) {
 		Preload("OrderItems").
 		Preload("OrderItems.Product").
 		Preload("OrderItems.Product.Images").
+		Preload("OrderItems.Product.Seller").
+		Preload("OrderItems.Product.Seller.RegUser").
+		Preload("OrderItems.Product.Category").
+		Preload("OrderItems.Seller").
 		Order("created_at DESC").
 		Limit(limit).
 		Find(&orders).Error

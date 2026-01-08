@@ -110,13 +110,13 @@ func (h *ProductHandler) ApproveProduct(w http.ResponseWriter, r *http.Request) 
 		util.SendError(w, "Invalid product ID", http.StatusBadRequest)
 		return
 	}
-	err = h.productService.ApproveProduct(uint(id), adminUserID)
+	product, err := h.productService.ApproveProduct(uint(id), adminUserID)
 	if err != nil {
 		util.SendError(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	util.RespondJSON(w, http.StatusOK, nil, "Product approved successfully")
+	util.RespondJSON(w, http.StatusOK, product, "Product approved successfully")
 }
 
 // RejectProduct handles POST /api/products/{id}/reject
@@ -157,13 +157,13 @@ func (h *ProductHandler) RejectProduct(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = h.productService.RejectProduct(uint(id), reqBody.Reason, adminUserID)
+	product, err := h.productService.RejectProduct(uint(id), reqBody.Reason, adminUserID)
 	if err != nil {
 		util.SendError(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	util.RespondJSON(w, http.StatusOK, nil, "Product rejected successfully")
+	util.RespondJSON(w, http.StatusOK, product, "Product rejected successfully")
 }
 
 // SearchProducts handles GET /api/products/search

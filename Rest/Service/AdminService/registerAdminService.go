@@ -66,7 +66,7 @@ func (s *adminService) RegisterAdmin(req admin.RegisterAdminRequest) (*admin.Reg
 	s.adminRepo.UpdateInvitation(invitation)
 
 	//generate jwt token
-	token, err := util.CreateJwt(user.ID, admins.FullName, "", []string{"admin"}, 24*time.Hour)
+	token, err := util.CreateJwt(user.ID, admins.FullName, "", []string{"admin"}, admins.ID, 24*time.Hour)
 	if err != nil {
 		return nil, err
 	}

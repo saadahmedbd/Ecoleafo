@@ -50,51 +50,63 @@ func (s *ProductService) GetPendingApprovals(page, limit int) ([]models.Product,
 }
 
 // ApproveProduct approves a product listing
-func (s *ProductService) ApproveProduct(id uint, adminID uint) error {
+func (s *ProductService) ApproveProduct(id uint, adminID uint) (*models.Product, error) {
 	product, err := s.productRepo.GetByID(id)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	if product.ApprovalStatus == "approved" {
-		return errors.New("product is already approved")
+		return nil, errors.New("product is already approved")
 	}
 
 	err = s.productRepo.ApproveProduct(id, adminID)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	// Log activity
 	s.logProductActivity(adminID, constants.ActionApprove, &id, "Approved product listing")
 
-	return nil
+	// Fetch updated product
+	updatedProduct, err := s.productRepo.GetByID(id)
+	if err != nil {
+		return nil, err
+	}
+
+	return updatedProduct, nil
 }
 
 // RejectProduct rejects a product listing
-func (s *ProductService) RejectProduct(id uint, reason string, adminID uint) error {
+func (s *ProductService) RejectProduct(id uint, reason string, adminID uint) (*models.Product, error) {
 	product, err := s.productRepo.GetByID(id)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	if product.ApprovalStatus == "rejected" {
-		return errors.New("product is already rejected")
+		return nil, errors.New("product is already rejected")
 	}
 
 	if reason == "" {
-		return errors.New("rejection reason is required")
+		return nil, errors.New("rejection reason is required")
 	}
 
 	err = s.productRepo.ApproveReject(id, "rejected", reason, adminID)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	// Log activity
 	s.logProductActivity(adminID, constants.ActionReject, &id, "Rejected product listing: "+reason)
 
-	return nil
+	// Fetch updated product
+	updatedProduct, err := s.productRepo.GetByID(id)
+	if err != nil {
+		return nil, err
+	}
+
+	return updatedProduct, nil
 }
 
 // SearchProducts searches products by query
