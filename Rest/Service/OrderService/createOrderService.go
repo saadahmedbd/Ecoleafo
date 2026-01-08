@@ -46,6 +46,19 @@ func (s *orderService) CreateOrder(buyerID uint, req order.CreateOrderRequest) (
 		return nil, err
 	}
 
+	giftCharge := 0.0
+	isGift := req.IsGift
+	for _, item := range cartItems {
+		if item.IsGift {
+			isGift = true
+			break
+		}
+	}
+	if isGift {
+		giftCharge = 50.0
+		pricing.Total += giftCharge
+	}
+
 	if pricing.Total <= 0 {
 		tx.Rollback()
 		return nil, errors.New("invalid order total")
@@ -69,6 +82,9 @@ func (s *orderService) CreateOrder(buyerID uint, req order.CreateOrderRequest) (
 		CustomerEmail:   req.CustomerEmail,
 		CustomerPhone:   req.CustomerPhone,
 		Notes:           req.Notes,
+		IsGift:          isGift,
+		GiftMessage:     req.GiftMessage,
+		GiftCharge:      giftCharge,
 	}
 
 	if err := tx.Create(&newOrder).Error; err != nil {
@@ -208,26 +224,41 @@ func (s *orderService) calculateShippingCost(address string, methodID uint, cart
 }
 
 func (s *orderService) createOrderItems(tx *gorm.DB, order *models.Order, cartItems []models.CartItem, products map[uint]*models.Product) error {
-	commissionRate := s.config.CommissionRate
-
 	for _, item := range cartItems {
 		product := products[item.ProductID]
-		itemTotal := product.Price * float64(item.Quantity)
+		
+		// Get seller-specific commission rate
+		var seller models.User
+		if err := tx.Select("commission").Where("id = ?", product.SellerID).First(&seller).Error; err != nil {
+			return fmt.Errorf("failed to get seller commission: %w", err)
+		}
+		commissionRate := seller.Commission / 100.0 // Convert percentage to decimal
+		
+		// Use discount price if available, otherwise use regular price
+		actualPrice := product.Price
+		if product.DiscountPrice > 0 {
+			actualPrice = product.DiscountPrice
+		}
+		
+		itemTotal := actualPrice * float64(item.Quantity)
 		commission := itemTotal * commissionRate
 		sellerEarning := itemTotal - commission
 
 		orderItem := &models.OrderItem{
-			OrderID:       order.ID,
-			ProductID:     item.ProductID,
-			SellerID:      product.SellerID,
-			ProductName:   product.Name,
-			ProductSKU:    product.SKU,
-			Quantity:      item.Quantity,
-			Price:         product.Price,
-			Total:         itemTotal,
-			Commission:    commission,
-			SellerEarning: sellerEarning,
-			Status:        string(models.OrderPending),
+			OrderID:        order.ID,
+			ProductID:      item.ProductID,
+			SellerID:       product.SellerID,
+			ProductName:    product.Name,
+			ProductSKU:     product.SKU,
+			Quantity:       item.Quantity,
+			Price:          actualPrice,
+			Total:          itemTotal,
+			Commission:     commission,
+			SellerEarning:  sellerEarning,
+			OriginalPrice:  product.Price,
+			DiscountAmount: (product.Price - actualPrice) * float64(item.Quantity),
+			Status:         string(models.OrderPending),
+			IsGift:         item.IsGift,
 		}
 
 		if err := tx.Create(orderItem).Error; err != nil {

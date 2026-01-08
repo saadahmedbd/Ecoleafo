@@ -61,6 +61,7 @@ func (s *orderService) mapToOrderResponse(orderModel *models.Order, userRole str
 			Commission:    commission,
 			SellerEarning: sellerEarning,
 			Status:        item.Status,
+			IsGift:        item.IsGift,
 			ShippedAt:     item.ShippedAt,
 			DeliveredAt:   item.DeliveredAt,
 		}
@@ -86,6 +87,9 @@ func (s *orderService) mapToOrderResponse(orderModel *models.Order, userRole str
 		TrackingNumber:  orderModel.TrackingNumber,
 		ShippedAt:       orderModel.ShippedAt,
 		DeliveredAt:     orderModel.DeliveredAt,
+		IsGift:          orderModel.IsGift,
+		GiftMessage:     orderModel.GiftMessage,
+		GiftCharge:      orderModel.GiftCharge,
 		Notes:           orderModel.Notes,
 		CreatedAt:       orderModel.CreatedAt,
 		UpdatedAt:       orderModel.UpdatedAt,
