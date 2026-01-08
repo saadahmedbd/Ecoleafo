@@ -48,7 +48,7 @@ func (h *AdminReviewHandler) RegisterAdminReview(mux *http.ServeMux) {
 		),
 	)
 
-	mux.Handle("GET /api/admin/reviews/delete",
+	mux.Handle("DELETE /api/admin/reviews/delete",
 		middleware.Chain(
 			http.HandlerFunc(h.DeleteReview),
 			middleware.Logger,
