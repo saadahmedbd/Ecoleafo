@@ -42,7 +42,7 @@ type Message struct {
 	IsRead bool       `json:"is_read" gorm:"default:false;index"`
 	ReadAt *time.Time `json:"read_at"`
 
-	CreatedAt time.Time      `json:"created_at;index"`
+	CreatedAt time.Time      `json:"created_at" gorm:"index"`
 	UpdatedAt time.Time      `json:"updated_at"`
 	DeletedAt gorm.DeletedAt `json:"deleted_at" gorm:"index"`
 
