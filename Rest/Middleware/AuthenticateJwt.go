@@ -53,14 +53,22 @@ func AuthenticateJWT(next http.Handler) http.Handler {
 				}
 			}
 		}
+		// Extract role_id
+		roleID, ok3 := claims["role_id"].(float64)
+		if !ok3 {
+			util.SendError(w, "Invalid token: missing role_id", http.StatusUnauthorized)
+			return
+		}
 
 		//  Add to context
 		ctx := context.WithValue(r.Context(), constants.ContextKeyUserID, uint(userID))
 		ctx = context.WithValue(ctx, constants.ContextKeyRole, roleVal)
+		ctx = context.WithValue(ctx, constants.ContextKeyRoleID, uint(roleID)) //  NEW
 
 		// Also set headers for backward compatibility
 		r.Header.Set("user_id", fmt.Sprintf("%.0f", userID))
 		r.Header.Set("user_role", roleStr)
+		r.Header.Set("role_id", fmt.Sprintf("%.0f", roleID))
 
 		next.ServeHTTP(w, r.WithContext(ctx))
 	})
