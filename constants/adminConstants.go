@@ -243,6 +243,7 @@ const (
 	ContextKeyAdminID = "admin_id"
 	ContextKeyRole    = "role"
 	ContextKeyEmail   = "email"
+	ContextKeyRoleID  = "role_id"
 )
 
 // ============================================================================
