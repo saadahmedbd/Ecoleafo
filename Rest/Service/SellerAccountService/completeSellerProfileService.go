@@ -11,34 +11,31 @@ func (s *sellerRegistrationService) CompleteSellerProfile(userID uint, req *sell
 	if err != nil {
 		return nil, err
 	}
-	//update business info
+	
+	// Update business info
 	if req.BusinessEmail != "" {
 		seller.BusinessEmail = req.BusinessEmail
 	}
 	if req.Phone != "" {
 		seller.Phone = req.Phone
 	}
-	if req.StoreDesc != "" {
-		seller.StoreDesc = req.StoreDesc
-	}
-	if req.BusinessType != "" {
-		seller.BusinessType = req.BusinessType
-	}
+	seller.StoreDesc = req.StoreDesc
+	seller.BusinessType = req.BusinessType
 
-	// Update address
+	// Update address - always update these fields
 	seller.Address = req.Address
 	seller.City = req.City
 	seller.State = req.State
-	seller.Country = req.Country
-	if seller.Country == "" {
+	seller.PostalCode = req.PostalCode
+	if req.Country != "" {
+		seller.Country = req.Country
+	} else {
 		seller.Country = "Bangladesh"
 	}
-	seller.PostalCode = req.PostalCode
 
 	if err := s.sellerRepo.UpdateSellerProfile(seller); err != nil {
 		return nil, fmt.Errorf("failed to update profile: %v", err)
 	}
 
 	return s.GetSellerProfile(userID)
-
 }

@@ -48,6 +48,14 @@ func (s *sellerRegistrationService) RegisterSeller(req *selleraccount.SellerRegi
 	}
 	//generate store slug
 	storeSlug := util.GenerateSlug(req.StoreName)
+	//validate and set commission
+	commission := req.Commission
+	if commission == 0 {
+		commission = 15 // Default to 15% if not provided
+	}
+	if commission < 15 {
+		return nil, fmt.Errorf("commission must be at least 15%%")
+	}
 	//create seller profile
 	seller := models.User{
 		RoleID:        sellerRole.ID,
@@ -57,6 +65,7 @@ func (s *sellerRegistrationService) RegisterSeller(req *selleraccount.SellerRegi
 		Phone:         req.Phone,
 		StoreName:     req.StoreName,
 		StoreSlug:     storeSlug,
+		Commission:    commission,
 		IsActive:      true,
 		IsVerified:    false,
 		IsApproved:    false,
@@ -65,7 +74,7 @@ func (s *sellerRegistrationService) RegisterSeller(req *selleraccount.SellerRegi
 		return nil, fmt.Errorf("failed to create seller profile: %v", err)
 	}
 	//generate jwt token
-	token, err := util.CreateJwt(regUser.ID, req.FirstName, req.LastName, []string{"seller"}, 24*time.Hour)
+	token, err := util.CreateJwt(regUser.ID, req.FirstName, req.LastName, []string{"seller"}, seller.ID, 24*time.Hour)
 	if err != nil {
 		return nil, fmt.Errorf("failed to generate token: %v", err)
 	}

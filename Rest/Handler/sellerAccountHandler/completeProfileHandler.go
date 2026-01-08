@@ -15,30 +15,32 @@ func (h *SellerRegistrationHandler) CompleteProfile(w http.ResponseWriter, r *ht
 	userType := r.Header.Get("user_role")
 
 	if userIDStr == "" || userType == "" {
-		http.Error(w, `{"error":"authentication required"}`, http.StatusUnauthorized)
+		util.SendError(w, "authentication required", http.StatusUnauthorized)
 		return
 	}
 
 	if !strings.Contains(userType, "seller") {
-		http.Error(w, `{"error":"only sellers can access this"}`, http.StatusForbidden)
+		util.SendError(w, "only sellers can access this", http.StatusForbidden)
 		return
 	}
 
 	userID, err := strconv.ParseUint(userIDStr, 10, 32)
 	if err != nil {
-		http.Error(w, `{"error":"invalid user_id"}`, http.StatusBadRequest)
+		util.SendError(w, "invalid user_id", http.StatusBadRequest)
 		return
 	}
+	
 	var req selleraccount.CompleteSellerProfileRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		http.Error(w, `{"error":"invalid request body"}`, http.StatusBadRequest)
+		util.SendError(w, "invalid request body: "+err.Error(), http.StatusBadRequest)
 		return
 	}
+	
 	profile, err := h.service.CompleteSellerProfile(uint(userID), &req)
 	if err != nil {
-		http.Error(w, `{"error":"`+err.Error()+`"}`, http.StatusInternalServerError)
+		util.SendError(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
+	
 	util.SendData(w, profile, http.StatusOK)
-
 }
