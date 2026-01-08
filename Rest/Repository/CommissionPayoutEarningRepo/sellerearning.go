@@ -12,7 +12,7 @@ import (
 // ============================================================================
 func (r *commissionRepository) GetSellerEarnings(sellerID uint) (*models.SellerEarningsSummary, error) {
 	var earnings models.SellerEarningsSummary
-	err := r.db.Preload("Seller").Preload("RegUser").Where("seller_id = ?", sellerID).First(&earnings).Error
+	err := r.db.Preload("Seller.RegUser").Where("seller_id = ?", sellerID).First(&earnings).Error
 	if err == gorm.ErrRecordNotFound {
 		// Create new earnings summary
 		earnings = models.SellerEarningsSummary{
@@ -22,6 +22,11 @@ func (r *commissionRepository) GetSellerEarnings(sellerID uint) (*models.SellerE
 		if err := r.db.Create(&earnings).Error; err != nil {
 			return nil, err
 		}
+		// Reload with preloads
+		if err := r.db.Preload("Seller.RegUser").Where("seller_id = ?", sellerID).First(&earnings).Error; err != nil {
+			return nil, err
+		}
+		return &earnings, nil
 	}
 	return &earnings, err
 }
@@ -37,15 +42,38 @@ func (r *commissionRepository) GetAllSellerEarnings(page, limit int) ([]models.S
 
 	offset := (page - 1) * limit
 
-	if err := r.db.Model(&models.SellerEarningsSummary{}).Count(&total).Error; err != nil {
+	// Count all sellers instead of just earnings summaries
+	if err := r.db.Model(&models.User{}).Where("role_id = ?", 2).Count(&total).Error; err != nil {
 		return nil, 0, err
 	}
 
-	err := r.db.Preload("Seller").
-		Preload("Seller.RegUser").
-		Order("net_earnings DESC").
+	// Get all sellers with their earnings summaries (left join)
+	var sellers []models.User
+	err := r.db.Preload("RegUser").
+		Where("role_id = ?", 2).
+		Order("total_sales DESC").
 		Offset(offset).Limit(limit).
-		Find(&earnings).Error
+		Find(&sellers).Error
+	
+	if err != nil {
+		return nil, 0, err
+	}
+	
+	// Create earnings summary for each seller
+	for _, seller := range sellers {
+		var summary models.SellerEarningsSummary
+		err := r.db.Where("seller_id = ?", seller.ID).First(&summary).Error
+		if err != nil {
+			// Create new summary if not exists
+			summary = models.SellerEarningsSummary{
+				SellerID: seller.ID,
+				Seller:   seller,
+			}
+		} else {
+			summary.Seller = seller
+		}
+		earnings = append(earnings, summary)
+	}
 
-	return earnings, total, err
+	return earnings, total, nil
 }

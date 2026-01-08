@@ -1,8 +1,6 @@
 package commissionpayoutearningrepo
 
 import (
-	"time"
-
 	models "github.com/saadahmedbd/Treestore/Models"
 )
 
@@ -18,13 +16,12 @@ func (r *commissionRepository) GetPlatformEarningsOverview() (map[string]interfa
 		CompletedOrders       int64
 	}
 
-	// Get totals from order commissions
-	r.db.Model(&models.OrderCommission{}).
-		Select("COALESCE(SUM(gross_amount), 0) as total_gross_sales, "+
-			"COALESCE(SUM(commission_amount), 0) as total_commission_earned, "+
-			"COALESCE(SUM(seller_earnings), 0) as total_seller_earnings, "+
-			"COUNT(*) as total_orders").
-		Where("status IN ?", []string{"cleared", "paid_out"}).
+	// Get totals from order_items table (real-time data)
+	r.db.Table("order_items").
+		Select("COALESCE(SUM(total), 0) as total_gross_sales, " +
+			"COALESCE(SUM(commission), 0) as total_commission_earned, " +
+			"COALESCE(SUM(seller_earning), 0) as total_seller_earnings, " +
+			"COUNT(DISTINCT order_id) as total_orders").
 		Scan(&result)
 
 	// Get completed orders
@@ -58,14 +55,14 @@ func (r *commissionRepository) GetPlatformEarningsOverview() (map[string]interfa
 func (r *commissionRepository) GetMonthlyRevenue(year int) ([]map[string]interface{}, error) {
 	var results []map[string]interface{}
 
-	rows, err := r.db.Model(&models.OrderCommission{}).
-		Select("DATE_TRUNC('month', created_at) as month, "+
-			"COALESCE(SUM(gross_amount), 0) as gross_revenue, "+
-			"COALESCE(SUM(commission_amount), 0) as commission_earned, "+
-			"COUNT(*) as total_orders").
-		Where("EXTRACT(YEAR FROM created_at) = ?", year).
-		Group("month").
-		Order("month ASC").
+	rows, err := r.db.Table("order_items").
+		Select("TO_CHAR(DATE_TRUNC('month', order_items.created_at), 'YYYY-MM') as month, "+
+			"COALESCE(SUM(order_items.total), 0) as gross_revenue, "+
+			"COALESCE(SUM(order_items.commission), 0) as commission_earned, "+
+			"COUNT(DISTINCT order_items.order_id) as total_orders").
+		Where("EXTRACT(YEAR FROM order_items.created_at) = ?", year).
+		Group("DATE_TRUNC('month', order_items.created_at)").
+		Order("DATE_TRUNC('month', order_items.created_at) ASC").
 		Rows()
 
 	if err != nil {
@@ -74,7 +71,7 @@ func (r *commissionRepository) GetMonthlyRevenue(year int) ([]map[string]interfa
 	defer rows.Close()
 
 	for rows.Next() {
-		var month time.Time
+		var month string
 		var grossRevenue, commissionEarned float64
 		var totalOrders int
 
@@ -83,7 +80,7 @@ func (r *commissionRepository) GetMonthlyRevenue(year int) ([]map[string]interfa
 		}
 
 		results = append(results, map[string]interface{}{
-			"month":             month.Format("2006-01"),
+			"month":             month,
 			"gross_revenue":     grossRevenue,
 			"commission_earned": commissionEarned,
 			"total_orders":      totalOrders,
@@ -96,11 +93,14 @@ func (r *commissionRepository) GetMonthlyRevenue(year int) ([]map[string]interfa
 func (r *commissionRepository) GetTopSellersByRevenue(limit int) ([]map[string]interface{}, error) {
 	var results []map[string]interface{}
 
-	rows, err := r.db.Table("seller_earnings_summaries as ses").
-		Select("ses.seller_id, u.store_name as seller_name, " +
-			"ses.total_orders, ses.gross_sales, ses.total_commission as commission_generated").
-		Joins("JOIN users u ON u.id = ses.seller_id").
-		Order("ses.gross_sales DESC").
+	rows, err := r.db.Table("order_items").
+		Select("order_items.seller_id, u.store_name as seller_name, "+
+			"COUNT(DISTINCT order_items.order_id) as total_orders, "+
+			"COALESCE(SUM(order_items.total), 0) as gross_sales, "+
+			"COALESCE(SUM(order_items.commission), 0) as commission_generated").
+		Joins("JOIN users u ON u.id = order_items.seller_id").
+		Group("order_items.seller_id, u.store_name").
+		Order("gross_sales DESC").
 		Limit(limit).
 		Rows()
 

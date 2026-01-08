@@ -4,6 +4,7 @@ type SellerEarningsResponse struct {
 	SellerID         uint    `json:"seller_id"`
 	SellerName       string  `json:"seller_name"`
 	StoreName        string  `json:"store_name"`
+	CommissionRate   float64 `json:"commission_rate"`
 	TotalOrders      int     `json:"total_orders"`
 	CompletedOrders  int     `json:"completed_orders"`
 	GrossSales       float64 `json:"gross_sales"`

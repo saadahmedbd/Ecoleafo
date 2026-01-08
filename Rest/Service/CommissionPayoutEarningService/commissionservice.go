@@ -17,7 +17,9 @@ type CommissionService interface {
 	CalculateAndCreateCommission(order *models.Order) error
 
 	// Earnings
+	GetSellerIDByUserID(userID uint) (uint, error)
 	GetSellerEarnings(sellerID uint) (*commissionearningpayoutdto.SellerEarningsResponse, error)
+	GetSellerEarningDetails(sellerID uint) (*commissionearningpayoutdto.SellerEarningDetailsResponse, error)
 	GetAllSellerEarnings(page, limit int) ([]commissionearningpayoutdto.SellerEarningsResponse, int64, error)
 
 	// Payouts

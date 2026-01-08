@@ -33,7 +33,7 @@ type User struct {
 	TotalEarnings float64 `json:"total_earnings" gorm:"type:decimal(12,2);default:0"` // Added earnings
 	TotalOrders   int     `json:"total_orders" gorm:"default:0"`
 	AverageRating float64 `json:"average_rating" gorm:"type:decimal(3,2);default:0"` // Added rating
-	Commission    float64 `json:"commission" gorm:"type:decimal(5,2);default:10" `
+	Commission    float64 `json:"commission" gorm:"type:decimal(6,2);default:0"`
 
 	//address and location
 	Address    string `json:"address" gorm:"type:text;default:'N/A';not null"` // Seller's address
@@ -68,10 +68,10 @@ type User struct {
 	DeletedAt gorm.DeletedAt `json:"deleted_at" gorm:"index"`
 
 	// Relationships
-	Role             Role                  `json:"role" gorm:"foreignKey:RoleID"`
-	Products         []Product             `json:"products" gorm:"foreignKey:SellerID;references:ID"` // Seller's products
-	RegUser          *RegUser              `json:"reg_user" gorm:"foreignKey:UserId;references:ID"`
-	PaymentMethods   []SellerPaymentMethod `json:"payment_methods" gorm:"foreignKey:SellerID"`   //
-	SellerCategories []SellerCategory      `json:"seller_categories" gorm:"foreignKey:SellerID"` //
+	Role             Role                  `json:"role,omitempty" gorm:"foreignKey:RoleID"`
+	Products         []Product             `json:"-" gorm:"foreignKey:SellerID;references:ID"` // Seller's products
+	RegUser          *RegUser              `json:"reg_user,omitempty" gorm:"foreignKey:UserId;references:ID"`
+	PaymentMethods   []SellerPaymentMethod `json:"-" gorm:"foreignKey:SellerID"`   //
+	SellerCategories []SellerCategory      `json:"-" gorm:"foreignKey:SellerID"` //
 	ApprovedByAdmin  *Admin                `json:"approved_by_admin,omitempty" gorm:"foreignKey:ApprovedBy;references:ID"`
 }

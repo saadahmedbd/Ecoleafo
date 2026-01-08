@@ -17,8 +17,10 @@ type CommissionRepository interface {
 
 	// Seller Earnings
 	GetSellerEarnings(sellerID uint) (*models.SellerEarningsSummary, error)
+	GetSellerEarningDetails(sellerID uint) (*models.SellerEarningsSummary, []models.Order, error)
 	UpdateSellerEarnings(earnings *models.SellerEarningsSummary) error
 	GetAllSellerEarnings(page, limit int) ([]models.SellerEarningsSummary, int64, error)
+	GetDB() *gorm.DB
 
 	// Payouts
 	CreatePayout(payout *models.SellerPayout) error
@@ -39,4 +41,8 @@ type commissionRepository struct {
 
 func NewCommissionRepository(db *gorm.DB) CommissionRepository {
 	return &commissionRepository{db: db}
+}
+
+func (r *commissionRepository) GetDB() *gorm.DB {
+	return r.db
 }
