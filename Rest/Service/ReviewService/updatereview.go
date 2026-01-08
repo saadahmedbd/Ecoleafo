@@ -10,7 +10,23 @@ import (
 )
 
 // UpdateReview - Update an existing review
-func (s *ReviewService) UpdateReview(reviewID, buyerID uint, req reviewdto.UpdateReviewRequest) (*reviewdto.ReviewResponse, error) {
+func (s *ReviewService) UpdateReview(reviewID, userID uint, req reviewdto.UpdateReviewRequest) (*reviewdto.ReviewResponse, error) {
+	// Convert user_id to buyer_id
+	var buyer struct {
+		ID uint
+	}
+	err := s.reviewRepo.GetDB().Table("buyers").
+		Select("id").
+		Where("user_id = ?", userID).
+		Where("deleted_at IS NULL").
+		First(&buyer).Error
+
+	if err != nil {
+		return nil, fmt.Errorf("buyer account not found")
+	}
+
+	buyerID := buyer.ID
+
 	// Check ownership
 	isOwner, err := s.reviewRepo.CheckReviewOwnership(reviewID, buyerID)
 	if err != nil {

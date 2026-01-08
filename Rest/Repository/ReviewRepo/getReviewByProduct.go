@@ -10,6 +10,7 @@ func (r *ReviewRepository) GetReviewsByProduct(filter reviewdto.ReviewFilterRequ
 	var reviews []models.Review
 	var total int64
 
+	// Remove status filter to show all reviews
 	query := r.db.Model(&models.Review{}).Where("product_id = ?", filter.ProductID)
 
 	// Apply rating filter

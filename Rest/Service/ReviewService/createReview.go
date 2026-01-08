@@ -10,18 +10,9 @@ import (
 )
 
 // CreateReview - Create a new product review
-func (s *ReviewService) CreateReview(buyerID uint, req reviewdto.CreateReviewRequest) (*reviewdto.ReviewResponse, error) {
-	// Check if buyer already reviewed this product
-	exists, err := s.reviewRepo.CheckReviewExists(buyerID, req.ProductID)
-	if err != nil {
-		return nil, fmt.Errorf("failed to check existing review: %w", err)
-	}
-	if exists {
-		return nil, errors.New("you have already reviewed this product")
-	}
-
-	// Check if buyer purchased the product
-	hasPurchased, orderID, err := s.reviewRepo.CheckBuyerPurchased(buyerID, req.ProductID)
+func (s *ReviewService) CreateReview(userID uint, req reviewdto.CreateReviewRequest) (*reviewdto.ReviewResponse, error) {
+	// Check if buyer purchased the product and get buyer_id
+	hasPurchased, buyerID, orderID, err := s.reviewRepo.CheckBuyerPurchased(userID, req.ProductID)
 	if err != nil {
 		return nil, fmt.Errorf("failed to verify purchase: %w", err)
 	}
@@ -29,14 +20,24 @@ func (s *ReviewService) CreateReview(buyerID uint, req reviewdto.CreateReviewReq
 		return nil, errors.New("you can only review products you have purchased")
 	}
 
+	// Check if buyer already reviewed this product
+	exists, err := s.reviewRepo.CheckReviewExists(*buyerID, req.ProductID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to check existing review: %w", err)
+	}
+	if exists {
+		return nil, errors.New("you have already reviewed this product")
+	}
+
 	// Create review
 	review := &models.Review{
 		ProductID: req.ProductID,
-		BuyerID:   buyerID,
+		BuyerID:   *buyerID,
 		OrderID:   orderID,
 		Rating:    req.Rating,
 		Title:     req.Title,
 		Comment:   req.Comment,
+		Status:    "approved",
 		CreatedAt: time.Now(),
 		UpdatedAt: time.Now(),
 	}

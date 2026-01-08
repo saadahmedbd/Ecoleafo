@@ -7,9 +7,24 @@ import (
 )
 
 // CanReview - Check if buyer can review a product
-func (s *ReviewService) CanReview(buyerID, productID uint) (*reviewdto.CanReviewResponse, error) {
+func (s *ReviewService) CanReview(userID, productID uint) (*reviewdto.CanReviewResponse, error) {
+	// Check if purchased and get buyer_id
+	hasPurchased, buyerID, orderID, err := s.reviewRepo.CheckBuyerPurchased(userID, productID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to verify purchase: %w", err)
+	}
+
+	if !hasPurchased {
+		return &reviewdto.CanReviewResponse{
+			CanReview:       false,
+			HasPurchased:    false,
+			AlreadyReviewed: false,
+			Message:         "You can only review products you have purchased and received",
+		}, nil
+	}
+
 	// Check if already reviewed
-	alreadyReviewed, err := s.reviewRepo.CheckReviewExists(buyerID, productID)
+	alreadyReviewed, err := s.reviewRepo.CheckReviewExists(*buyerID, productID)
 	if err != nil {
 		return nil, fmt.Errorf("failed to check existing review: %w", err)
 	}
@@ -20,21 +35,6 @@ func (s *ReviewService) CanReview(buyerID, productID uint) (*reviewdto.CanReview
 			HasPurchased:    true,
 			AlreadyReviewed: true,
 			Message:         "You have already reviewed this product",
-		}, nil
-	}
-
-	// Check if purchased
-	hasPurchased, orderID, err := s.reviewRepo.CheckBuyerPurchased(buyerID, productID)
-	if err != nil {
-		return nil, fmt.Errorf("failed to verify purchase: %w", err)
-	}
-
-	if !hasPurchased {
-		return &reviewdto.CanReviewResponse{
-			CanReview:       false,
-			HasPurchased:    false,
-			AlreadyReviewed: false,
-			Message:         "You can only review products you have purchased",
 		}, nil
 	}
 

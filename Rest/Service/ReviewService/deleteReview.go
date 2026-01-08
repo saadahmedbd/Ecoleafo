@@ -6,7 +6,23 @@ import (
 )
 
 // DeleteReview - Delete a review
-func (s *ReviewService) DeleteReview(reviewID, buyerID uint) error {
+func (s *ReviewService) DeleteReview(reviewID, userID uint) error {
+	// Convert user_id to buyer_id
+	var buyer struct {
+		ID uint
+	}
+	err := s.reviewRepo.GetDB().Table("buyers").
+		Select("id").
+		Where("user_id = ?", userID).
+		Where("deleted_at IS NULL").
+		First(&buyer).Error
+
+	if err != nil {
+		return fmt.Errorf("buyer account not found")
+	}
+
+	buyerID := buyer.ID
+
 	// Check ownership
 	isOwner, err := s.reviewRepo.CheckReviewOwnership(reviewID, buyerID)
 	if err != nil {

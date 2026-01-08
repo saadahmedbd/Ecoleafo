@@ -8,16 +8,18 @@ import (
 // Helper: Map review model to response DTO
 func (s *ReviewService) mapReviewToResponse(review *models.Review) *reviewdto.ReviewResponse {
 	response := &reviewdto.ReviewResponse{
-		ID:        review.ID,
-		ProductID: review.ProductID,
-		BuyerID:   review.BuyerID,
-		OrderID:   review.OrderID,
-		Rating:    review.Rating,
-		Title:     review.Title,
-		Comment:   review.Comment,
-		Images:    make([]reviewdto.ReviewImageResponse, len(review.Images)),
-		CreatedAt: review.CreatedAt,
-		UpdatedAt: review.UpdatedAt,
+		ID:                review.ID,
+		ProductID:         review.ProductID,
+		BuyerID:           review.BuyerID,
+		OrderID:           review.OrderID,
+		Rating:            review.Rating,
+		Title:             review.Title,
+		Comment:           review.Comment,
+		Images:            make([]reviewdto.ReviewImageResponse, len(review.Images)),
+		SellerResponse:    review.SellerResponse,
+		SellerRespondedAt: review.SellerRespondedAt,
+		CreatedAt:         review.CreatedAt,
+		UpdatedAt:         review.UpdatedAt,
 	}
 
 	// Map images

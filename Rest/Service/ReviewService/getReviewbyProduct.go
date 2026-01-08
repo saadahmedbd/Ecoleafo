@@ -22,18 +22,6 @@ func (s *ReviewService) GetReviewsByProduct(filter reviewdto.ReviewFilterRequest
 		return nil, fmt.Errorf("failed to fetch reviews: %w", err)
 	}
 
-	// Get rating breakdown
-	breakdown, err := s.reviewRepo.GetRatingBreakdown(filter.ProductID)
-	if err != nil {
-		return nil, fmt.Errorf("failed to fetch rating breakdown: %w", err)
-	}
-
-	// Get average rating
-	avgRating, err := s.reviewRepo.GetAverageRating(filter.ProductID)
-	if err != nil {
-		return nil, fmt.Errorf("failed to calculate average rating: %w", err)
-	}
-
 	// Map to response
 	reviewResponses := make([]reviewdto.ReviewResponse, len(reviews))
 	for i, review := range reviews {
@@ -43,12 +31,12 @@ func (s *ReviewService) GetReviewsByProduct(filter reviewdto.ReviewFilterRequest
 	totalPages := int(math.Ceil(float64(total) / float64(filter.PerPage)))
 
 	return &reviewdto.ReviewListResponse{
-		Reviews:         reviewResponses,
-		Total:           total,
-		Page:            filter.Page,
-		PerPage:         filter.PerPage,
-		TotalPages:      totalPages,
-		AverageRating:   avgRating,
-		RatingBreakdown: breakdown,
+		Reviews: reviewResponses,
+		Pagination: reviewdto.PaginationInfo{
+			Page:       filter.Page,
+			PerPage:    filter.PerPage,
+			Total:      total,
+			TotalPages: totalPages,
+		},
 	}, nil
 }

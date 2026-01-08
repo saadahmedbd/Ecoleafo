@@ -1,12 +1,15 @@
 package reviewdto
 
+// PaginationInfo - DTO for pagination information
+type PaginationInfo struct {
+	Page       int   `json:"page"`
+	PerPage    int   `json:"per_page"`
+	Total      int64 `json:"total"`
+	TotalPages int   `json:"total_pages"`
+}
+
 // ReviewListResponse - DTO for paginated review list
 type ReviewListResponse struct {
-	Reviews         []ReviewResponse `json:"reviews"`
-	Total           int64            `json:"total"`
-	Page            int              `json:"page"`
-	PerPage         int              `json:"per_page"`
-	TotalPages      int              `json:"total_pages"`
-	AverageRating   float64          `json:"average_rating"`
-	RatingBreakdown RatingBreakdown  `json:"rating_breakdown"`
+	Reviews    []ReviewResponse `json:"reviews"`
+	Pagination PaginationInfo   `json:"pagination"`
 }

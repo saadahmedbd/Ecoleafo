@@ -9,3 +9,8 @@ type ReviewRepository struct {
 func NewReviewRepository(db *gorm.DB) *ReviewRepository {
 	return &ReviewRepository{db: db}
 }
+
+// GetDB returns the database instance
+func (r *ReviewRepository) GetDB() *gorm.DB {
+	return r.db
+}

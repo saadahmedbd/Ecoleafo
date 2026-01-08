@@ -1,12 +1,19 @@
 package reviewhandler
 
 import (
+	"encoding/json"
 	"net/http"
 	"strconv"
 
 	reviewdto "github.com/saadahmedbd/Treestore/Rest/DTO/ReviewDTO"
 	util "github.com/saadahmedbd/Treestore/Util"
 )
+
+// PublicAPIResponse represents the public API response structure
+type PublicAPIResponse struct {
+	Success bool        `json:"success"`
+	Data    interface{} `json:"data"`
+}
 
 // GetProductReviews - Get reviews for a product
 func (h *ReviewHandler) GetProductReviews(w http.ResponseWriter, r *http.Request) {
@@ -61,6 +68,14 @@ func (h *ReviewHandler) GetProductReviews(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	util.RespondJSON(w, http.StatusOK, reviews, "Review fetched successfully")
+	// Send response in the expected format
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
 
+	response := PublicAPIResponse{
+		Success: true,
+		Data:    reviews,
+	}
+
+	json.NewEncoder(w).Encode(response)
 }
