@@ -37,11 +37,10 @@ func (s *categoryService) CreateCategory(req categorydto.CreateCategoryRequest) 
 
 	// Create category model
 	category := &models.Category{
-		Name:            req.Name,
-		Slug:            slug,
-		Description:     req.Description,
-		Image:           req.Image,
-		Icon:            req.Icon,
+		Name:        req.Name,
+		Slug:        slug,
+		Description: req.Description,
+
 		ParentID:        req.ParentID,
 		SortOrder:       req.SortOrder,
 		IsFeatured:      req.IsFeatured,

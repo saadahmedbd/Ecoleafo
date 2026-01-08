@@ -16,6 +16,7 @@ func (h *CategoryHandler) CategoryRoute(mux *http.ServeMux) {
 	mux.Handle("GET /api/categories/featured", http.HandlerFunc(h.GetFeaturedCategories))
 	mux.Handle("GET /api/categories/tree", http.HandlerFunc(h.GetCategoryTree))
 	mux.Handle("GET /api/categories/breadcrumb", http.HandlerFunc(h.GetBreadcrumb))
+	mux.Handle("GET /api/categories/products", http.HandlerFunc(h.GetProductsByCategory))
 
 	//only admin routes (authentication required)
 	mux.Handle("POST /api/categories/create", middleware.Chain(http.HandlerFunc(h.CreateCategory),
@@ -29,7 +30,17 @@ func (h *CategoryHandler) CategoryRoute(mux *http.ServeMux) {
 		middleware.AuthenticateJWT,
 		middleware.Cors,
 	))
-	mux.Handle("DELETE /categories/delete", middleware.Chain(http.HandlerFunc(h.DeleteCategory),
+	mux.Handle("POST /api/categories/upload-image", middleware.Chain(http.HandlerFunc(h.UploadCategoryImage),
+		middleware.Logger,
+		middleware.AuthenticateJWT,
+		middleware.Cors,
+	))
+	mux.Handle("POST /api/categories/upload-icon", middleware.Chain(http.HandlerFunc(h.UploadCategoryIcon),
+		middleware.Logger,
+		middleware.AuthenticateJWT,
+		middleware.Cors,
+	))
+	mux.Handle("DELETE /api/categories/delete", middleware.Chain(http.HandlerFunc(h.DeleteCategory),
 		middleware.Logger,
 		middleware.AuthenticateJWT,
 		middleware.Cors,
