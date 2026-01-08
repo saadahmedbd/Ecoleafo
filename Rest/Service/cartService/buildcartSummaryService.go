@@ -12,10 +12,11 @@ func (s *cartService) buildCartSummary(buyerID uint, items []models.CartItem, ad
 	var cartItems []cartitem.CartItemResponse
 	var savedItems []cartitem.CartItemResponse
 
-	var subtotal, discount, totalSavings, shipping_cost float64
+	var subtotal, discount, totalSavings, shipping_cost, giftCharge float64
 
 	hasUnavailable := false
 	var unavailableItems []string
+	hasGiftItems := false
 
 	for _, item := range items {
 		var imageURLs []string
@@ -94,8 +95,14 @@ func (s *cartService) buildCartSummary(buyerID uint, items []models.CartItem, ad
 			cartItems = append(cartItems, itemResponse)
 			subtotal += itemSubtotal
 			discount += itemDiscount
-
+			if item.IsGift && item.IsSelected {
+				hasGiftItems = true
+			}
 		}
+	}
+
+	if hasGiftItems {
+		giftCharge = 50.0
 	}
 
 	totalSavings = discount
@@ -110,7 +117,8 @@ func (s *cartService) buildCartSummary(buyerID uint, items []models.CartItem, ad
 		Subtotal:            math.Round(subtotal),
 		Discount:            math.Round(discount),
 		ShippingCost:        shipping_cost,
-		TotalAmount:         math.Round(shipping_cost + total),
+		GiftCharge:          giftCharge,
+		TotalAmount:         math.Round(shipping_cost + total + giftCharge),
 		TotalSavings:        math.Round(totalSavings),
 		ItemCount:           len(cartItems),
 		SavedItemCount:      len(savedItems),

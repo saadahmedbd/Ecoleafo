@@ -11,6 +11,7 @@ type CartSummaryResponse struct {
 	Discount       float64 `json:"discount"`
 	Tax            float64 `json:"tax"`
 	ShippingCost   float64 `json:"shipping_cost"`
+	GiftCharge     float64 `json:"gift_charge"`
 	TotalAmount    float64 `json:"total_amount"`
 	TotalSavings   float64 `json:"total_savings"`
 
