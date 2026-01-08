@@ -38,6 +38,7 @@ func ToSellerProfileResponse(user *models.User, regUser *models.RegUser) *Seller
 		TotalEarnings: user.TotalEarnings,
 		TotalOrders:   user.TotalOrders,
 		AverageRating: user.AverageRating,
+		Commission:    user.Commission,
 
 		// Status
 		IsActive:        user.IsActive,

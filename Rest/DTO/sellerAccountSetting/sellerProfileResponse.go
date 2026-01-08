@@ -38,6 +38,7 @@ type SellerProfileResponse struct {
 	TotalEarnings float64 `json:"total_earnings"`
 	TotalOrders   int     `json:"total_orders"`
 	AverageRating float64 `json:"average_rating"`
+	Commission    float64 `json:"commission"`
 
 	// Status
 	IsActive        bool       `json:"is_active"`
