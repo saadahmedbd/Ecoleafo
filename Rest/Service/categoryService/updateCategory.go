@@ -28,12 +28,6 @@ func (s *categoryService) UpdateCategory(id uint, req categorydto.UpdateCategory
 	if req.Description != nil {
 		category.Description = *req.Description
 	}
-	if req.Image != nil {
-		category.Image = *req.Image
-	}
-	if req.Icon != nil {
-		category.Icon = *req.Icon
-	}
 	if req.ParentID != nil {
 		// Validate parent
 		if *req.ParentID == category.ID {
