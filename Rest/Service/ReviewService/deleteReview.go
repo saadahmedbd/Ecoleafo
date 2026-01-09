@@ -1,0 +1,57 @@
+package reviewservice
+
+import (
+	"errors"
+	"fmt"
+)
+
+// DeleteReview - Delete a review
+func (s *ReviewService) DeleteReview(reviewID, userID uint) error {
+	// Convert user_id to buyer_id
+	var buyer struct {
+		ID uint
+	}
+	err := s.reviewRepo.GetDB().Table("buyers").
+		Select("id").
+		Where("user_id = ?", userID).
+		Where("deleted_at IS NULL").
+		First(&buyer).Error
+
+	if err != nil {
+		return fmt.Errorf("buyer account not found")
+	}
+
+	buyerID := buyer.ID
+
+	// Check ownership
+	isOwner, err := s.reviewRepo.CheckReviewOwnership(reviewID, buyerID)
+	if err != nil {
+		return fmt.Errorf("failed to verify ownership: %w", err)
+	}
+	if !isOwner {
+		return errors.New("you can only delete your own reviews")
+	}
+
+	// Get review to update product stats later
+	review, err := s.reviewRepo.GetReviewByID(reviewID)
+	if err != nil {
+		return fmt.Errorf("failed to fetch review: %w", err)
+	}
+
+	// Delete review images
+	if err := s.reviewRepo.DeleteReviewImages(reviewID); err != nil {
+		return fmt.Errorf("failed to delete review images: %w", err)
+	}
+
+	// Delete review
+	if err := s.reviewRepo.DeleteReview(reviewID); err != nil {
+		return fmt.Errorf("failed to delete review: %w", err)
+	}
+
+	// Update product rating stats
+	if err := s.reviewRepo.UpdateProductRatingStats(review.ProductID); err != nil {
+		return fmt.Errorf("failed to update product stats: %w", err)
+	}
+
+	return nil
+}

@@ -1,0 +1,374 @@
+================================================================================
+                    ORDER SYSTEM API DOCUMENTATION
+================================================================================
+
+BASE URL: http://localhost:3000
+AUTHENTICATION: All endpoints require JWT Bearer token
+HEADERS: Authorization: Bearer {token}
+
+================================================================================
+                        BUYER ENDPOINTS
+================================================================================
+
+1. CREATE ORDER
+   POST /api/orders/create
+   Role: Buyer only
+   
+   Description:
+   - Creates order from active cart items
+   - Validates product stock availability
+   - Calculates commission (15%) for platform
+   - Generates unique order number
+   - Clears cart after successful order creation
+   
+   Request Body:
+   {
+     "payment_method": "cash_on_delivery",
+     "shipping_address": "123 Main St, City, State, ZIP",
+     "billing_address": "123 Main St, City, State, ZIP",
+     "customer_email": "buyer@example.com",
+     "customer_phone": "+1234567890",
+     "shipping_cost": 10.00,
+     "discount_amount": 2.00,
+     "notes": "Please deliver before 5 PM"
+   }
+   
+   Response:
+   {
+     "id": 1,
+     "order_number": "ORD-1234567890-52",
+     "buyer_id": 52,
+     "status": "pending",
+     "payment_status": "pending",
+     "payment_method": "cash_on_delivery",
+     "subtotal": 100.00,
+     "shipping_cost": 10.00,
+     "discount_amount": 2.00,
+     "total": 108.00,
+     "order_items": [
+       {
+         "id": 1,
+         "product_id": 5,
+         "product_name": "Product Name",
+         "quantity": 2,
+         "price": 50.00,
+         "total": 100.00,
+         "commission": 15.00,
+         "seller_earning": 85.00,
+         "status": "pending"
+       }
+     ]
+   }
+   
+   Notes:
+   - Cart must not be empty
+   - All products must be in stock
+   - Order number format: ORD-{timestamp}-{buyerID}
+
+--------------------------------------------------------------------------------
+
+2. GET MY ORDERS
+   GET /api/orders/my-orders?page=1&limit=10
+   Role: Buyer or Seller
+   
+   Description:
+   - Buyers see their purchase orders
+   - Sellers see orders containing their products
+   - Supports pagination
+   
+   Query Parameters:
+   - page: Page number (default: 1)
+   - limit: Items per page (default: 10)
+   
+   Response:
+   {
+     "orders": [
+       {
+         "id": 1,
+         "order_number": "ORD-1234567890-52",
+         "status": "pending",
+         "total": 108.00,
+         "created_at": "2025-01-12T10:30:00Z"
+       }
+     ],
+     "total": 5,
+     "page": 1,
+     "limit": 10
+   }
+
+--------------------------------------------------------------------------------
+
+3. CANCEL ORDER
+   POST /api/orders/cancel?id=3
+   Role: Buyer, Seller, Admin
+   
+   Description:
+   - Cancels an order and restores product stock
+   - Creates order history entry
+   - Only pending/processing orders can be cancelled
+   
+   Query Parameters:
+   - id: Order ID (required)
+   
+   Response:
+   {
+     "id": 3,
+     "order_number": "ORD-1234567890-52",
+     "status": "cancelled",
+     "total": 108.00
+   }
+   
+   Notes:
+   - Shipped/delivered orders cannot be cancelled
+   - Stock is automatically restored
+
+================================================================================
+                    COMMON ENDPOINTS (Buyer/Seller/Admin)
+================================================================================
+
+4. GET ORDER BY ID
+   GET /api/orders/get?id=4
+   Role: Buyer, Seller, Admin
+   
+   Description:
+   - Retrieves detailed order information
+   - Buyers can only view their own orders
+   - Sellers can view orders containing their products
+   - Admins can view all orders
+   
+   Query Parameters:
+   - id: Order ID (required)
+   
+   Response:
+   {
+     "id": 4,
+     "order_number": "ORD-1234567890-52",
+     "buyer_id": 52,
+     "status": "pending",
+     "payment_status": "pending",
+     "subtotal": 100.00,
+     "total": 108.00,
+     "order_items": [...],
+     "created_at": "2025-01-12T10:30:00Z"
+   }
+
+--------------------------------------------------------------------------------
+
+5. GET ORDER BY NUMBER
+   GET /api/orders/by-number?order_number=ORD-1234567890-52
+   Role: Buyer, Seller, Admin
+   
+   Description:
+   - Retrieves order using order number
+   - Same access rules as GET ORDER BY ID
+   
+   Query Parameters:
+   - order_number: Unique order number (required)
+   
+   Response: Same as GET ORDER BY ID
+
+--------------------------------------------------------------------------------
+
+6. GET ORDER HISTORY
+   GET /api/orders/history?id=4
+   Role: Buyer, Seller, Admin
+   
+   Description:
+   - Shows all status changes and updates for an order
+   - Includes who made the change and when
+   
+   Query Parameters:
+   - id: Order ID (required)
+   
+   Response:
+   [
+     {
+       "id": 1,
+       "status": "pending",
+       "comment": "order created",
+       "updated_by": "buyer_52",
+       "created_at": "2025-01-12T10:30:00Z"
+     },
+     {
+       "id": 2,
+       "status": "processing",
+       "comment": "Order confirmed by seller",
+       "updated_by": "John Doe",
+       "created_at": "2025-01-12T11:00:00Z"
+     }
+   ]
+
+================================================================================
+                    SELLER/ADMIN ENDPOINTS
+================================================================================
+
+7. UPDATE ORDER STATUS
+   POST /api/orders/update-status?id=4
+   Role: Seller, Admin
+   
+   Description:
+   - Updates order status (pending → processing → shipped → delivered)
+   - Creates order history entry
+   - Can add tracking number
+   
+   Query Parameters:
+   - id: Order ID (required)
+   
+   Request Body:
+   {
+     "status": "shipped",
+     "tracking_number": "TRACK123456",
+     "comment": "Package shipped via FedEx"
+   }
+   
+   Valid Status Values:
+   - pending
+   - processing
+   - shipped
+   - delivered
+   - cancelled
+   
+   Response: Updated order object
+
+--------------------------------------------------------------------------------
+
+8. UPDATE PAYMENT STATUS
+   POST /api/orders/update-payment?id=4
+   Role: Seller, Admin
+   
+   Description:
+   - Updates payment status
+   - Creates order history entry
+   
+   Query Parameters:
+   - id: Order ID (required)
+   
+   Request Body:
+   {
+     "payment_status": "paid"
+   }
+   
+   Valid Payment Status Values:
+   - pending
+   - paid
+   - failed
+   - refunded
+   
+   Response: Updated order object
+
+--------------------------------------------------------------------------------
+
+9. UPDATE ORDER ITEM STATUS
+   POST /api/orders/update-item-status
+   Role: Seller
+   
+   Description:
+   - Updates individual item status within an order
+   - Useful for multi-seller orders
+   - Creates order history entry
+   
+   Request Body:
+   {
+     "item_id": 456,
+     "status": "shipped",
+     "comment": "Item dispatched from warehouse"
+   }
+   
+   Response: Success message
+
+================================================================================
+                    ADMIN ENDPOINTS
+================================================================================
+
+10. GET ALL ORDERS
+    GET /api/orders/all?page=1&limit=20&status=pending&payment_status=paid
+    Role: Admin only
+    
+    Description:
+    - Retrieves all orders with filtering
+    - Supports pagination
+    
+    Query Parameters:
+    - page: Page number (default: 1)
+    - limit: Items per page (default: 20)
+    - status: Filter by order status (optional)
+    - payment_status: Filter by payment status (optional)
+    - buyer_id: Filter by buyer ID (optional)
+    
+    Response:
+    {
+      "orders": [...],
+      "total": 100,
+      "page": 1,
+      "limit": 20
+    }
+
+================================================================================
+                    ORDER STATUS FLOW
+================================================================================
+
+1. pending → Order created, awaiting seller confirmation
+2. processing → Seller confirmed, preparing items
+3. shipped → Order dispatched, tracking number assigned
+4. delivered → Order received by customer
+5. cancelled → Order cancelled (can happen at any stage before shipped)
+
+================================================================================
+                    PAYMENT STATUS FLOW
+================================================================================
+
+1. pending → Payment not yet received
+2. paid → Payment confirmed
+3. failed → Payment attempt failed
+4. refunded → Payment returned to customer
+
+================================================================================
+                    ERROR RESPONSES
+================================================================================
+
+Common Error Codes:
+- 400: Bad Request (invalid input, empty cart, insufficient stock)
+- 401: Unauthorized (missing or invalid token)
+- 403: Forbidden (wrong role)
+- 404: Not Found (order not found)
+- 500: Internal Server Error
+
+Error Response Format:
+Plain text error message
+
+================================================================================
+                    IMPORTANT NOTES
+================================================================================
+
+1. USER ID vs BUYER ID:
+   - JWT contains RegUser.ID (user_id)
+   - Orders are linked to Buyer.ID (buyer_id)
+   - System automatically converts user_id to buyer_id
+
+2. COMMISSION CALCULATION:
+   - Platform takes 15% commission on each item
+   - Commission = item_total * 0.15
+   - Seller earning = item_total - commission
+
+3. STOCK MANAGEMENT:
+   - Stock is reduced when order is created
+   - Stock is restored when order is cancelled
+   - Stock validation happens before order creation
+
+4. ORDER NUMBER FORMAT:
+   - Pattern: ORD-{unix_timestamp}-{buyer_id}
+   - Example: ORD-1234567890-52
+   - Unique for each order
+
+5. CART BEHAVIOR:
+   - Cart is automatically cleared after successful order
+   - Only active cart items are included (not saved for later)
+
+6. ACCESS CONTROL:
+   - Buyers can only access their own orders
+   - Sellers can access orders containing their products
+   - Admins can access all orders
+
+================================================================================
+                    END OF DOCUMENTATION
+================================================================================
