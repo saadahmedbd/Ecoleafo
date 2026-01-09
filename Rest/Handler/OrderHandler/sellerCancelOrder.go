@@ -1,0 +1,80 @@
+package orderhandler
+
+import (
+	"net/http"
+	"strconv"
+
+	util "github.com/saadahmedbd/Treestore/Util"
+	"github.com/saadahmedbd/Treestore/constants"
+)
+
+func (h *OrderHandler) SellerCancelOrder(w http.ResponseWriter, r *http.Request) {
+	// Get user data from context
+	ctxUserID := r.Context().Value(constants.ContextKeyUserID)
+	ctxRoles := r.Context().Value(constants.ContextKeyRole)
+
+	if ctxUserID == nil || ctxRoles == nil {
+		http.Error(w, `{"error":"unauthorized"}`, http.StatusUnauthorized)
+		return
+	}
+
+	// Convert roles
+	roleList, ok := ctxRoles.([]interface{})
+	if !ok {
+		http.Error(w, "Invalid role type", http.StatusInternalServerError)
+		return
+	}
+
+	// Check if buyer
+	isBuyer := false
+	for _, raw := range roleList {
+		if r, ok := raw.(string); ok && r == "seller" {
+			isBuyer = true
+			break
+		}
+	}
+
+	if !isBuyer {
+		http.Error(w, "Only seller can access this", http.StatusForbidden)
+		return
+	}
+
+	// Convert user id
+	uid, ok := ctxUserID.(uint)
+	if !ok {
+		http.Error(w, `{"error":"Invalid user ID type"}`, http.StatusInternalServerError)
+		return
+	}
+
+	// Convert reguser.id → buyer.id
+	sellerID, err := getSellerID(uid)
+	if err != nil {
+		http.Error(w, `{"error":"seller account not found"}`, http.StatusNotFound)
+		return
+	}
+
+	//take first name last name by jwt token
+	claims, _ := r.Context().Value("claims").(map[string]interface{})
+	firstName, _ := claims["first_name"].(string)
+	lastName, _ := claims["last_name"].(string)
+	username := firstName + " " + lastName
+
+	orderId := r.URL.Query().Get("id")
+	if orderId == "" {
+		http.Error(w, "order id is required", http.StatusBadRequest)
+		return
+	}
+	id, err := strconv.Atoi(orderId)
+	if err != nil {
+		http.Error(w, "Invalid order id", http.StatusBadRequest)
+		return
+	}
+	order, err := h.orderService.CancelOrder(uint(id), uint(sellerID), "seller", username)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	util.SendData(w, order, 200)
+
+}

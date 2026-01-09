@@ -1,0 +1,292 @@
+
+// ============================================================================
+// API DOCUMENTATION & USAGE EXAMPLES
+// ============================================================================
+
+
+=============================================================================
+CATEGORY MANAGEMENT API - COMPLETE GUIDE
+=============================================================================
+
+FEATURES:
+✅ Hierarchical category structure (unlimited nesting)
+✅ SEO-friendly slugs
+✅ Featured categories for homepage
+✅ Active/inactive status control
+✅ Sort order management
+✅ Product count tracking
+✅ Breadcrumb navigation
+✅ Full-text search
+✅ Circular reference prevention
+✅ Cascade delete protection
+
+=============================================================================
+PUBLIC ENDPOINTS (No Authentication Required)
+=============================================================================
+
+1. GET ALL CATEGORIES (with filters and pagination)
+---------------------------------------------------
+GET /api/categories?page=1&limit=20&is_featured=true&search=phone&is_active=true
+
+Query Parameters:
+- page: Page number (default: 1)
+- limit: Items per page (default: 20)
+- is_featured: Filter featured categories (true/false)
+- is_active: Filter active categories (true/false)
+- parent_id: Filter by parent category (null for root categories)
+- search: Search in name and description
+
+Response:
+{
+  "status": "success",
+  "message": "Categories retrieved successfully",
+  "data": {
+    "categories": [
+      {
+        "id": 1,
+        "name": "Electronics",
+        "slug": "electronics",
+        "description": "Electronic devices and gadgets",
+        "image": "https://example.com/electronics.jpg",
+        "icon": "fa-laptop",
+        "parent_id": null,
+        "sort_order": 1,
+        "is_featured": true,
+        "is_active": true,
+        "product_count": 150,
+        "meta_title": "Electronics | Your Store",
+        "created_at": "2025-10-01T10:00:00Z",
+        "children": [
+          {
+            "id": 5,
+            "name": "Laptops",
+            "slug": "laptops",
+            "icon": "fa-laptop"
+          }
+        ]
+      }
+    ],
+    "pagination": {
+      "total": 45,
+      "page": 1,
+      "limit": 20,
+      "total_pages": 3
+    }
+  }
+}
+
+2. GET CATEGORY BY ID
+---------------------
+GET /api/categories/get?id=1
+
+Response: Single category with parent and children
+
+3. GET CATEGORY BY SLUG (SEO-friendly)
+---------------------------------------
+GET /api/categories/slug?slug=electronics
+
+Response: Single category object
+
+4. GET ROOT CATEGORIES
+----------------------
+GET /api/categories/root
+
+Returns: All top-level categories (no parent)
+Use Case: Main navigation menu
+
+5. GET SUBCATEGORIES
+--------------------
+GET /api/categories/subcategories?parent_id=1
+
+Returns: All child categories of a parent
+Use Case: Dropdown menus, category pages
+
+6. GET FEATURED CATEGORIES
+--------------------------
+GET /api/categories/featured?limit=8
+
+Returns: Featured categories for homepage
+Use Case: Homepage category showcase
+
+7. GET CATEGORY TREE (Hierarchical)
+-----------------------------------
+GET /api/categories/tree
+
+Returns: Complete category hierarchy
+{
+  "data": [
+    {
+      "id": 1,
+      "name": "Electronics",
+      "slug": "electronics",
+      "icon": "fa-laptop",
+      "children": [
+        {
+          "id": 2,
+          "name": "Computers",
+          "slug": "computers",
+          "children": [
+            {
+              "id": 3,
+              "name": "Laptops",
+              "slug": "laptops",
+              "children": []
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
+
+Use Case: Mega menus, sitemap generation
+
+8. GET BREADCRUMB
+-----------------
+GET /api/categories/breadcrumb?id=5
+
+Returns: Path from root to current category
+{
+  "data": [
+    {"id": 1, "name": "Electronics", "slug": "electronics"},
+    {"id": 2, "name": "Computers", "slug": "computers"},
+    {"id": 5, "name": "Laptops", "slug": "laptops"}
+  ]
+}
+
+Use Case: Breadcrumb navigation on product/category pages
+
+=============================================================================
+ADMIN ENDPOINTS (Authentication Required - Admin Role)
+=============================================================================
+
+9. CREATE CATEGORY
+------------------
+POST /api/categories/create
+Headers: Authorization: Bearer <admin_token>
+
+Body:
+{
+  "name": "Smart Phones",
+  "description": "Latest smartphones and accessories",
+  "image": "https://example.com/phones.jpg",
+  "icon": "fa-mobile",
+  "parent_id": 1,
+  "sort_order": 10,
+  "is_featured": true,
+  "is_active": true,
+  "meta_title": "Smart Phones | Shop Now",
+  "meta_description": "Browse our collection of smartphones",
+  "meta_keywords": "phones, smartphones, mobile"
+}
+
+Response: Created category with auto-generated slug
+
+10. UPDATE CATEGORY
+-------------------
+PUT /api/categories/update?id=5
+Headers: Authorization: Bearer <admin_token>
+
+Body (all fields optional):
+{
+  "name": "Smartphones & Tablets",
+  "description": "Updated description",
+  "is_featured": false,
+  "sort_order": 5
+}
+
+Response: Updated category object
+
+11. DELETE CATEGORY
+-------------------
+DELETE /api/categories/delete?id=5
+Headers: Authorization: Bearer <admin_token>
+
+Protection Rules:
+- Cannot delete if has subcategories
+- Cannot delete if has products
+- Soft delete (can be restored)
+
+Response:
+{
+  "status": "success",
+  "message": "Category deleted successfully"
+}
+
+12. REORDER CATEGORIES (Drag & Drop)
+------------------------------------
+POST /api/categories/reorder
+Headers: Authorization: Bearer <admin_token>
+
+Body:
+[
+  {"id": 1, "sort_order": 1},
+  {"id": 2, "sort_order": 2},
+  {"id": 3, "sort_order": 3}
+]
+
+Use Case: Admin panel drag-and-drop reordering
+
+=============================================================================
+REAL-WORLD USE CASES
+=============================================================================
+
+1. HOMEPAGE FEATURED CATEGORIES:
+   GET /api/categories/featured?limit=8
+
+2. MAIN NAVIGATION MENU:
+   GET /api/categories/tree
+
+3. CATEGORY PAGE WITH SUBCATEGORIES:
+   GET /api/categories/slug?slug=electronics
+
+4. PRODUCT PAGE BREADCRUMB:
+   GET /api/categories/breadcrumb?id=5
+
+5. SEARCH WITH CATEGORY FILTER:
+   GET /api/categories?search=phone&is_active=true
+
+6. MOBILE APP CATEGORY PICKER:
+   GET /api/categories/root
+   → GET /api/categories/subcategories?parent_id=X
+
+=============================================================================
+BUSINESS LOGIC & VALIDATIONS
+=============================================================================
+
+✅ Automatic slug generation from category name
+✅ Unique slug enforcement (adds number if duplicate)
+✅ Circular reference prevention (cannot be own parent)
+✅ Parent validation (must exist and be active)
+✅ Cascade delete protection (check children & products)
+✅ Product count tracking (includes subcategories)
+✅ SEO metadata support
+✅ Soft delete (recoverable)
+✅ Sort order for custom display sequence
+
+=============================================================================
+INDUSTRY STANDARDS FOLLOWED
+=============================================================================
+
+✅ RESTful API design
+✅ DTO pattern for data validation
+✅ Repository pattern for data access
+✅ Service layer for business logic
+✅ Separation of concerns
+✅ Hierarchical data structure (like Amazon)
+✅ SEO-friendly URLs with slugs
+✅ Pagination for large datasets
+✅ Flexible filtering and search
+✅ Admin role-based access control
+✅ Comprehensive error handling
+✅ Clean code with comments
+
+=============================================================================
+DATABASE OPTIMIZATION
+=============================================================================
+
+✅ Indexed slug for fast lookups
+✅ Recursive CTE for tree queries
+✅ Efficient parent-child relationships
+✅ Soft delete with deleted_at index
+✅ Product count caching option (future)

@@ -1,0 +1,150 @@
+ ============= COMPLETE FLOW DOCUMENTATION =============
+
+SELLER REGISTRATION & ONBOARDING FLOW:
+
+1. SELLER REGISTRATION (Public)
+   POST /api/seller/register
+   Request:
+   {
+     "email": "seller@example.com",
+     "password": "password123",
+     "confirm_password": "password123",
+     "first_name": "John",
+     "last_name": "Doe",
+     "store_name": "John's Plant Store",
+     "phone": "+880123456789",
+     "agree_to_terms": true
+   }
+   
+   Response:
+   {
+     "message": "Seller registered successfully. Please complete your profile to start selling.",
+     "seller_id": 24,
+     "user_id": 53,
+     "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+     "needs_setup": true,
+     "profile_status": {
+       "is_profile_complete": false,
+       "has_business_info": true,
+       "has_address": false,
+       "has_payment_method": false,
+       "is_approved": false,
+       "is_verified": false,
+       "can_add_products": false,
+       "missing_fields": ["address", "city", "state", "postal_code", "payment_method"],
+       "next_step": "complete_profile",
+       "approval_status": "pending"
+     }
+   }
+
+2. CHECK PROFILE STATUS (Protected)
+   GET /api/seller/profile/status
+   
+   Response shows what's missing and what needs to be done next
+
+3. COMPLETE BUSINESS PROFILE (Protected)
+   POST /api/seller/profile/complete
+   Request:
+   {
+     "business_email": "business@store.com",
+     "phone": "+880123456789",
+     "store_description": "We sell quality plants",
+     "business_type": "nursery",
+     "tax_number": "TAX123456",
+     "business_license": "LIC789012",
+     "address": "123 Main Street",
+     "city": "Dhaka",
+     "state": "Dhaka Division",
+     "country": "Bangladesh",
+     "postal_code": "1200"
+   }
+
+4. ADD PAYMENT METHOD (Protected)
+   POST /api/seller/payment-methods
+   Request:
+   {
+     "type": "bkash",
+     "account_name": "John Doe",
+     "account_number": "+880123456789",
+     "is_default": true
+   }
+   
+   OR for bank transfer:
+   {
+     "type": "bank_transfer",
+     "account_name": "John's Plant Store",
+     "account_number": "1234567890",
+     "bank_name": "Bangladesh Bank",
+     "bank_code": "BB001",
+     "routing_number": "123456789",
+     "is_default": true
+   }
+
+5. WAIT FOR ADMIN APPROVAL
+   - Profile status will show "wait_approval"
+   - Admin reviews and approves/rejects
+   - Seller gets notified
+
+6. START SELLING (After Approval)
+   - Profile status shows "can_sell"
+   - can_add_products: true
+   - Seller can now add products
+
+PROFILE MANAGEMENT ENDPOINTS:
+
+GET    /api/seller/profile                          - Get full profile
+GET    /api/seller/profile/status                   - Check completion status
+POST   /api/seller/profile/complete                 - Complete business profile
+PUT    /api/seller/store                            - Update store info/branding
+
+PAYMENT METHOD ENDPOINTS:
+
+GET    /api/seller/payment-methods                  - List all payment methods
+POST   /api/seller/payment-methods                  - Add new method
+PUT    /api/seller/payment-methods/{id}             - Update method
+DELETE /api/seller/payment-methods/{id}             - Delete method
+PUT    /api/seller/payment-methods/{id}/set-default - Set as default
+
+PROFILE COMPLETION STATES:
+
+1. needs_setup: true (Just registered)
+   - next_step: "complete_profile"
+   - Action: Complete business info and address
+
+2. has_business_info: true, has_address: true, has_payment_method: false
+   - next_step: "add_payment"
+   - Action: Add at least one payment method
+
+3. is_profile_complete: true, is_approved: false
+   - next_step: "wait_approval"
+   - Action: Wait for admin approval
+
+4. is_profile_complete: true, is_approved: true
+   - next_step: "can_sell"
+   - can_add_products: true
+   - Action: Start adding products
+
+5. is_approved: false, rejected_at: not null
+   - approval_status: "rejected"
+   - rejection_reason: "..." (why rejected)
+   - Action: Fix issues and request re-approval
+
+PAYMENT METHOD TYPES:
+- bank_transfer: Requires bank details
+- bkash: Mobile financial service
+- nagad: Mobile financial service
+- rocket: Mobile financial service
+
+ADMIN APPROVAL PROCESS (Separate admin endpoints needed):
+- POST /api/admin/sellers/{id}/approve
+- POST /api/admin/sellers/{id}/reject
+- GET /api/admin/sellers/pending
+
+SECURITY & VALIDATION:
+- Email uniqueness checked
+- Password minimum 8 characters
+- All fields validated
+- JWT required for all profile operations
+- Payment methods belong to seller
+- Cannot add products until approved
+

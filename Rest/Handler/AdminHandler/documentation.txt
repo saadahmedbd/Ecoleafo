@@ -1,0 +1,467 @@
+================================================================================
+                    ADMIN SYSTEM API DOCUMENTATION
+================================================================================
+
+BASE URL: http://localhost:3000
+AUTHENTICATION: Most endpoints require JWT Bearer token
+HEADERS: Authorization: Bearer {token}
+
+================================================================================
+                        PUBLIC ENDPOINTS
+================================================================================
+
+1. REGISTER ADMIN
+   POST /api/admin/register
+   Role: Public (requires valid invitation token)
+   
+   Description:
+   - Registers a new admin using invitation token
+   - Creates RegUser account and Admin profile
+   - Marks invitation as used
+   - Validates token expiration
+   
+   Request Body:
+   {
+     "token": "invitation-token-here",
+     "username": "johndoe",
+     "password": "SecurePass123",
+     "confirm_password": "SecurePass123",
+     "full_name": "John Doe",
+     "phone": "+1234567890"
+   }
+   
+   Response:
+   {
+     "id": 1,
+     "user_id": 10,
+     "email": "john@example.com",
+     "role": "admin",
+     "full_name": "John Doe",
+     "phone": "+1234567890",
+     "department": "Sales",
+     "can_manage_users": true,
+     "can_manage_products": true,
+     "can_manage_orders": true,
+     "can_view_reports": true,
+     "can_manage_settings": false,
+     "is_active": true,
+     "created_at": "2025-01-12T10:30:00Z"
+   }
+   
+   Notes:
+   - Token must be valid and not expired
+   - Token can only be used once
+   - Password must be at least 8 characters
+
+--------------------------------------------------------------------------------
+
+2. VALIDATE INVITATION
+   GET /api/admin/validate-invitation?token=invitation-token-here
+   Role: Public
+   
+   Description:
+   - Validates invitation token before registration
+   - Returns invitation details if valid
+   
+   Query Parameters:
+   - token: Invitation token (required)
+   
+   Response:
+   {
+     "id": 1,
+     "email": "john@example.com",
+     "role": "admin",
+     "department": "Sales",
+     "invited_by": 1,
+     "expires_at": "2025-01-20T10:30:00Z",
+     "is_used": false
+   }
+   
+   Errors:
+   - "Token is required" (400)
+   - "Invalid or expired token" (500)
+
+================================================================================
+                    PROTECTED ENDPOINTS (Requires Authentication)
+================================================================================
+
+3. GET ADMIN PROFILE
+   GET /api/admin/profile
+   Role: Admin
+   
+   Description:
+   - Returns current logged-in admin's profile
+   - Uses user_id from JWT token
+   
+   Response:
+   {
+     "id": 1,
+     "user_id": 10,
+     "email": "admin@example.com",
+     "role": "admin",
+     "full_name": "John Doe",
+     "phone": "+1234567890",
+     "department": "Sales",
+     "can_manage_users": true,
+     "can_manage_products": true,
+     "can_manage_orders": true,
+     "can_view_reports": true,
+     "can_manage_settings": false,
+     "is_active": true
+   }
+
+--------------------------------------------------------------------------------
+
+4. GET ADMIN BY ID
+   GET /api/admin/get?id=5
+   Role: Admin
+   
+   Description:
+   - Retrieves specific admin details by ID
+   
+   Query Parameters:
+   - id: Admin ID (required)
+   
+   Response: Same as GET ADMIN PROFILE
+
+--------------------------------------------------------------------------------
+
+5. GET ALL ADMINS
+   GET /api/admin/all?page=1&limit=10
+   Role: Admin
+   
+   Description:
+   - Lists all admins with pagination
+   
+   Query Parameters:
+   - page: Page number (default: 1)
+   - limit: Items per page (default: 10)
+   
+   Response:
+   {
+     "admins": [
+       {
+         "id": 1,
+         "full_name": "John Doe",
+         "email": "john@example.com",
+         "role": "admin",
+         "department": "Sales",
+         "is_active": true
+       }
+     ],
+     "total": 25,
+     "page": 1,
+     "limit": 10
+   }
+
+--------------------------------------------------------------------------------
+
+6. UPDATE ADMIN
+   PUT /api/admin/update?id=5
+   Role: Admin (can only update own profile unless super_admin)
+   
+   Description:
+   - Updates admin profile information
+   - Regular admins can only update their own profile
+   - Super admins can update any admin profile
+   
+   Query Parameters:
+   - id: Admin ID (required)
+   
+   Request Body:
+   {
+     "full_name": "John Smith",
+     "phone": "+1234567890",
+     "department": "Marketing"
+   }
+   
+   Response: Updated admin object
+   
+   Notes:
+   - Cannot update role or permissions (use update-permissions)
+   - Self-update allowed for all admins
+   - Cross-update only for super_admin
+
+================================================================================
+                    SUPER ADMIN ENDPOINTS
+================================================================================
+
+7. CREATE INVITATION
+   POST /api/admin/invite
+   Role: Super Admin only
+   
+   Description:
+   - Creates invitation for new admin
+   - Generates unique token
+   - Sets expiration (7 days default)
+   - Sends invitation email (if configured)
+   
+   Request Body:
+   {
+     "email": "newadmin@example.com",
+     "role": "admin",
+     "department": "Sales"
+   }
+   
+   Response:
+   {
+     "id": 1,
+     "email": "newadmin@example.com",
+     "token": "unique-invitation-token",
+     "role": "admin",
+     "department": "Sales",
+     "invited_by": 1,
+     "expires_at": "2025-01-20T10:30:00Z",
+     "is_used": false
+   }
+   
+   Notes:
+   - Token expires in 7 days
+   - Email must not already exist
+   - Only super_admin can invite
+
+--------------------------------------------------------------------------------
+
+8. UPDATE PERMISSIONS
+   POST /api/admin/update-permissions?id=5
+   Role: Super Admin only
+   
+   Description:
+   - Updates admin permissions and role
+   - Only super_admin can modify permissions
+   
+   Query Parameters:
+   - id: Admin ID (required)
+   
+   Request Body:
+   {
+     "role": "admin",
+     "can_manage_users": true,
+     "can_manage_products": true,
+     "can_manage_orders": true,
+     "can_view_reports": true,
+     "can_manage_settings": false
+   }
+   
+   Response: Updated admin object
+   
+   Notes:
+   - Cannot modify super_admin permissions
+   - Cannot demote yourself if you're the only super_admin
+
+--------------------------------------------------------------------------------
+
+9. DEACTIVATE ADMIN
+   POST /api/admin/deactivate?id=5
+   Role: Super Admin only
+   
+   Description:
+   - Deactivates admin account
+   - Admin cannot login after deactivation
+   - Does not delete data
+   
+   Query Parameters:
+   - id: Admin ID (required)
+   
+   Response:
+   {
+     "message": "admin deactivate successful"
+   }
+   
+   Notes:
+   - Cannot deactivate yourself
+   - Cannot deactivate other super_admins
+
+--------------------------------------------------------------------------------
+
+10. ACTIVATE ADMIN
+    POST /api/admin/activate?id=5
+    Role: Super Admin only
+    
+    Description:
+    - Reactivates deactivated admin account
+    
+    Query Parameters:
+    - id: Admin ID (required)
+    
+    Response:
+    {
+      "message": "admin Activated successful"
+    }
+
+--------------------------------------------------------------------------------
+
+11. GET PENDING INVITATIONS
+    GET /api/admin/invitations
+    Role: Super Admin only
+    
+    Description:
+    - Lists all pending (unused) invitations
+    
+    Response:
+    [
+      {
+        "id": 1,
+        "email": "pending@example.com",
+        "role": "admin",
+        "department": "Sales",
+        "invited_by": 1,
+        "expires_at": "2025-01-20T10:30:00Z",
+        "is_used": false,
+        "created_at": "2025-01-13T10:30:00Z"
+      }
+    ]
+
+--------------------------------------------------------------------------------
+
+12. CANCEL INVITATION
+    DELETE /api/admin/cancel-invitation?id=5
+    Role: Super Admin only
+    
+    Description:
+    - Cancels pending invitation
+    - Invitation token becomes invalid
+    
+    Query Parameters:
+    - id: Invitation ID (required)
+    
+    Response:
+    {
+      "message": "Invitation cancelled success"
+    }
+    
+    Notes:
+    - Can only cancel unused invitations
+    - Cannot cancel expired invitations (already invalid)
+
+================================================================================
+                    ADMIN ROLES & PERMISSIONS
+================================================================================
+
+ROLES:
+1. super_admin
+   - Full system access
+   - Can manage all admins
+   - Can create/cancel invitations
+   - Can update permissions
+   - Can activate/deactivate admins
+
+2. admin
+   - Limited access based on permissions
+   - Can view own profile
+   - Can update own profile
+   - Cannot manage other admins
+
+PERMISSIONS:
+- can_manage_users: Create, update, delete users/buyers/sellers
+- can_manage_products: Create, update, delete products
+- can_manage_orders: View, update order status
+- can_view_reports: Access analytics and reports
+- can_manage_settings: Modify system settings (super_admin only)
+
+================================================================================
+                    SUPER ADMIN CREATION
+================================================================================
+
+INITIAL SETUP:
+Add to .env file:
+```
+SUPER_ADMIN_USERNAME=superadmin
+SUPER_ADMIN_EMAIL=admin@treestore.com
+SUPER_ADMIN_PASSWORD=YourSecurePassword123
+SUPER_ADMIN_FULLNAME=Super Administrator
+```
+
+On first startup:
+- System checks if super_admin exists
+- If not, creates one from environment variables
+- Super admin can then invite other admins
+
+LOGIN:
+POST /login
+{
+  "email": "admin@treestore.com",
+  "password": "YourSecurePassword123"
+}
+
+================================================================================
+                    INVITATION WORKFLOW
+================================================================================
+
+1. Super admin creates invitation
+   POST /api/admin/invite
+
+2. System generates unique token
+   Token expires in 7 days
+
+3. Invitation sent to email (if configured)
+   Contains registration link with token
+
+4. New admin validates token
+   GET /api/admin/validate-invitation?token=xxx
+
+5. New admin registers
+   POST /api/admin/register
+   {
+     "token": "xxx",
+     "username": "newadmin",
+     "password": "SecurePass123",
+     ...
+   }
+
+6. System creates RegUser + Admin profile
+   Marks invitation as used
+
+7. New admin can login
+   POST /login
+
+================================================================================
+                    ERROR RESPONSES
+================================================================================
+
+Common Error Codes:
+- 400: Bad Request (invalid input, missing fields)
+- 401: Unauthorized (missing or invalid token)
+- 403: Forbidden (insufficient permissions)
+- 404: Not Found (admin/invitation not found)
+- 500: Internal Server Error
+
+Error Response Format:
+Plain text error message
+
+================================================================================
+                    IMPORTANT NOTES
+================================================================================
+
+1. AUTHENTICATION:
+   - JWT token required for all protected endpoints
+   - Token contains user_id and role
+   - Admin role stored in JWT as "admin"
+
+2. AUTHORIZATION:
+   - Super admin: Full access to all endpoints
+   - Regular admin: Limited to own profile + assigned permissions
+
+3. INVITATION TOKENS:
+   - Valid for 7 days
+   - Single use only
+   - Cannot be reused after registration
+
+4. PROFILE UPDATES:
+   - Admins can update own profile
+   - Super admins can update any profile
+   - Cannot change role via update (use update-permissions)
+
+5. DEACTIVATION:
+   - Soft delete (data preserved)
+   - Cannot login when deactivated
+   - Can be reactivated by super admin
+
+6. PERMISSIONS:
+   - Set during invitation
+   - Can be modified by super admin
+   - Checked at service/handler level
+
+================================================================================
+                    END OF DOCUMENTATION
+================================================================================
