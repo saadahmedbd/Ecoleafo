@@ -502,7 +502,7 @@ This project is proprietary software. All rights reserved.
 
 **Saad Ahmed**
 - GitHub: [@saadahmedbd](https://github.com/saadahmedbd)
-- Email: saad@example.com
+- Email: saadahmedbd0@gmail.com
 
 ---
 
