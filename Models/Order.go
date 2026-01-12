@@ -30,10 +30,12 @@ type Order struct {
 	SellerEarnings   float64 `json:"seller_earnings" gorm:"type:decimal(10,2)"`
 
 	//customer information
-	ShippingAddress string `json:"shipping_address" gorm:"type:text;not null;default:'n/a"`
-	BillingAddress  string `json:"billing_address" gorm:"type:text"` // Added billing address
-	CustomerEmail   string `json:"customer_email" gorm:"size:100;not null"`
-	CustomerPhone   string `json:"customer_phone" gorm:"size:20"`
+	ShippingAddress      string `json:"shipping_address" gorm:"type:text;not null;default:'n/a"`
+	ShippingPhoneNumber  string `json:"shipping_phone_number" gorm:"size:20"`
+	BillingAddress       string `json:"billing_address" gorm:"type:text"` // Added billing address
+	BillingPhoneNumber   string `json:"billing_phone_number" gorm:"size:20"`
+	CustomerEmail        string `json:"customer_email" gorm:"size:100;not null"`
+	CustomerPhone        string `json:"customer_phone" gorm:"size:20"`
 	//cancelation/refund
 	CancellationReason string  `json:"cancellation_reason" gorm:"type:text"`
 	CancelledBy        string  `json:"cancelled_by" gorm:"size:20"` // buyer, seller, admin
