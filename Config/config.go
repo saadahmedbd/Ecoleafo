@@ -23,10 +23,12 @@ type Config struct {
 }
 
 func loadConfig() {
-	err := godotenv.Load()
-	if err != nil {
-		fmt.Println("Error loading .env file")
-		os.Exit(1)
+	// Only try to load .env in local development (not on Railway)
+	if os.Getenv("RAILWAY_ENVIRONMENT") == "" {
+		err := godotenv.Load()
+		if err != nil {
+			fmt.Println("No .env file found, using environment variables")
+		}
 	}
 
 	version := os.Getenv("VERSION")
@@ -39,9 +41,14 @@ func loadConfig() {
 		fmt.Println("requaird service name")
 		os.Exit(1)
 	}
-	httpPort := os.Getenv("HTTP_PORT")
+	// Check for PORT (Railway standard) first, then fallback to HTTP_PORT
+	httpPort := os.Getenv("PORT")
 	if httpPort == "" {
-		fmt.Println("requaird http port")
+		httpPort = os.Getenv("HTTP_PORT") // Fallback for local .env
+	}
+
+	if httpPort == "" {
+		fmt.Println("required http port") // Fixed typo 'requaird'
 		os.Exit(1)
 	}
 	Port, err := strconv.ParseInt(httpPort, 10, 64)
