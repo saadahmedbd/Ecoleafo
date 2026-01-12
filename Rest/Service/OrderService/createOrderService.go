@@ -27,6 +27,62 @@ func (s *orderService) CreateOrder(buyerID uint, req order.CreateOrderRequest) (
 		return nil, errors.New("buyer not found")
 	}
 
+	// Load RegUser to get phone if buyer.Phone is empty
+	if err := tx.Preload("RegUser").First(&buyer, buyerID).Error; err != nil {
+		tx.Rollback()
+		return nil, errors.New("failed to load buyer details")
+	}
+
+	// Fetch phone numbers from addresses if IDs provided
+	shippingPhone := req.ShippingPhoneNumber
+	if shippingPhone == "" && req.ShippingAddressID != nil {
+		var shippingAddr models.Address
+		if err := tx.First(&shippingAddr, "id = ? AND buyer_id = ?", *req.ShippingAddressID, buyerID).Error; err == nil {
+			shippingPhone = shippingAddr.Phone
+		}
+	}
+
+	billingPhone := req.BillingPhoneNumber
+	if billingPhone == "" && req.BillingAddressID != nil {
+		var billingAddr models.Address
+		if err := tx.First(&billingAddr, "id = ? AND buyer_id = ?", *req.BillingAddressID, buyerID).Error; err == nil {
+			billingPhone = billingAddr.Phone
+		}
+	}
+
+	// If still empty, try to get from default address
+	if shippingPhone == "" || billingPhone == "" {
+		var defaultAddr models.Address
+		if err := tx.First(&defaultAddr, "buyer_id = ? AND is_default = ?", buyerID, true).Error; err == nil {
+			if shippingPhone == "" {
+				shippingPhone = defaultAddr.Phone
+			}
+			if billingPhone == "" {
+				billingPhone = defaultAddr.Phone
+			}
+		}
+	}
+
+	// Fallback to buyer/regUser phone if still empty
+	defaultPhone := "N/A"
+	if buyer.Phone != "" && buyer.Phone != "N/A" {
+		defaultPhone = buyer.Phone
+	} else if buyer.RegUser != nil && buyer.RegUser.Phone != "" && buyer.RegUser.Phone != "N/A" {
+		defaultPhone = buyer.RegUser.Phone
+	}
+
+	if shippingPhone == "" {
+		shippingPhone = defaultPhone
+	}
+	if billingPhone == "" {
+		billingPhone = defaultPhone
+	}
+
+	customerPhone := req.CustomerPhone
+	if customerPhone == "" {
+		customerPhone = defaultPhone
+	}
+
 	cartItems, err := s.cartitemrepo.GetSelectedCartItems(buyerID)
 	if err != nil || len(cartItems) == 0 {
 		tx.Rollback()
@@ -67,24 +123,26 @@ func (s *orderService) CreateOrder(buyerID uint, req order.CreateOrderRequest) (
 	orderNumber := s.generateOrderNumber(buyerID)
 
 	newOrder := models.Order{
-		OrderNumber:     orderNumber,
-		BuyerID:         buyerID,
-		Status:          string(models.OrderPending),
-		PaymentStatus:   "pending",
-		PaymentMethod:   req.PaymentMethod,
-		Subtotal:        pricing.Subtotal,
-		ShippingCost:    pricing.ShippingCost,
-		DiscountAmount:  pricing.DiscountAmount,
-		TaxAmount:       pricing.TaxAmount,
-		Total:           pricing.Total,
-		ShippingAddress: req.ShippingAddress,
-		BillingAddress:  req.BuillingAddress,
-		CustomerEmail:   req.CustomerEmail,
-		CustomerPhone:   req.CustomerPhone,
-		Notes:           req.Notes,
-		IsGift:          isGift,
-		GiftMessage:     req.GiftMessage,
-		GiftCharge:      giftCharge,
+		OrderNumber:          orderNumber,
+		BuyerID:              buyerID,
+		Status:               string(models.OrderPending),
+		PaymentStatus:        "pending",
+		PaymentMethod:        req.PaymentMethod,
+		Subtotal:             pricing.Subtotal,
+		ShippingCost:         pricing.ShippingCost,
+		DiscountAmount:       pricing.DiscountAmount,
+		TaxAmount:            pricing.TaxAmount,
+		Total:                pricing.Total,
+		ShippingAddress:      req.ShippingAddress,
+		ShippingPhoneNumber:  shippingPhone,
+		BillingAddress:       req.BillingAddress,
+		BillingPhoneNumber:   billingPhone,
+		CustomerEmail:        req.CustomerEmail,
+		CustomerPhone:        customerPhone,
+		Notes:                req.Notes,
+		IsGift:               isGift,
+		GiftMessage:          req.GiftMessage,
+		GiftCharge:           giftCharge,
 	}
 
 	if err := tx.Create(&newOrder).Error; err != nil {
