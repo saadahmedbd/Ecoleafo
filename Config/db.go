@@ -16,10 +16,12 @@ var DB *gorm.DB
 
 // ConnectDatabase connects to PostgreSQL using GORM
 func Connect() {
-	// Load .env file
-	err := godotenv.Load()
-	if err != nil {
-		log.Fatal("Error loading .env file")
+	// Load .env file (optional for local development)
+	if os.Getenv("RAILWAY_ENVIRONMENT") == "" {
+		err := godotenv.Load()
+		if err != nil {
+			log.Println("No .env file found, using environment variables")
+		}
 	}
 	dsn := fmt.Sprintf(
 		"host=%s user=%s password=%s dbname=%s port=%s sslmode=%s client_encoding=UTF8",
