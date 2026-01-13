@@ -18,8 +18,7 @@ var DB *gorm.DB
 func Connect() {
 	// Load .env file (optional for local development)
 	if os.Getenv("RAILWAY_ENVIRONMENT") == "" {
-		err := godotenv.Load()
-		if err != nil {
+		if err := godotenv.Load(); err != nil {
 			log.Println("No .env file found, using environment variables")
 		}
 	}
@@ -32,6 +31,7 @@ func Connect() {
 		os.Getenv("DB_PORT"),
 		os.Getenv("DB_SSLMODE"),
 	)
+	var err error
 	DB, err = gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	if err != nil {
 		log.Fatal("Failed to connect to database:", err)
