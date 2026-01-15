@@ -35,7 +35,7 @@ type Buyer struct {
 	// Relationships
 	Role        Role       `json:"role" gorm:"foreignKey:RoleID"`
 	RegUser     *RegUser   `json:"reg_user" gorm:"foreignKey:UserId;references:ID"`
-	DefaultAddr *Address   `json:"default_addr,omitempty" gorm:"foreignKey:DefaultAddressID"` // Added add
+	DefaultAddr *Address   `json:"default_addr,omitempty" gorm:"foreignKey:DefaultAddressID;constraint:OnDelete:SET NULL;-:migration"` // Skip FK in migration
 	Orders      []Order    `json:"orders" gorm:"foreignKey:BuyerID"`
 	CartItems   []CartItem `json:"cart_items" gorm:"foreignKey:BuyerID"`
 	Reviews     []Review   `json:"reviews" gorm:"foreignKey:BuyerID"`
