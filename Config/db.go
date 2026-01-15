@@ -49,15 +49,27 @@ func Connect() {
 		&models.Admin{},
 		&models.AdminInvitation{},
 		&models.RefreshToken{},
-		&models.Buyer{},
-		&models.Address{},
 	)
 	if err != nil {
 		fmt.Println("Base tables migration failed:", err)
 		return
 	}
 
-	// Step 2: Create dependent tables
+	// Step 2: Create Buyer table (needed before Address)
+	err = DB.AutoMigrate(&models.Buyer{})
+	if err != nil {
+		fmt.Println("Buyer table migration failed:", err)
+		return
+	}
+
+	// Step 3: Create Address table (references Buyer)
+	err = DB.AutoMigrate(&models.Address{})
+	if err != nil {
+		fmt.Println("Address table migration failed:", err)
+		return
+	}
+
+	// Step 4: Create dependent tables
 	err = DB.AutoMigrate(
 		&models.Product{},
 		&models.Order{},
