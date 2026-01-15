@@ -50,6 +50,7 @@ func Connect() {
 		&models.AdminInvitation{},
 		&models.RefreshToken{},
 		&models.Buyer{},
+		&models.Address{},
 	)
 	if err != nil {
 		fmt.Println("Base tables migration failed:", err)
@@ -65,7 +66,6 @@ func Connect() {
 		&models.GuestCartItem{},
 		&models.Review{},
 		&models.Wishlist{},
-		&models.Address{},
 		&models.AuditLog{},
 		&models.ReviewImage{},
 		&models.ProductAttribute{},
