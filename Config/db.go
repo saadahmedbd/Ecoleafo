@@ -49,6 +49,7 @@ func Connect() {
 		&models.Admin{},
 		&models.AdminInvitation{},
 		&models.RefreshToken{},
+		&models.Buyer{},
 	)
 	if err != nil {
 		fmt.Println("Base tables migration failed:", err)
@@ -58,7 +59,6 @@ func Connect() {
 	// Step 2: Create dependent tables
 	err = DB.AutoMigrate(
 		&models.Product{},
-		&models.Buyer{},
 		&models.Order{},
 		&models.OrderItem{},
 		&models.CartItem{},
