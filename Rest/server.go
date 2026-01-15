@@ -152,6 +152,11 @@ func NewServer(
 
 func (server *Server) Start(cnf Config.Config) {
 	mux := http.NewServeMux()
+	// Health check
+	mux.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+		w.Write([]byte("OK"))
+	})
 	// router
 
 	server.buyerHandler.BuyerRoute(mux)
