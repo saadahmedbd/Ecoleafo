@@ -8,8 +8,14 @@ func Cors(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		origin := r.Header.Get("Origin")
 
-		// Allow frontend origins
-		if origin == "http://localhost:5173" || origin == "http://localhost:3000" {
+		// Allow specific origins with credentials
+		allowedOrigins := map[string]bool{
+			"http://localhost:5173": true,
+			"http://localhost:3000": true,
+			"https://ecoleafo.com":  true, // Replace with your actual domain
+		}
+
+		if allowedOrigins[origin] {
 			w.Header().Set("Access-Control-Allow-Origin", origin)
 			w.Header().Set("Access-Control-Allow-Credentials", "true")
 		} else if origin != "" {
