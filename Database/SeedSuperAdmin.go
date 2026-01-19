@@ -24,10 +24,20 @@ func SeedSuperAdminFromEnv(db *gorm.DB) error {
 	// Check if RegUser with this email already exists
 	var existingUser models.RegUser
 	if err := db.Where("email = ?", email).First(&existingUser).Error; err == nil {
-		// User exists, check if admin profile exists
+		// User exists, update password to match env
+		hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+		if err != nil {
+			return err
+		}
+		db.Model(&existingUser).Updates(map[string]interface{}{
+			"password":  string(hashedPassword),
+			"is_active": true,
+		})
+
+		// Check if admin profile exists
 		var existingAdmin models.Admin
 		if err := db.Where("user_id = ?", existingUser.ID).First(&existingAdmin).Error; err == nil {
-			log.Println("Super admin already exists")
+			log.Println("✅ Super admin password synced from env")
 			return nil
 		}
 		// User exists but no admin profile, create admin profile
