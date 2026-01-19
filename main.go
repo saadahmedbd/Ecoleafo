@@ -13,6 +13,8 @@ func main() {
 	// Run Auto Migration
 	Config.Connect()
 
+	// Seed roles
+	database.SeedRoles(Config.DB)
 	// Seed super admin
 	database.SeedSuperAdminFromEnv(Config.DB)
 	// Initialize Cloudinary service
