@@ -79,11 +79,25 @@ func loadConfig() {
 	}
 
 	googleRedirectURL := os.Getenv("GOOGLE_REDIRECT_URL")
+	// Auto-detect production environment
+	if os.Getenv("RAILWAY_ENVIRONMENT") != "" {
+		prodURL := os.Getenv("GOOGLE_REDIRECT_URL_PROD")
+		if prodURL != "" {
+			googleRedirectURL = prodURL
+		}
+	}
 	if googleRedirectURL == "" {
 		googleRedirectURL = "http://localhost:3000/auth/google/callback"
 	}
 
 	frontendURL := os.Getenv("FRONTEND_URL")
+	// Auto-detect production environment
+	if os.Getenv("RAILWAY_ENVIRONMENT") != "" {
+		prodURL := os.Getenv("FRONTEND_URL_PROD")
+		if prodURL != "" {
+			frontendURL = prodURL
+		}
+	}
 	if frontendURL == "" {
 		frontendURL = "http://localhost:5173"
 	}

@@ -9,7 +9,7 @@ import (
 
 func (r *sellerRegistrationRepository) GetSellerByEmail(email string) (*models.User, error) {
 	var seller models.User
-	err := r.db.Where("email = ?", email).First(&seller).Error
+	err := r.db.Where("business_email = ?", email).First(&seller).Error
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, nil
