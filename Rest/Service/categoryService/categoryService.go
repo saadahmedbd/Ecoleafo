@@ -13,6 +13,7 @@ type CategoryService interface {
 	GetCategoryByID(id uint) (*categorydto.CategoryResponse, error)
 	GetCategoryBySlug(slug string) (*categorydto.CategoryResponse, error)
 	GetAllCategories(filter categorydto.CategoryFilterRequest) ([]categorydto.CategoryResponse, int64, error)
+	GetCategoriesForSeller() ([]categorydto.CategoryResponse, error)
 	UpdateCategory(id uint, req categorydto.UpdateCategoryRequest) (*categorydto.CategoryResponse, error)
 	UpdateCategoryImage(id uint, imageURL string) (*categorydto.CategoryResponse, error)
 	UpdateCategoryIcon(id uint, iconURL string) (*categorydto.CategoryResponse, error)

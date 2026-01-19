@@ -9,6 +9,7 @@ import (
 func (h *CategoryHandler) CategoryRoute(mux *http.ServeMux) {
 	//public route no authentication required
 	mux.Handle("GET /api/categories", http.HandlerFunc(h.GetAllCategories))
+	mux.Handle("GET /api/categories/seller", http.HandlerFunc(h.GetCategoriesForSeller))
 	mux.Handle("GET /api/categories/get", http.HandlerFunc(h.GetCategoryByID))
 	mux.Handle("GET /api/categories/slug", http.HandlerFunc(h.GetCategoryBySlug))
 	mux.Handle("GET /api/categories/root", http.HandlerFunc(h.GetRootCategories))
