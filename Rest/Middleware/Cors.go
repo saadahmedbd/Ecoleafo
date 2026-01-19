@@ -10,10 +10,12 @@ func Cors(next http.Handler) http.Handler {
 
 		// Allow specific origins with credentials
 		allowedOrigins := map[string]bool{
-			"http://localhost:5173": true,
-			"http://localhost:3000": true,
-			"https://ecoleafo.com":  true,
-			"http://ecoleafo.com":   true,
+			"http://localhost:5173":     true,
+			"http://localhost:3000":     true,
+			"https://ecoleafo.com":      true,
+			"http://ecoleafo.com":       true,
+			"https://www.ecoleafo.com":  true,
+			"http://www.ecoleafo.com":   true,
 		}
 
 		if allowedOrigins[origin] {
