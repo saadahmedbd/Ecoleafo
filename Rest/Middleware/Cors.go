@@ -12,14 +12,13 @@ func Cors(next http.Handler) http.Handler {
 		allowedOrigins := map[string]bool{
 			"http://localhost:5173": true,
 			"http://localhost:3000": true,
-			"https://ecoleafo.com":  true, // Replace with your actual domain
+			"https://ecoleafo.com":  true,
+			"http://ecoleafo.com":   true,
 		}
 
 		if allowedOrigins[origin] {
 			w.Header().Set("Access-Control-Allow-Origin", origin)
 			w.Header().Set("Access-Control-Allow-Credentials", "true")
-		} else if origin != "" {
-			w.Header().Set("Access-Control-Allow-Origin", origin)
 		}
 
 		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, PATCH, DELETE, OPTIONS")
