@@ -60,11 +60,11 @@ func (h *Handler) AuthRouth(mux *http.ServeMux) {
 		middleware.AuthenticateJWT,
 	))
 	//google Oauth routes
-	mux.Handle("GET /auth/google/login", middleware.Chain(http.HandlerFunc(h.GoogleLoginInit),
+	mux.Handle("GET /api/auth/google/login", middleware.Chain(http.HandlerFunc(h.GoogleLoginInit),
 		middleware.Logger,
 		middleware.Cors,
 	))
-	mux.Handle("GET /auth/google/callback", middleware.Chain(http.HandlerFunc(h.GoogleCallback),
+	mux.Handle("GET /api/auth/google/callback", middleware.Chain(http.HandlerFunc(h.GoogleCallback),
 		middleware.Logger,
 		middleware.Cors,
 	))
