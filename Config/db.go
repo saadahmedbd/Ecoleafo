@@ -49,6 +49,7 @@ func Connect() {
 		&models.Admin{},
 		&models.AdminInvitation{},
 		&models.RefreshToken{},
+		&models.OAuthState{},
 	)
 	if err != nil {
 		fmt.Println("Base tables migration failed:", err)

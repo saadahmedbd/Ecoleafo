@@ -58,35 +58,17 @@ func (h *Handler) GoogleLoginInit(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Store state in cookie with role information
-	// Determine if we're in production (HTTPS)
-	isProduction := r.Header.Get("X-Forwarded-Proto") == "https" || r.TLS != nil
-	
-	http.SetCookie(w, &http.Cookie{
-		Name:     "oauth_state",
-		Value:    stateToken,
-		Path:     "/",
-		MaxAge:   600, // 10 minutes
-		HttpOnly: true,
-		Secure:   isProduction,
-		SameSite: http.SameSiteLaxMode,
-	})
-
-	// Store role in separate cookie
-	http.SetCookie(w, &http.Cookie{
-		Name:     "oauth_role",
-		Value:    role,
-		Path:     "/",
-		MaxAge:   600,
-		HttpOnly: true,
-		Secure:   isProduction,
-		SameSite: http.SameSiteLaxMode,
-	})
+	// Store state and role in database with expiry (industry standard for cross-domain)
+	oauthState := models.OAuthState{
+		State:     stateToken,
+		Role:      role,
+		ExpiresAt: time.Now().Add(10 * time.Minute),
+	}
+	h.service.db.Create(&oauthState)
 
 	// Get OAuth config and generate auth URL
 	oauthConfig := util.GetGoogleOAuthConfig()
-	url := oauthConfig.AuthCodeURL(stateToken) // Force account selection
-	// AccessType offline for refresh token
+	url := oauthConfig.AuthCodeURL(stateToken)
 
 	// Redirect to Google's OAuth consent page
 	http.Redirect(w, r, url, http.StatusTemporaryRedirect)
@@ -95,27 +77,25 @@ func (h *Handler) GoogleLoginInit(w http.ResponseWriter, r *http.Request) {
 // GoogleCallback handles the callback from Google OAuth
 // Endpoint: GET /auth/google/callback
 func (h *Handler) GoogleCallback(w http.ResponseWriter, r *http.Request) {
-	// Get state from cookie
-	stateCookie, err := r.Cookie("oauth_state")
-	if err != nil {
-		h.redirectToFrontendWithError(w, r, "missing state cookie")
-		return
-	}
-
-	// Get role from cookie
-	roleCookie, err := r.Cookie("oauth_role")
-	if err != nil {
-		h.redirectToFrontendWithError(w, r, "missing role information")
-		return
-	}
-	role := roleCookie.Value
-
-	// Verify state parameter (CSRF protection)
+	// Get state from query parameter
 	stateParam := r.URL.Query().Get("state")
-	if stateParam != stateCookie.Value {
-		h.redirectToFrontendWithError(w, r, "invalid state parameter")
+	if stateParam == "" {
+		h.redirectToFrontendWithError(w, r, "missing state parameter")
 		return
 	}
+
+	// Retrieve state from database
+	var oauthState models.OAuthState
+	err := h.service.db.Where("state = ? AND expires_at > ?", stateParam, time.Now()).First(&oauthState).Error
+	if err != nil {
+		h.redirectToFrontendWithError(w, r, "invalid or expired state")
+		return
+	}
+
+	role := oauthState.Role
+
+	// Delete used state
+	h.service.db.Delete(&oauthState)
 
 	// Get authorization code
 	code := r.URL.Query().Get("code")
@@ -145,20 +125,6 @@ func (h *Handler) GoogleCallback(w http.ResponseWriter, r *http.Request) {
 		h.redirectToFrontendWithError(w, r, err.Error())
 		return
 	}
-
-	// Clear OAuth cookies
-	http.SetCookie(w, &http.Cookie{
-		Name:   "oauth_state",
-		Value:  "",
-		Path:   "/",
-		MaxAge: -1,
-	})
-	http.SetCookie(w, &http.Cookie{
-		Name:   "oauth_role",
-		Value:  "",
-		Path:   "/",
-		MaxAge: -1,
-	})
 
 	// Redirect to frontend with tokens
 	h.redirectToFrontendWithSuccess(w, r, response)
