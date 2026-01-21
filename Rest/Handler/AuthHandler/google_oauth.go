@@ -59,13 +59,16 @@ func (h *Handler) GoogleLoginInit(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Store state in cookie with role information
+	// Determine if we're in production (HTTPS)
+	isProduction := r.Header.Get("X-Forwarded-Proto") == "https" || r.TLS != nil
+	
 	http.SetCookie(w, &http.Cookie{
 		Name:     "oauth_state",
 		Value:    stateToken,
 		Path:     "/",
 		MaxAge:   600, // 10 minutes
 		HttpOnly: true,
-		Secure:   false, // Set to true in production with HTTPS
+		Secure:   isProduction,
 		SameSite: http.SameSiteLaxMode,
 	})
 
@@ -76,7 +79,7 @@ func (h *Handler) GoogleLoginInit(w http.ResponseWriter, r *http.Request) {
 		Path:     "/",
 		MaxAge:   600,
 		HttpOnly: true,
-		Secure:   false,
+		Secure:   isProduction,
 		SameSite: http.SameSiteLaxMode,
 	})
 
