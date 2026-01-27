@@ -8,6 +8,7 @@ import (
 
 	models "github.com/saadahmedbd/Treestore/Models"
 	order "github.com/saadahmedbd/Treestore/Rest/DTO/Order"
+	util "github.com/saadahmedbd/Treestore/Util"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 )
@@ -358,6 +359,10 @@ func extractProductIDs(cartItems []models.CartItem) []uint {
 }
 
 func (s *orderService) sendOrderConfirmationEmail(order *models.Order, buyer *models.Buyer) {
+	emailService := util.NewEmailService()
+	if err := emailService.SendOrderPlacedEmail(order.CustomerEmail, order.OrderNumber, order.Total); err != nil {
+		fmt.Printf("Failed to send order confirmation email: %v\n", err)
+	}
 }
 
 func (s *orderService) notifySellers(order *models.Order) {

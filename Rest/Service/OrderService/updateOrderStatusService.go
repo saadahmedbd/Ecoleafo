@@ -78,5 +78,15 @@ func (s *orderService) UpdateOrderStatus(orderID, userID uint, userRole, usernam
 			return nil, fmt.Errorf("commission calculation failed: %v", err)
 		}
 	}
+
+	// Send confirmation email when order status changes to processing or shipped
+	fmt.Printf("[EMAIL DEBUG] Order status updated to: %s\n", req.Status)
+	if req.Status == string(models.OrderProcessing) || req.Status == string(models.OrderShipped) {
+		fmt.Printf("[EMAIL DEBUG] Triggering order status email for order %s\n", order.OrderNumber)
+		go s.sendOrderStatusEmail(order)
+	} else {
+		fmt.Printf("[EMAIL DEBUG] Status '%s' does not trigger email (needs 'processing' or 'shipped')\n", req.Status)
+	}
+
 	return s.mapToOrderResponse(order, userRole)
 }
