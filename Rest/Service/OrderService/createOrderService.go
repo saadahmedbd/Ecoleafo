@@ -370,6 +370,9 @@ func (s *orderService) sendOrderConfirmationEmail(order *models.Order, buyer *mo
 		fmt.Printf("[EMAIL SUCCESS] Order placed email sent to buyer\n")
 	}
 	
+	// Add small delay to avoid rate limiting
+	time.Sleep(2 * time.Second)
+	
 	// Send email to admin
 	adminEmail := os.Getenv("SUPER_ADMIN_EMAIL")
 	fmt.Printf("[EMAIL DEBUG] Admin email from env: '%s'\n", adminEmail)
@@ -388,6 +391,9 @@ func (s *orderService) sendOrderConfirmationEmail(order *models.Order, buyer *mo
 }
 
 func (s *orderService) notifySellers(order *models.Order) {
+	// Add delay before starting seller notifications to avoid rate limiting
+	time.Sleep(2 * time.Second)
+	
 	// Get order items with seller information
 	var orderItems []models.OrderItem
 	if err := s.db.Preload("Product").Where("order_id = ?", order.ID).Find(&orderItems).Error; err != nil {
@@ -401,7 +407,7 @@ func (s *orderService) notifySellers(order *models.Order) {
 		sellerItems[item.SellerID] = append(sellerItems[item.SellerID], item)
 	}
 	
-	// Send email to each seller
+	// Send email to each seller with delay between emails
 	emailService := util.NewEmailService()
 	for sellerID, items := range sellerItems {
 		// Get seller email
@@ -424,7 +430,12 @@ func (s *orderService) notifySellers(order *models.Order) {
 		
 		if err := emailService.SendNewOrderNotificationToSeller(seller.RegUser.Email, order.OrderNumber, len(items), itemTotal); err != nil {
 			fmt.Printf("Failed to send order notification to seller %d: %v\n", sellerID, err)
+		} else {
+			fmt.Printf("[EMAIL SUCCESS] Seller notification sent to seller %d\n", sellerID)
 		}
+		
+		// Add delay between seller emails to avoid rate limiting
+		time.Sleep(2 * time.Second)
 	}
 }
 
