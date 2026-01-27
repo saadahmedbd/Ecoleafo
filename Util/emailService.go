@@ -113,3 +113,51 @@ func (e *EmailService) SendOrderConfirmedEmail(to, orderNumber, status string) e
 
 	return e.SendEmail(to, subject, html)
 }
+
+func (e *EmailService) SendNewOrderNotificationToAdmin(to, orderNumber string, total float64, buyerEmail string) error {
+	subject := "New Order Received - " + orderNumber
+	logoURL := "https://res.cloudinary.com/ddylnmsou/image/upload/v1769519546/AIRetouch_20251205_124752325_mwsd4b.png"
+
+	html := fmt.Sprintf(`
+		<div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+			<div style="text-align: center; margin-bottom: 30px;">
+				<img src="%s" alt="Ecoleafo Logo" style="max-width: 150px; height: auto;" />
+			</div>
+			<h2 style="color: #FF9800; text-align: center;">New Order Received!</h2>
+			<p>A new order has been placed on your platform.</p>
+			<div style="background-color: #f5f5f5; padding: 20px; border-radius: 5px; margin: 20px 0;">
+				<p><strong>Order Number:</strong> %s</p>
+				<p><strong>Total Amount:</strong> ৳%.2f</p>
+				<p><strong>Customer Email:</strong> %s</p>
+			</div>
+			<p>Please review and process this order in the admin panel.</p>
+			<p style="color: #666; font-size: 12px; margin-top: 30px; text-align: center;">This is an automated email. Please do not reply.</p>
+		</div>
+	`, logoURL, orderNumber, total, buyerEmail)
+
+	return e.SendEmail(to, subject, html)
+}
+
+func (e *EmailService) SendNewOrderNotificationToSeller(to, orderNumber string, itemCount int, itemTotal float64) error {
+	subject := "New Order - " + orderNumber
+	logoURL := "https://res.cloudinary.com/ddylnmsou/image/upload/v1769519546/AIRetouch_20251205_124752325_mwsd4b.png"
+
+	html := fmt.Sprintf(`
+		<div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+			<div style="text-align: center; margin-bottom: 30px;">
+				<img src="%s" alt="Ecoleafo Logo" style="max-width: 150px; height: auto;" />
+			</div>
+			<h2 style="color: #4CAF50; text-align: center;">New Order for Your Products!</h2>
+			<p>Great news! You have received a new order.</p>
+			<div style="background-color: #f5f5f5; padding: 20px; border-radius: 5px; margin: 20px 0;">
+				<p><strong>Order Number:</strong> %s</p>
+				<p><strong>Items:</strong> %d</p>
+				<p><strong>Your Earnings:</strong> ৳%.2f</p>
+			</div>
+			<p>Please prepare the items for shipment. You can view order details in your seller dashboard.</p>
+			<p style="color: #666; font-size: 12px; margin-top: 30px; text-align: center;">This is an automated email. Please do not reply.</p>
+		</div>
+	`, logoURL, orderNumber, itemCount, itemTotal)
+
+	return e.SendEmail(to, subject, html)
+}

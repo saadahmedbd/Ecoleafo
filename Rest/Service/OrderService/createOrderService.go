@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"math"
+	"os"
 	"time"
 
 	models "github.com/saadahmedbd/Treestore/Models"
@@ -360,12 +361,59 @@ func extractProductIDs(cartItems []models.CartItem) []uint {
 
 func (s *orderService) sendOrderConfirmationEmail(order *models.Order, buyer *models.Buyer) {
 	emailService := util.NewEmailService()
+	// Send email to buyer
 	if err := emailService.SendOrderPlacedEmail(order.CustomerEmail, order.OrderNumber, order.Total); err != nil {
-		fmt.Printf("Failed to send order confirmation email: %v\n", err)
+		fmt.Printf("Failed to send order confirmation email to buyer: %v\n", err)
+	}
+	
+	// Send email to admin
+	adminEmail := os.Getenv("SUPER_ADMIN_EMAIL")
+	if adminEmail != "" {
+		if err := emailService.SendNewOrderNotificationToAdmin(adminEmail, order.OrderNumber, order.Total, order.CustomerEmail); err != nil {
+			fmt.Printf("Failed to send order notification to admin: %v\n", err)
+		}
 	}
 }
 
 func (s *orderService) notifySellers(order *models.Order) {
+	// Get order items with seller information
+	var orderItems []models.OrderItem
+	if err := s.db.Preload("Product").Where("order_id = ?", order.ID).Find(&orderItems).Error; err != nil {
+		fmt.Printf("Failed to load order items: %v\n", err)
+		return
+	}
+	
+	// Group items by seller
+	sellerItems := make(map[uint][]models.OrderItem)
+	for _, item := range orderItems {
+		sellerItems[item.SellerID] = append(sellerItems[item.SellerID], item)
+	}
+	
+	// Send email to each seller
+	emailService := util.NewEmailService()
+	for sellerID, items := range sellerItems {
+		// Get seller email
+		var seller models.User
+		if err := s.db.Preload("RegUser").First(&seller, sellerID).Error; err != nil {
+			fmt.Printf("Failed to load seller %d: %v\n", sellerID, err)
+			continue
+		}
+		
+		if seller.RegUser == nil || seller.RegUser.Email == "" {
+			fmt.Printf("Seller %d has no email\n", sellerID)
+			continue
+		}
+		
+		// Calculate total for this seller
+		var itemTotal float64
+		for _, item := range items {
+			itemTotal += item.SellerEarning
+		}
+		
+		if err := emailService.SendNewOrderNotificationToSeller(seller.RegUser.Email, order.OrderNumber, len(items), itemTotal); err != nil {
+			fmt.Printf("Failed to send order notification to seller %d: %v\n", sellerID, err)
+		}
+	}
 }
 
 func (s *orderService) recordOrderMetrics(order *models.Order) {
