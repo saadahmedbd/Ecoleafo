@@ -361,17 +361,29 @@ func extractProductIDs(cartItems []models.CartItem) []uint {
 
 func (s *orderService) sendOrderConfirmationEmail(order *models.Order, buyer *models.Buyer) {
 	emailService := util.NewEmailService()
+	
 	// Send email to buyer
+	fmt.Printf("[EMAIL] Sending order placed email to buyer: %s\n", order.CustomerEmail)
 	if err := emailService.SendOrderPlacedEmail(order.CustomerEmail, order.OrderNumber, order.Total); err != nil {
-		fmt.Printf("Failed to send order confirmation email to buyer: %v\n", err)
+		fmt.Printf("[EMAIL ERROR] Failed to send order confirmation email to buyer: %v\n", err)
+	} else {
+		fmt.Printf("[EMAIL SUCCESS] Order placed email sent to buyer\n")
 	}
 	
 	// Send email to admin
 	adminEmail := os.Getenv("SUPER_ADMIN_EMAIL")
-	if adminEmail != "" {
-		if err := emailService.SendNewOrderNotificationToAdmin(adminEmail, order.OrderNumber, order.Total, order.CustomerEmail); err != nil {
-			fmt.Printf("Failed to send order notification to admin: %v\n", err)
-		}
+	fmt.Printf("[EMAIL DEBUG] Admin email from env: '%s'\n", adminEmail)
+	
+	if adminEmail == "" {
+		fmt.Printf("[EMAIL WARNING] SUPER_ADMIN_EMAIL is not set in environment\n")
+		return
+	}
+	
+	fmt.Printf("[EMAIL] Sending admin notification to: %s\n", adminEmail)
+	if err := emailService.SendNewOrderNotificationToAdmin(adminEmail, order.OrderNumber, order.Total, order.CustomerEmail); err != nil {
+		fmt.Printf("[EMAIL ERROR] Failed to send order notification to admin: %v\n", err)
+	} else {
+		fmt.Printf("[EMAIL SUCCESS] Admin notification sent successfully\n")
 	}
 }
 
