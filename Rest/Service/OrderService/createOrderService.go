@@ -130,6 +130,7 @@ func (s *orderService) CreateOrder(buyerID uint, req order.CreateOrderRequest) (
 		Status:               string(models.OrderPending),
 		PaymentStatus:        "pending",
 		PaymentMethod:        req.PaymentMethod,
+		DeliveryType:         req.DeliveryType,
 		Subtotal:             pricing.Subtotal,
 		ShippingCost:         pricing.ShippingCost,
 		DiscountAmount:       pricing.DiscountAmount,
@@ -266,21 +267,18 @@ func (s *orderService) calculateOrderPricing(buyerID uint, cartItems []models.Ca
 }
 
 func (s *orderService) calculateShippingCost(address string, methodID uint, cartItems []models.CartItem, products map[uint]*models.Product) (float64, error) {
-	var subtotal float64
+	// Calculate total weight
+	var totalWeight float64
 	for _, item := range cartItems {
 		product := products[item.ProductID]
-		subtotal += product.Price * float64(item.Quantity)
+		totalWeight += product.Weight * float64(item.Quantity)
 	}
-
-	if subtotal >= s.config.FreeShippingThreshold {
-		return 0, nil
-	}
-
-	baseCost := 100.0
-	zone := s.getShippingZone(address)
-	cost := baseCost * s.getZoneMultiplier(zone)
-
-	return cost, nil
+	
+	// Use delivery charge calculator
+	deliveryCalc := util.NewDeliveryChargeCalculator()
+	shippingCost := deliveryCalc.CalculateDeliveryCharge(address, totalWeight)
+	
+	return shippingCost, nil
 }
 
 func (s *orderService) createOrderItems(tx *gorm.DB, order *models.Order, cartItems []models.CartItem, products map[uint]*models.Product) error {

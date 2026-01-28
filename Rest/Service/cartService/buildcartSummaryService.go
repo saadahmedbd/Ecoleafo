@@ -6,13 +6,14 @@ import (
 
 	models "github.com/saadahmedbd/Treestore/Models"
 	cartitem "github.com/saadahmedbd/Treestore/Rest/DTO/CartItem"
+	util "github.com/saadahmedbd/Treestore/Util"
 )
 
 func (s *cartService) buildCartSummary(buyerID uint, items []models.CartItem, address string) (*cartitem.CartSummaryResponse, error) {
 	var cartItems []cartitem.CartItemResponse
 	var savedItems []cartitem.CartItemResponse
 
-	var subtotal, discount, totalSavings, shipping_cost, giftCharge float64
+	var subtotal, discount, totalSavings, shipping_cost, giftCharge, totalWeight float64
 
 	hasUnavailable := false
 	var unavailableItems []string
@@ -95,6 +96,10 @@ func (s *cartService) buildCartSummary(buyerID uint, items []models.CartItem, ad
 			cartItems = append(cartItems, itemResponse)
 			subtotal += itemSubtotal
 			discount += itemDiscount
+			// Add weight for selected items
+			if item.IsSelected && item.Product.Weight > 0 {
+				totalWeight += item.Product.Weight * float64(item.Quantity)
+			}
 			if item.IsGift && item.IsSelected {
 				hasGiftItems = true
 			}
@@ -108,8 +113,22 @@ func (s *cartService) buildCartSummary(buyerID uint, items []models.CartItem, ad
 	totalSavings = discount
 	total := subtotal - discount
 
-	// Calculate shipping cost based on address
-	shipping_cost = s.calculateShipping(address, total)
+	// Calculate shipping cost and get delivery options
+	deliveryCalc := util.NewDeliveryChargeCalculator()
+	deliveryResult := deliveryCalc.GetDeliveryOptions(address, totalWeight)
+	shipping_cost = deliveryResult.HomeDelivery // Default to home delivery
+
+	// Convert delivery options
+	var deliveryOptions []cartitem.DeliveryOption
+	for _, opt := range deliveryResult.DeliveryOptions {
+		deliveryOptions = append(deliveryOptions, cartitem.DeliveryOption{
+			Type:        opt.Type,
+			Charge:      opt.Charge,
+			Available:   opt.Available,
+			Description: opt.Description,
+			Savings:     opt.Savings,
+		})
+	}
 
 	return &cartitem.CartSummaryResponse{
 		Items:               cartItems,
@@ -120,6 +139,8 @@ func (s *cartService) buildCartSummary(buyerID uint, items []models.CartItem, ad
 		GiftCharge:          giftCharge,
 		TotalAmount:         math.Round(shipping_cost + total + giftCharge),
 		TotalSavings:        math.Round(totalSavings),
+		TotalWeight:         totalWeight,
+		DeliveryOptions:     deliveryOptions,
 		ItemCount:           len(cartItems),
 		SavedItemCount:      len(savedItems),
 		HasUnavailableItems: hasUnavailable,
