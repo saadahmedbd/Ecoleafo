@@ -2,6 +2,7 @@ package order
 
 type CreateOrderRequest struct {
 	PaymentMethod         string `json:"payment_method" validate:"required,oneof=cash_on_delivery bkash card"`
+	DeliveryType          string `json:"delivery_type" validate:"required,oneof=home_delivery pickup_point"`
 	ShippingAddressID     *uint  `json:"shipping_address_id"`
 	BillingAddressID      *uint  `json:"billing_address_id"`
 	ShippingAddress       string `json:"shipping_address" validate:"required"`

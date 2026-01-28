@@ -43,9 +43,10 @@ type Order struct {
 	RefundReason       string  `json:"refund_reason" gorm:"type:text"`
 
 	//logistics information
-	TrackingNumber string     `json:"tracking_number" gorm:"size:100"` // Added tracking
-	ShippedAt      *time.Time `json:"shipped_at"`                      // Added shipping date
-	DeliveredAt    *time.Time `json:"delivered_at"`                    // Added delivery date
+	DeliveryType   string     `json:"delivery_type" gorm:"size:20;default:'home_delivery'"` // home_delivery, pickup_point
+	TrackingNumber string     `json:"tracking_number" gorm:"size:100"`                       // Added tracking
+	ShippedAt      *time.Time `json:"shipped_at"`                                            // Added shipping date
+	DeliveredAt    *time.Time `json:"delivered_at"`                                          // Added delivery date
 	OrderDate      time.Time  `json:"order_date"`
 	ConfirmedAt    *time.Time `json:"confirmed_at"`
 
