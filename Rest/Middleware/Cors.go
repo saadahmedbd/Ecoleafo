@@ -2,23 +2,48 @@ package middleware
 
 import (
 	"net/http"
+	"os"
+	"strings"
 )
+
+func isAllowedOrigin(origin string) bool {
+	if origin == "" {
+		return false
+	}
+
+	// Always allow local development
+	if strings.HasPrefix(origin, "http://localhost:") || strings.HasPrefix(origin, "http://127.0.0.1:") {
+		return true
+	}
+
+	// Allow production ecoleafo domains
+	if origin == "https://ecoleafo.com" || origin == "https://www.ecoleafo.com" || origin == "http://ecoleafo.com" || origin == "http://www.ecoleafo.com" {
+		return true
+	}
+
+	// Allow any Vercel deployment/preview (*.vercel.app)
+	if strings.HasSuffix(origin, ".vercel.app") {
+		return true
+	}
+
+	// Allow origins defined in ALLOWED_ORIGINS env variable
+	envOrigins := os.Getenv("ALLOWED_ORIGINS")
+	if envOrigins != "" {
+		for _, o := range strings.Split(envOrigins, ",") {
+			if strings.TrimSpace(o) == origin {
+				return true
+			}
+		}
+	}
+
+	return false
+}
 
 func Cors(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		origin := r.Header.Get("Origin")
 
-		// Allow specific origins with credentials
-		allowedOrigins := map[string]bool{
-			"http://localhost:5173":     true,
-			"http://localhost:3000":     true,
-			"https://ecoleafo.com":      true,
-			"http://ecoleafo.com":       true,
-			"https://www.ecoleafo.com":  true,
-			"http://www.ecoleafo.com":   true,
-		}
-
-		if allowedOrigins[origin] {
+		if isAllowedOrigin(origin) {
 			w.Header().Set("Access-Control-Allow-Origin", origin)
 			w.Header().Set("Access-Control-Allow-Credentials", "true")
 		}
